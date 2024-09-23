@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# My own (Egor) unnecessary files
+.vs/
+*.user
