@@ -34,3 +34,6 @@
 # My own (Egor) unnecessary files
 .vs/
 *.user
+x64/
+Python-Compiler/
+sample.flex.cpp
