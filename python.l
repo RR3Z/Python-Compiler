@@ -21,7 +21,7 @@
 \/ { PRINT_OPERATOR(); }
 \/\/ { PRINT_OPERATOR(); }
 \% { PRINT_OPERATOR(); }
-\@ { PRINT_OPERATOR(); } // ERROR: Used as delimiter (@decorator) and as operator (a = matrix1 @ matrix2)
+\@ { PRINT_OPERATOR(); } // Will be used only as operator (a = matrix1 @ matrix2)
 \<\< { PRINT_OPERATOR(); }
 \< { PRINT_OPERATOR(); }
 \>\> { PRINT_OPERATOR(); }
@@ -47,7 +47,6 @@
 \! { PRINT_DELIMITER(); }
 \. { PRINT_DELIMITER(); }
 \; { PRINT_DELIMITER(); }
-\@ { PRINT_DELIMITER(); } // ERROR: Used as delimiter (@decorator) and as operator (a = matrix1 @ matrix2)
 \= { PRINT_DELIMITER(); }
 \-\> { PRINT_DELIMITER(); }
 \+\= { PRINT_DELIMITER(); }
