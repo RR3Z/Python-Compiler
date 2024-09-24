@@ -7,7 +7,6 @@
 	extern yyFlexLexer *lexer = new yyFlexLexer();
 
 	#define PRINT_HARD_KEYWORD() std::cout << "Found hard keyword: " << lexer->YYText() << std::endl;
-	#define PRINT_SOFT_KEYWORD() std::cout << "Found soft keyword: " << lexer->YYText() << std::endl;
 	#define PRINT_OPERATOR() std::cout << "Found operator: " << lexer->YYText() << std::endl;
 	#define PRINT_DELIMITER() std::cout << "Found delimiter: " << lexer->YYText() << std::endl;
 	#define PRINT_ID() std::cout << "Found identifier: " << lexer->YYText() << std::endl;
@@ -100,11 +99,6 @@ try { PRINT_HARD_KEYWORD(); }
 while { PRINT_HARD_KEYWORD(); }
 with { PRINT_HARD_KEYWORD(); }
 yield { PRINT_HARD_KEYWORD(); }
-
-match { PRINT_SOFT_KEYWORD(); }
-case { PRINT_SOFT_KEYWORD(); }
-_ { PRINT_SOFT_KEYWORD(); }
-type { PRINT_SOFT_KEYWORD(); }
 
 [A-Za-z_][A-Za-z0-9_]*  { PRINT_ID(); }
 
