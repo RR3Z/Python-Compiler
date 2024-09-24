@@ -8,9 +8,61 @@
 
 	#define PRINT_HARD_KEYWORD() std::cout << "Found hard keyword: " << lexer->YYText();
 	#define PRINT_SOFT_KEYWORD() std::cout << "Found soft keyword: " << lexer->YYText();
+	#define PRINT_OPERATOR() std::cout << "Found operator: " << lexer->YYText();
+	#define PRINT_DELIMITER() std::cout << "Found delimiter: " << lexer->YYText();
 %}
 
 %%
+
+\+ { PRINT_OPERATOR(); }
+\- { PRINT_OPERATOR(); }
+\* { PRINT_OPERATOR(); }
+\*\* { PRINT_OPERATOR(); }
+\/ { PRINT_OPERATOR(); }
+\/\/ { PRINT_OPERATOR(); }
+\% { PRINT_OPERATOR(); }
+\@ { PRINT_OPERATOR(); } // ERROR: Used as delimiter (@decorator) and as operator (a = matrix1 @ matrix2)
+\<\< { PRINT_OPERATOR(); }
+\< { PRINT_OPERATOR(); }
+\>\> { PRINT_OPERATOR(); }
+\> { PRINT_OPERATOR(); }
+\>\= { PRINT_OPERATOR(); }
+\<\= { PRINT_OPERATOR(); }
+\& { PRINT_OPERATOR(); }
+\| { PRINT_OPERATOR(); }
+\^ { PRINT_OPERATOR(); }
+\~ { PRINT_OPERATOR(); }
+\:\= { PRINT_OPERATOR(); }
+\=\= { PRINT_OPERATOR(); }
+\!\= { PRINT_OPERATOR(); }
+
+\( { PRINT_DELIMITER(); }
+\) { PRINT_DELIMITER(); }
+\[ { PRINT_DELIMITER(); }
+\] { PRINT_DELIMITER(); }
+\{ { PRINT_DELIMITER(); }
+\} { PRINT_DELIMITER(); }
+\, { PRINT_DELIMITER(); }
+\: { PRINT_DELIMITER(); }
+\! { PRINT_DELIMITER(); }
+\. { PRINT_DELIMITER(); }
+\; { PRINT_DELIMITER(); }
+\@ { PRINT_DELIMITER(); } // ERROR: Used as delimiter (@decorator) and as operator (a = matrix1 @ matrix2)
+\= { PRINT_DELIMITER(); }
+\-\> { PRINT_DELIMITER(); }
+\+\= { PRINT_DELIMITER(); }
+\-\= { PRINT_DELIMITER(); }
+\*\= { PRINT_DELIMITER(); }
+\/\= { PRINT_DELIMITER(); }
+\/\/\= { PRINT_DELIMITER(); }
+\%\= { PRINT_DELIMITER(); }
+\@\= { PRINT_DELIMITER(); }
+\&\= { PRINT_DELIMITER(); }
+\|\= { PRINT_DELIMITER(); }
+\^\= { PRINT_DELIMITER(); }
+\>\>\= { PRINT_DELIMITER(); }
+\<\<\= { PRINT_DELIMITER(); }
+\*\*\= { PRINT_DELIMITER(); }
 
 False { PRINT_HARD_KEYWORD(); }     
 None { PRINT_HARD_KEYWORD(); }      
