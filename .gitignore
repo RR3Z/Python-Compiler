@@ -35,5 +35,5 @@
 *.user
 x64/
 Python-Compiler/
-sample.flex.cpp
+python.flex.cpp
 result.txt

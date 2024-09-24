@@ -15,11 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Flex Include="sample.l" />
+    <Flex Include="python.l">
+      <Filter>Исходные файлы</Filter>
+    </Flex>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="sample.flex.cpp">
+    <ClCompile Include="python.flex.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FlexLexer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

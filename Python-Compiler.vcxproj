@@ -19,14 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <Flex Include="sample.l">
-      <Cpp Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</Cpp>
-      <Debug Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</Debug>
-      <Wincompat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</Wincompat>
-    </Flex>
+    <Flex Include="python.l" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="sample.flex.cpp" />
+    <ClCompile Include="python.flex.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FlexLexer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -105,6 +104,9 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Message>copy /b python.flex.cpp +,,</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -135,6 +137,9 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Message>copy /b python.flex.cpp +,,</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
