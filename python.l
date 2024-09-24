@@ -106,6 +106,8 @@ case { PRINT_SOFT_KEYWORD(); }
 _ { PRINT_SOFT_KEYWORD(); }
 type { PRINT_SOFT_KEYWORD(); }
 
+[A-Za-z_][A-Za-z0-9_]*  { PRINT_ID(); }
+
 . {}
 %%
 
