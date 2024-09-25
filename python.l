@@ -4,6 +4,7 @@
 
 %{
 	#include <iostream>
+
 	extern yyFlexLexer *lexer = new yyFlexLexer();
 
 	#define PRINT_HARD_KEYWORD() std::cout << "Found hard keyword: " << lexer->YYText() << std::endl;
@@ -21,7 +22,7 @@
 \/ { PRINT_OPERATOR(); }
 \/\/ { PRINT_OPERATOR(); }
 \% { PRINT_OPERATOR(); }
-\@ { PRINT_OPERATOR(); } // Will be used only as operator (a = matrix1 @ matrix2)
+\@ { PRINT_OPERATOR(); }
 \<\< { PRINT_OPERATOR(); }
 \< { PRINT_OPERATOR(); }
 \>\> { PRINT_OPERATOR(); }
