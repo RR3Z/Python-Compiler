@@ -14,159 +14,27 @@
 
 	extern yyFlexLexer *lexer = new yyFlexLexer();
 
-	#define PRINT_HARD_KEYWORD() std::cout << "Found hard keyword: " << lexer->YYText() << std::endl;
-	#define PRINT_SOFT_KEYWORD() std::cout << "Found soft keyword: " << lexer->YYText() << std::endl;
-	#define PRINT_OPERATOR() std::cout << "Found operator: " << lexer->YYText() << std::endl;
-	#define PRINT_DELIMITER() std::cout << "Found delimiter: " << lexer->YYText() << std::endl;
-	#define PRINT_ID() std::cout << "Found identifier: " << lexer->YYText() << std::endl;
+    #define PRINT_EOF_ERROR(desc) cout << "ERROR: unexpected end of file" << desc << endl;
+	#define PRINT_HARD_KEYWORD() cout << "Found hard keyword: " << lexer->YYText() << endl;
+	#define PRINT_SOFT_KEYWORD() cout << "Found soft keyword: " << lexer->YYText() << endl;
+	#define PRINT_OPERATOR() cout << "Found operator: " << lexer->YYText() << endl;
+	#define PRINT_DELIMITER() cout << "Found delimiter: " << lexer->YYText() << endl;
+	#define PRINT_ID() cout << "Found identifier: " << lexer->YYText() << endl;
 %}
 
 
-%x STRING_SINGLE_QUOTES
-%x STRING_DOUBLE_QUOTES
-%x STRING_TRIPLE_SINGLE_QUOTES
-%x STRING_TRIPLE_DOUBLE_QUOTES
+%x INLINE_STRING_SINGLE_QUOTES
+%x INLINE_STRING_DOUBLE_QUOTES
+%x MULTILINE_STRING_SINGLE_QUOTES
+%x MULTILINE_STRING_DOUBLE_QUOTES
 
 
 %%
 
 %{
-
-char buffer[1024];
+char buffer[10240];
 string str;
-
 %}
-
-
-
-['"] {
-if(yytext[0] == '\''){
-BEGIN(STRING_SINGLE_QUOTES);
-}else{
-BEGIN(STRING_DOUBLE_QUOTES);
-}
-str.clear();
-}
-\'\'\' { BEGIN(STRING_TRIPLE_SINGLE_QUOTES); str.clear(); }
-\"\"\" { BEGIN(STRING_TRIPLE_DOUBLE_QUOTES); str.clear(); }
-
-<STRING_SINGLE_QUOTES>([^\\\"]|\\.)+ { str += yytext; }
-<STRING_DOUBLE_QUOTES>([^\\\"]|\\.)++ { str += yytext; }
-<STRING_TRIPLE_SINGLE_QUOTES>[^\\\']+ { str += yytext; }
-<STRING_TRIPLE_DOUBLE_QUOTES>[^\\\"]++ { str += yytext; }
-
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\\\ { str += '\\'; }
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\\' { str += '\''; }
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\\" { str += '\"'; }
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\a { str += '\a'; }
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\b { str += '\b'; }
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\f { str += '\f'; }
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\\\n { }
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\n { str += '\n'; }
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\r { str += '\r'; }
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\t { str += '\t'; }
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\v { str += '\v'; }
-
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\[0-7]{1,3} {
-    str += (char)strtol(yytext + 1, NULL, 8);  
-}
-
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\x[0-9a-fA-F]{2} {
-    str += (char)strtol(yytext + 2, NULL, 16); 
-}
-
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\u[0-9A-Fa-f]{0,4} {
-    if (strlen(yytext) < 4)
-    {
-        printf("ERROR: Illegal escape \'\\u\');
-    }
-    int value = strtol(yytext+2,NULL, 16);
-    if (value > 127)
-    {
-        printf("ERROR: non-supported UNICODE character);
-    }
-    else
-    {
-        str += value;
-    }
-}
-
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\U[0-9a-fA-F]{8} {
-    unsigned int codepoint = strtol(yytext + 2, NULL, 16);
-    str += (char)(codepoint & 0xFF); 
-}
-
-<STRING_SINGLE_QUOTES><STRING_DOUBLE_QUOTES><STRING_TRIPLE_SINGLE_QUOTES><STRING_TRIPLE_DOUBLE_QUOTES>\\N\{[^}]+\} {
-   str += yytext;
-}
-
-<STRING_SINGLE_QUOTES>\' { 
-    cout << "Found single-quoted string literal: " << str << endl; 
-    BEGIN(INITIAL); 
-}
-<STRING_DOUBLE_QUOTES>\" { 
-    cout << "Found double-quoted string literal: " << str << endl; 
-    BEGIN(INITIAL); 
-}
-<STRING_TRIPLE_SINGLE_QUOTES>\'\'\' { 
-    cout << "Found triple single-quoted string literal: " << str << endl; 
-    BEGIN(INITIAL); 
-}
-<STRING_TRIPLE_DOUBLE_QUOTES>\"\"\" { 
-    cout << "Found triple double-quoted string literal: " << str << endl; 
-    BEGIN(INITIAL); 
-}
-
-
-\+ { PRINT_OPERATOR(); }
-\- { PRINT_OPERATOR(); }
-\* { PRINT_OPERATOR(); }
-\*\* { PRINT_OPERATOR(); }
-\/ { PRINT_OPERATOR(); }
-\/\/ { PRINT_OPERATOR(); }
-\% { PRINT_OPERATOR(); }
-\@ { PRINT_OPERATOR(); } // ERROR: Used as delimiter (@decorator) and as operator (a = matrix1 @ matrix2)
-\<\< { PRINT_OPERATOR(); }
-\< { PRINT_OPERATOR(); }
-\>\> { PRINT_OPERATOR(); }
-\> { PRINT_OPERATOR(); }
-\>\= { PRINT_OPERATOR(); }
-\<\= { PRINT_OPERATOR(); }
-\& { PRINT_OPERATOR(); }
-\| { PRINT_OPERATOR(); }
-\^ { PRINT_OPERATOR(); }
-\~ { PRINT_OPERATOR(); }
-\:\= { PRINT_OPERATOR(); }
-\=\= { PRINT_OPERATOR(); }
-\!\= { PRINT_OPERATOR(); }
-
-\( { PRINT_DELIMITER(); }
-\) { PRINT_DELIMITER(); }
-\[ { PRINT_DELIMITER(); }
-\] { PRINT_DELIMITER(); }
-\{ { PRINT_DELIMITER(); }
-\} { PRINT_DELIMITER(); }
-\, { PRINT_DELIMITER(); }
-\: { PRINT_DELIMITER(); }
-\! { PRINT_DELIMITER(); }
-\. { PRINT_DELIMITER(); }
-\; { PRINT_DELIMITER(); }
-\@ { PRINT_DELIMITER(); } // ERROR: Used as delimiter (@decorator) and as operator (a = matrix1 @ matrix2)
-\= { PRINT_DELIMITER(); }
-\-\> { PRINT_DELIMITER(); }
-\+\= { PRINT_DELIMITER(); }
-\-\= { PRINT_DELIMITER(); }
-\*\= { PRINT_DELIMITER(); }
-\/\= { PRINT_DELIMITER(); }
-\/\/\= { PRINT_DELIMITER(); }
-\%\= { PRINT_DELIMITER(); }
-\@\= { PRINT_DELIMITER(); }
-\&\= { PRINT_DELIMITER(); }
-\|\= { PRINT_DELIMITER(); }
-\^\= { PRINT_DELIMITER(); }
-\>\>\= { PRINT_DELIMITER(); }
-\<\<\= { PRINT_DELIMITER(); }
-\*\*\= { PRINT_DELIMITER(); }
 
 False { PRINT_HARD_KEYWORD(); }     
 None { PRINT_HARD_KEYWORD(); }      
@@ -204,12 +72,128 @@ while { PRINT_HARD_KEYWORD(); }
 with { PRINT_HARD_KEYWORD(); }
 yield { PRINT_HARD_KEYWORD(); }
 
-match { PRINT_SOFT_KEYWORD(); }
-case { PRINT_SOFT_KEYWORD(); }
-_ { PRINT_SOFT_KEYWORD(); }
-type { PRINT_SOFT_KEYWORD(); }
+\+ { PRINT_OPERATOR(); }
+\- { PRINT_OPERATOR(); }
+\* { PRINT_OPERATOR(); }
+\*\* { PRINT_OPERATOR(); }
+\/ { PRINT_OPERATOR(); }
+\/\/ { PRINT_OPERATOR(); }
+\% { PRINT_OPERATOR(); }
+\@ { PRINT_OPERATOR(); }
+\<\< { PRINT_OPERATOR(); }
+\< { PRINT_OPERATOR(); }
+\>\> { PRINT_OPERATOR(); }
+\> { PRINT_OPERATOR(); }
+\>\= { PRINT_OPERATOR(); }
+\<\= { PRINT_OPERATOR(); }
+\& { PRINT_OPERATOR(); }
+\| { PRINT_OPERATOR(); }
+\^ { PRINT_OPERATOR(); }
+\~ { PRINT_OPERATOR(); }
+\:\= { PRINT_OPERATOR(); }
+\=\= { PRINT_OPERATOR(); }
+\!\= { PRINT_OPERATOR(); }
+
+\( { PRINT_DELIMITER(); }
+\) { PRINT_DELIMITER(); }
+\[ { PRINT_DELIMITER(); }
+\] { PRINT_DELIMITER(); }
+\{ { PRINT_DELIMITER(); }
+\} { PRINT_DELIMITER(); }
+\, { PRINT_DELIMITER(); }
+\: { PRINT_DELIMITER(); }
+\! { PRINT_DELIMITER(); }
+\. { PRINT_DELIMITER(); }
+\; { PRINT_DELIMITER(); }
+\= { PRINT_DELIMITER(); }
+\-\> { PRINT_DELIMITER(); }
+\+\= { PRINT_DELIMITER(); }
+\-\= { PRINT_DELIMITER(); }
+\*\= { PRINT_DELIMITER(); }
+\/\= { PRINT_DELIMITER(); }
+\/\/\= { PRINT_DELIMITER(); }
+\%\= { PRINT_DELIMITER(); }
+\@\= { PRINT_DELIMITER(); }
+\&\= { PRINT_DELIMITER(); }
+\|\= { PRINT_DELIMITER(); }
+\^\= { PRINT_DELIMITER(); }
+\>\>\= { PRINT_DELIMITER(); }
+\<\<\= { PRINT_DELIMITER(); }
+\*\*\= { PRINT_DELIMITER(); }
 
 [A-Za-z_][A-Za-z0-9_]*  { PRINT_ID(); }
+
+\' { BEGIN(INLINE_STRING_SINGLE_QUOTES);  str.clear(); cout << lexer->YYText() << endl;}
+\" { BEGIN(INLINE_STRING_DOUBLE_QUOTES);  str.clear(); }
+\'\'\' { BEGIN(MULTILINE_STRING_SINGLE_QUOTES); str.clear(); }
+\"\"\" { BEGIN(MULTILINE_STRING_DOUBLE_QUOTES); str.clear(); }
+
+<INLINE_STRING_SINGLE_QUOTES>[^\'\n]+ { str += lexer->YYText(); }
+<INLINE_STRING_DOUBLE_QUOTES>[^\"\n]+ { str += lexer->YYText(); }
+<MULTILINE_STRING_SINGLE_QUOTES>[^\']+ { str += lexer->YYText(); }
+<MULTILINE_STRING_DOUBLE_QUOTES>[^\"]+ { str += lexer->YYText(); }
+
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\[0-7]{1,3} {
+    cout << yytext + 1 << endl;
+    str += (char)stoi(yytext + 1, NULL, 8);
+}
+
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\x[0-9a-fA-F]{2} {
+    str += (char)stoi(yytext + 2, NULL, 16);
+}
+
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\u[0-9A-Fa-f]{4} {
+    str += (char)stoi(yytext + 2, NULL, 16);
+}
+
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\U[0-9a-fA-F]{8} {
+    str += (char)stoi(yytext + 2, NULL, 16);
+}
+
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\\\ { str += "\\"; }
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\\' { str += "\'"; }
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\\" { str += "\""; }
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\a { str += "\a"; }
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\b { str += "\b"; }
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\f { str += "\f"; }
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\n { str += "\n"; }
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\r { str += "\r"; }
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\t { str += "\t"; }
+<INLINE_STRING_SINGLE_QUOTES><INLINE_STRING_DOUBLE_QUOTES><MULTILINE_STRING_SINGLE_QUOTES><MULTILINE_STRING_DOUBLE_QUOTES>\\v { str += "\v"; }
+
+<INLINE_STRING_SINGLE_QUOTES>\' { 
+    cout << "Found single-quoted string literal: " << str << endl; 
+    BEGIN(INITIAL); 
+}
+<INLINE_STRING_DOUBLE_QUOTES>\" { 
+    cout << "Found double-quoted string literal: " << str << endl; 
+    BEGIN(INITIAL); 
+}
+<MULTILINE_STRING_SINGLE_QUOTES>\'\'\' { 
+    cout << "Found triple single-quoted string literal: " << str << endl; 
+    BEGIN(INITIAL); 
+}
+<MULTILINE_STRING_DOUBLE_QUOTES>\"\"\" { 
+    cout << "Found triple double-quoted string literal: " << str << endl; 
+    BEGIN(INITIAL); 
+}
+
+<MULTILINE_STRING_DOUBLE_QUOTES><<EOF>> { 
+    PRINT_EOF_ERROR("(string literal not closed)");
+    BEGIN(INITIAL);
+}
+<MULTILINE_STRING_DOUBLE_QUOTES><<EOF>> { 
+    PRINT_EOF_ERROR("(string literal not closed)");
+    BEGIN(INITIAL);
+}
+<MULTILINE_STRING_SINGLE_QUOTES><<EOF>> { 
+    PRINT_EOF_ERROR("(string literal not closed)");
+    BEGIN(INITIAL);
+}
+<MULTILINE_STRING_DOUBLE_QUOTES><<EOF>> { 
+    PRINT_EOF_ERROR("(string literal not closed)");
+    BEGIN(INITIAL);
+}
 
 . {}
 %%
