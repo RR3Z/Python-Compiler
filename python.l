@@ -118,10 +118,26 @@ yield { PRINT_HARD_KEYWORD(); }
 
 [A-Za-z_][A-Za-z0-9_]*  { PRINT_ID(); }
 
-\' { BEGIN(INLINE_STRING_SINGLE_QUOTES);  str.clear(); lineBegin = lexer->lineno(); }
-\" { BEGIN(INLINE_STRING_DOUBLE_QUOTES);  str.clear(); lineBegin = lexer->lineno(); }
-\'\'\' { BEGIN(MULTILINE_STRING_SINGLE_QUOTES); str.clear(); multilineBegin = lexer->lineno(); }
-\"\"\" { BEGIN(MULTILINE_STRING_DOUBLE_QUOTES); str.clear(); multilineBegin = lexer->lineno(); }
+\' { 
+    BEGIN(INLINE_STRING_SINGLE_QUOTES);  
+    str.clear(); 
+    lineBegin = lexer->lineno(); 
+}
+\" { 
+    BEGIN(INLINE_STRING_DOUBLE_QUOTES);  
+    str.clear(); 
+    lineBegin = lexer->lineno(); 
+}
+\'\'\' { 
+    BEGIN(MULTILINE_STRING_SINGLE_QUOTES); 
+    str.clear(); 
+    multilineBegin = lexer->lineno(); 
+}
+\"\"\" { 
+    BEGIN(MULTILINE_STRING_DOUBLE_QUOTES); 
+    str.clear(); 
+    multilineBegin = lexer->lineno();
+}
 
 <INLINE_STRING_SINGLE_QUOTES>[^\\\'\n]+ { str += lexer->YYText(); }
 <INLINE_STRING_DOUBLE_QUOTES>[^\\\"\n]+ { str += lexer->YYText(); }
