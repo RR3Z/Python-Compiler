@@ -144,19 +144,19 @@ yield { PRINT_HARD_KEYWORD(); }
 <INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\U[0-9a-fA-F]{8} { str += (char)stoi(yytext + 2, NULL, 16); }
 
 <INLINE_STRING_SINGLE_QUOTES>\' {
-    PRINT_MESSAGE("Found inline single-quoted string literal: " + str)
+    PRINT_MESSAGE("Found inline single-quoted string literal: " + str);
     BEGIN(INITIAL); 
 }
 <INLINE_STRING_DOUBLE_QUOTES>\" {
-    PRINT_MESSAGE("Found inline double-quoted string literal: " + str)
+    PRINT_MESSAGE("Found inline double-quoted string literal: " + str);
     BEGIN(INITIAL); 
 }
 <MULTILINE_STRING_SINGLE_QUOTES>\'{3} {
-    PRINT_MESSAGE("Found multiline single-quoted string literal:\n" + str)
+    PRINT_MESSAGE("Found multiline single-quoted string literal:\n" + str);
     BEGIN(INITIAL); 
 }
 <MULTILINE_STRING_DOUBLE_QUOTES>\"{3} {
-    PRINT_MESSAGE("Found multiline double-quoted string literal:\n" + str)
+    PRINT_MESSAGE("Found multiline double-quoted string literal:\n" + str);
     BEGIN(INITIAL); 
 }
 
