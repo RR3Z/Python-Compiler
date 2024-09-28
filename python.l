@@ -15,7 +15,7 @@
     #define PRINT_OPERATOR() cout << "Found operator: " << lexer->YYText() << endl;
     #define PRINT_DELIMITER() cout << "Found delimiter: " << lexer->YYText() << endl;
     #define PRINT_ID() cout << "Found identifier: " << lexer->YYText() << endl;
-    #define PRINT_EOF_ERROR(desc) cout << "ERROR: unexpected end of file" << desc << endl;
+    #define PRINT_ERROR(desc) cout << "ERROR: " << desc << endl;  
 %}
 
 %x INLINE_STRING_SINGLE_QUOTES
@@ -27,6 +27,8 @@
 
 %{
     string str;
+    int multilineBegin;
+    int lineBegin;
 %}
 
 \+ { PRINT_OPERATOR(); }
@@ -116,10 +118,10 @@ yield { PRINT_HARD_KEYWORD(); }
 
 [A-Za-z_][A-Za-z0-9_]*  { PRINT_ID(); }
 
-\' { BEGIN(INLINE_STRING_SINGLE_QUOTES);  str.clear(); }
-\" { BEGIN(INLINE_STRING_DOUBLE_QUOTES);  str.clear(); }
-\'\'\' { BEGIN(MULTILINE_STRING_SINGLE_QUOTES); str.clear(); }
-\"\"\" { BEGIN(MULTILINE_STRING_DOUBLE_QUOTES); str.clear(); }
+\' { BEGIN(INLINE_STRING_SINGLE_QUOTES);  str.clear(); lineBegin = lexer->lineno(); }
+\" { BEGIN(INLINE_STRING_DOUBLE_QUOTES);  str.clear(); lineBegin = lexer->lineno(); }
+\'\'\' { BEGIN(MULTILINE_STRING_SINGLE_QUOTES); str.clear(); multilineBegin = lexer->lineno(); }
+\"\"\" { BEGIN(MULTILINE_STRING_DOUBLE_QUOTES); str.clear(); multilineBegin = lexer->lineno(); }
 
 <INLINE_STRING_SINGLE_QUOTES>[^\\\'\n]+ { str += lexer->YYText(); }
 <INLINE_STRING_DOUBLE_QUOTES>[^\\\"\n]+ { str += lexer->YYText(); }
@@ -159,11 +161,11 @@ yield { PRINT_HARD_KEYWORD(); }
 }
 
 <INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES><<EOF>> { 
-    PRINT_EOF_ERROR("(inline string literal not closed)");
+    PRINT_ERROR("inline string literal not closed in line: " + to_string(lineBegin));
     BEGIN(INITIAL);
 }
-<MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES><<EOF>> { 
-    PRINT_EOF_ERROR("(multiline string literal not closed)");
+<MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES><<EOF>> {
+    PRINT_ERROR("multiline string literal not closed for line: " + to_string(multilineBegin));
     BEGIN(INITIAL);
 }
 
