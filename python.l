@@ -160,6 +160,10 @@ yield { PRINT_HARD_KEYWORD(); }
     BEGIN(INITIAL); 
 }
 
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES>[\n\r] {
+    PRINT_ERROR("inline string literal not closed in line: " + to_string(lineBegin));
+    BEGIN(INITIAL);
+}
 <INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES><<EOF>> { 
     PRINT_ERROR("inline string literal not closed in line: " + to_string(lineBegin));
     BEGIN(INITIAL);
