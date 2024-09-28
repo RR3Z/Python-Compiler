@@ -15,7 +15,8 @@
     #define PRINT_OPERATOR() cout << "Found operator: " << lexer->YYText() << endl;
     #define PRINT_DELIMITER() cout << "Found delimiter: " << lexer->YYText() << endl;
     #define PRINT_ID() cout << "Found identifier: " << lexer->YYText() << endl;
-    #define PRINT_ERROR(desc) cout << "ERROR: " << desc << endl;  
+    #define PRINT_TYPE() cout << "Found data type: " << lexer->YYText() << endl;
+    #define PRINT_ERROR(desc) cout << "ERROR: " << desc << endl;
 %}
 
 %x INLINE_STRING_SINGLE_QUOTES
@@ -115,6 +116,22 @@ try { PRINT_HARD_KEYWORD(); }
 while { PRINT_HARD_KEYWORD(); }
 with { PRINT_HARD_KEYWORD(); }
 yield { PRINT_HARD_KEYWORD(); }
+
+int { PRINT_TYPE(); }
+float { PRINT_TYPE(); }
+complex { PRINT_TYPE(); }
+bool { PRINT_TYPE(); }
+list { PRINT_TYPE(); }
+tuple { PRINT_TYPE(); }
+range { PRINT_TYPE(); }
+str { PRINT_TYPE(); }
+bytes { PRINT_TYPE(); }
+bytearray { PRINT_TYPE(); }
+memoryview { PRINT_TYPE(); }
+set { PRINT_TYPE(); }
+frozenset { PRINT_TYPE(); }
+dict { PRINT_TYPE(); }
+NoneType { PRINT_TYPE(); }
 
 [A-Za-z_][A-Za-z0-9_]*  { PRINT_ID(); }
 
