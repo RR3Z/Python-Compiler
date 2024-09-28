@@ -151,12 +151,12 @@ yield { PRINT_HARD_KEYWORD(); }
     PRINT_MESSAGE("Found inline double-quoted string literal: " + str)
     BEGIN(INITIAL); 
 }
-<MULTILINE_STRING_SINGLE_QUOTES>\'\'\' {
-    PRINT_MESSAGE("Found multiline single-quoted string literal: " + str)
+<MULTILINE_STRING_SINGLE_QUOTES>\'{3} {
+    PRINT_MESSAGE("Found multiline single-quoted string literal:\n" + str)
     BEGIN(INITIAL); 
 }
-<MULTILINE_STRING_DOUBLE_QUOTES>\"\"\" {
-    PRINT_MESSAGE("Found multiline double-quoted string literal: " + str)
+<MULTILINE_STRING_DOUBLE_QUOTES>\"{3} {
+    PRINT_MESSAGE("Found multiline double-quoted string literal:\n" + str)
     BEGIN(INITIAL); 
 }
 
