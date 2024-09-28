@@ -1,19 +1,33 @@
 %option never-interactive
 %option noyywrap
+%option yylineno
 %option c++
 
 %{
-	#include <iostream>
+    #include <iostream>
+    #include <string>
+    using namespace std;
 
-	extern yyFlexLexer *lexer = new yyFlexLexer();
+    extern yyFlexLexer *lexer = new yyFlexLexer();
 
-	#define PRINT_HARD_KEYWORD() std::cout << "Found hard keyword: " << lexer->YYText() << std::endl;
-	#define PRINT_OPERATOR() std::cout << "Found operator: " << lexer->YYText() << std::endl;
-	#define PRINT_DELIMITER() std::cout << "Found delimiter: " << lexer->YYText() << std::endl;
-	#define PRINT_ID() std::cout << "Found identifier: " << lexer->YYText() << std::endl;
+    #define PRINT_MESSAGE(message) cout << message << endl;
+    #define PRINT_HARD_KEYWORD() cout << "Found hard keyword: " << lexer->YYText() << endl;
+    #define PRINT_OPERATOR() cout << "Found operator: " << lexer->YYText() << endl;
+    #define PRINT_DELIMITER() cout << "Found delimiter: " << lexer->YYText() << endl;
+    #define PRINT_ID() cout << "Found identifier: " << lexer->YYText() << endl;
+    #define PRINT_EOF_ERROR(desc) cout << "ERROR: unexpected end of file" << desc << endl;
 %}
 
+%x INLINE_STRING_SINGLE_QUOTES
+%x INLINE_STRING_DOUBLE_QUOTES
+%x MULTILINE_STRING_SINGLE_QUOTES
+%x MULTILINE_STRING_DOUBLE_QUOTES
+
 %%
+
+%{
+    string str;
+%}
 
 \+ { PRINT_OPERATOR(); }
 \- { PRINT_OPERATOR(); }
@@ -101,6 +115,57 @@ with { PRINT_HARD_KEYWORD(); }
 yield { PRINT_HARD_KEYWORD(); }
 
 [A-Za-z_][A-Za-z0-9_]*  { PRINT_ID(); }
+
+\' { BEGIN(INLINE_STRING_SINGLE_QUOTES);  str.clear(); }
+\" { BEGIN(INLINE_STRING_DOUBLE_QUOTES);  str.clear(); }
+\'\'\' { BEGIN(MULTILINE_STRING_SINGLE_QUOTES); str.clear(); }
+\"\"\" { BEGIN(MULTILINE_STRING_DOUBLE_QUOTES); str.clear(); }
+
+<INLINE_STRING_SINGLE_QUOTES>[^\\\'\n]+ { str += lexer->YYText(); }
+<INLINE_STRING_DOUBLE_QUOTES>[^\\\"\n]+ { str += lexer->YYText(); }
+<MULTILINE_STRING_SINGLE_QUOTES>[^\\\']+ { str += lexer->YYText(); }
+<MULTILINE_STRING_DOUBLE_QUOTES>[^\\\"]+ { str += lexer->YYText(); }
+
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\n { str += "\n"; }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\\\ { str += "\\"; }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\\' { str += "\'"; }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\\" { str += "\""; }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\a { str += "\a"; }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\b { str += "\b"; }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\f { str += "\f"; }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\r { str += "\r"; }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\t { str += "\t"; }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\v { str += "\v"; }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\[0-7]{1,3} { str += (char)stoi(yytext + 1, NULL, 8); }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\x[0-9a-fA-F]{2} { str += (char)stoi(yytext + 2, NULL, 16); }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\u[0-9A-Fa-f]{4} { str += (char)stoi(yytext + 2, NULL, 16); }
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES,MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES>\\U[0-9a-fA-F]{8} { str += (char)stoi(yytext + 2, NULL, 16); }
+
+<INLINE_STRING_SINGLE_QUOTES>\' {
+    PRINT_MESSAGE("Found inline single-quoted string literal: " + str)
+    BEGIN(INITIAL); 
+}
+<INLINE_STRING_DOUBLE_QUOTES>\" {
+    PRINT_MESSAGE("Found inline double-quoted string literal: " + str)
+    BEGIN(INITIAL); 
+}
+<MULTILINE_STRING_SINGLE_QUOTES>\'\'\' {
+    PRINT_MESSAGE("Found multiline single-quoted string literal: " + str)
+    BEGIN(INITIAL); 
+}
+<MULTILINE_STRING_DOUBLE_QUOTES>\"\"\" {
+    PRINT_MESSAGE("Found multiline double-quoted string literal: " + str)
+    BEGIN(INITIAL); 
+}
+
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES><<EOF>> { 
+    PRINT_EOF_ERROR("(inline string literal not closed)");
+    BEGIN(INITIAL);
+}
+<MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES><<EOF>> { 
+    PRINT_EOF_ERROR("(multiline string literal not closed)");
+    BEGIN(INITIAL);
+}
 
 . {}
 %%
