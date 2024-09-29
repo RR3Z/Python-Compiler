@@ -6,6 +6,7 @@
 %{
     #include <iostream>
     #include <string>
+    #include <algorithm>
     using namespace std;
 
     extern yyFlexLexer *lexer = new yyFlexLexer();
@@ -16,6 +17,8 @@
     #define PRINT_OPERATOR() cout << "Found operator: " << lexer->YYText() << endl;
     #define PRINT_DELIMITER() cout << "Found delimiter: " << lexer->YYText() << endl;
     #define PRINT_TYPE() cout << "Found data type: " << lexer->YYText() << endl;
+
+    string removeUnderline(string text);
 %}
 
 %x INLINE_STRING_SINGLE_QUOTES
@@ -142,7 +145,54 @@ frozenset { PRINT_TYPE(); }
 dict { PRINT_TYPE(); }
 NoneType { PRINT_TYPE(); }
 
-[A-Za-z_][A-Za-z0-9_]*  { PRINT_MESSAGE("Found identifier: " + string(lexer->YYText())); }
+0[bB](\_?[0-1])* {
+    if(lexer->YYLeng() == 2) {
+        PRINT_ERROR("found empty binary literal in line: " + to_string(lexer->lineno()));
+    } else {
+        string text = lexer->YYText();
+        text = removeUnderline(text);
+        PRINT_MESSAGE("Found binary literal: " + text.substr(2));
+    }
+}
+0[bB](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid binary literal (illegal use of letter) in line: " + to_string(lexer->lineno())); }
+0[bB][01]*(\_+[01]*)* { PRINT_ERROR("invalid binary literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
+
+0[xX](\_?[0-9A-Fa-f])* {
+    if(lexer->YYLeng() == 2) {
+        PRINT_ERROR("found empty hexadecimal literal in line: " + to_string(lexer->lineno()));
+    } else {
+        string text = lexer->YYText();
+        text = removeUnderline(text);
+        PRINT_MESSAGE("Found hexadecimal literal: " + text.substr(2));
+    }
+}
+0[xX](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid hexadecimal literal (illegal use of letter) in line: " + to_string(lexer->lineno())); }
+0[xX][0-9A-Fa-f]*(\_+[0-9A-Fa-f]*)* { PRINT_ERROR("invalid hexadecimal literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
+
+0[oO](\_?[0-7])* {
+    if(lexer->YYLeng() == 2) {
+        PRINT_ERROR("found empty octal literal in line: " + to_string(lexer->lineno()));
+    } else {
+        string text = lexer->YYText();
+        text = removeUnderline(text);
+        PRINT_MESSAGE("Found octal literal: " + text.substr(2));
+    }
+}
+0[oO](\_?[[0-7]])* { PRINT_ERROR("invalid octal literal (illegal use of letter) in line: " + to_string(lexer->lineno())); }
+0[oO][[0-7]]*(\_+[[0-7]]*)* { PRINT_ERROR("invalid octal literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
+
+[0-9](\_?[0-9])* {
+    string text = lexer->YYText();
+
+    if(lexer->YYLeng() > 1 && text[0] == '0') {
+        PRINT_ERROR("invalid decimal literal (illegal use of 0) in line: " + to_string(lexer->lineno()));
+    } else {
+        text = removeUnderline(text);
+        PRINT_MESSAGE("Found decimal literal: " + text);
+    }
+}
+[0-9](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid decimal literal (illegal use of letter) in line: " + to_string(lexer->lineno())); }
+[0-9](\_+[0-9]*)* { PRINT_ERROR("invalid decimal literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
 
 \' { 
     BEGIN(INLINE_STRING_SINGLE_QUOTES);  
@@ -160,6 +210,8 @@ NoneType { PRINT_TYPE(); }
     BEGIN(MULTILINE_STRING_DOUBLE_QUOTES); 
     str.clear();
 }
+
+[A-Za-z_][A-Za-z0-9_]*  { PRINT_MESSAGE("Found identifier: " + string(lexer->YYText())); }
 
 <INLINE_STRING_SINGLE_QUOTES>[^\\\'\n]+ { str += lexer->YYText(); }
 <INLINE_STRING_DOUBLE_QUOTES>[^\\\"\n]+ { str += lexer->YYText(); }
@@ -215,6 +267,13 @@ NoneType { PRINT_TYPE(); }
 
 . {}
 %%
+
+string removeUnderline(string input)
+{
+    string output = input;
+    output.erase(remove(output.begin(), output.end(), '_'), output.end());
+    return output;
+}
 
 int main(int argc, char *argv[])
 {
