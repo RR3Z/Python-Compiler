@@ -36,4 +36,4 @@
 x64/
 Python-Compiler/
 python.flex.cpp
-result.txt
+_tests/*.txt

@@ -1,0 +1,6 @@
+'abc\\n'
+"\\ncba"
+"not closed  \"
+'not closed \'
+'''not closed \'\'\'
+"""not closed \"\"\"
