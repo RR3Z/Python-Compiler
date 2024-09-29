@@ -1,5 +1,12 @@
 'abc\\n'
 "\\ncba"
+
+'Hello world \\
+lol'
+
+"Hello world\\
+-lol"
+
 "not closed  \"
 'not closed \'
 '''not closed \'\'\'
