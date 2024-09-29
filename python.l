@@ -15,7 +15,6 @@
     #define PRINT_HARD_KEYWORD() cout << "Found hard keyword: " << lexer->YYText() << endl;
     #define PRINT_OPERATOR() cout << "Found operator: " << lexer->YYText() << endl;
     #define PRINT_DELIMITER() cout << "Found delimiter: " << lexer->YYText() << endl;
-    #define PRINT_ID() cout << "Found identifier: " << lexer->YYText() << endl;
     #define PRINT_TYPE() cout << "Found data type: " << lexer->YYText() << endl;
 %}
 
@@ -143,7 +142,7 @@ frozenset { PRINT_TYPE(); }
 dict { PRINT_TYPE(); }
 NoneType { PRINT_TYPE(); }
 
-[A-Za-z_][A-Za-z0-9_]*  { PRINT_ID(); }
+[A-Za-z_][A-Za-z0-9_]*  { PRINT_MESSAGE("Found identifier: " + string(lexer->YYText())); }
 
 \' { 
     BEGIN(INLINE_STRING_SINGLE_QUOTES);  
