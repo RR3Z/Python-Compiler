@@ -11,24 +11,36 @@
     extern yyFlexLexer *lexer = new yyFlexLexer();
 
     #define PRINT_MESSAGE(message) cout << message << endl;
+    #define PRINT_ERROR(desc) cout << "ERROR: " << desc << endl;
     #define PRINT_HARD_KEYWORD() cout << "Found hard keyword: " << lexer->YYText() << endl;
     #define PRINT_OPERATOR() cout << "Found operator: " << lexer->YYText() << endl;
     #define PRINT_DELIMITER() cout << "Found delimiter: " << lexer->YYText() << endl;
     #define PRINT_ID() cout << "Found identifier: " << lexer->YYText() << endl;
     #define PRINT_TYPE() cout << "Found data type: " << lexer->YYText() << endl;
-    #define PRINT_ERROR(desc) cout << "ERROR: " << desc << endl;
 %}
 
 %x INLINE_STRING_SINGLE_QUOTES
 %x INLINE_STRING_DOUBLE_QUOTES
 %x MULTILINE_STRING_SINGLE_QUOTES
 %x MULTILINE_STRING_DOUBLE_QUOTES
+%x COMMENT
 
 %%
 
 %{
     string str;
 %}
+
+# { BEGIN(COMMENT); str.clear(); }
+<COMMENT>[^\n]+ { str += lexer->YYText(); }
+<COMMENT>\n { 
+    PRINT_MESSAGE("Found comment: \"" + str + "\"");
+    BEGIN(INITIAL);
+}
+<COMMENT><<EOF>> { 
+    PRINT_MESSAGE("Found comment: \"" + str + "\"");
+    BEGIN(INITIAL);
+}
 
 \+ { PRINT_OPERATOR(); }
 \- { PRINT_OPERATOR(); }
