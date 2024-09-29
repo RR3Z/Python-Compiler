@@ -253,8 +253,14 @@ NoneType { PRINT_TYPE(); }
 }
 
 <INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES>[\n\r] {
-    PRINT_ERROR("inline string literal not closed in line: " + to_string(lexer->lineno()));
-    BEGIN(INITIAL);
+    int strLength = static_cast<int>(str.length());
+
+    if(strLength > 1 && str[strLength - 1] == '\\') {
+        str.erase(strLength - 1, 1);
+    } else {
+        PRINT_ERROR("inline string literal not closed in line: " + to_string(lexer->lineno()));
+        BEGIN(INITIAL);
+    }
 }
 <INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES><<EOF>> { 
     PRINT_ERROR("inline string literal not closed in line: " + to_string(lexer->lineno()));
@@ -265,7 +271,7 @@ NoneType { PRINT_TYPE(); }
     BEGIN(INITIAL);
 }
 
-. {}
+[[:space:]] {}
 %%
 
 string removeUnderline(string input)
