@@ -178,8 +178,8 @@ NoneType { PRINT_TYPE(); }
         PRINT_MESSAGE("Found octal literal: " + text.substr(2));
     }
 }
-0[oO](\_?[[0-7]])* { PRINT_ERROR("invalid octal literal (illegal use of letter) in line: " + to_string(lexer->lineno())); }
-0[oO][[0-7]]*(\_+[[0-7]]*)* { PRINT_ERROR("invalid octal literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
+0[oO](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid octal literal (unexpected character) in line: " + to_string(lexer->lineno())); }
+0[oO][0-7]*(\_+[0-7]*)* { PRINT_ERROR("invalid octal literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
 
 [0-9](\_?[0-9])* {
     string text = lexer->YYText();
@@ -191,7 +191,7 @@ NoneType { PRINT_TYPE(); }
         PRINT_MESSAGE("Found decimal literal: " + text);
     }
 }
-[0-9](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid decimal literal (illegal use of letter) in line: " + to_string(lexer->lineno())); }
+[0-9](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid decimal literal (unexpected character) in line: " + to_string(lexer->lineno())); }
 [0-9](\_+[0-9]*)* { PRINT_ERROR("invalid decimal literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
 
 \' { 
