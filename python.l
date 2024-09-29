@@ -28,8 +28,6 @@
 
 %{
     string str;
-    int multilineBegin;
-    int lineBegin;
 %}
 
 \+ { PRINT_OPERATOR(); }
@@ -137,23 +135,19 @@ NoneType { PRINT_TYPE(); }
 
 \' { 
     BEGIN(INLINE_STRING_SINGLE_QUOTES);  
-    str.clear(); 
-    lineBegin = lexer->lineno(); 
+    str.clear();
 }
 \" { 
     BEGIN(INLINE_STRING_DOUBLE_QUOTES);  
-    str.clear(); 
-    lineBegin = lexer->lineno(); 
+    str.clear();
 }
 \'\'\' { 
     BEGIN(MULTILINE_STRING_SINGLE_QUOTES); 
-    str.clear(); 
-    multilineBegin = lexer->lineno(); 
+    str.clear();
 }
 \"\"\" { 
     BEGIN(MULTILINE_STRING_DOUBLE_QUOTES); 
-    str.clear(); 
-    multilineBegin = lexer->lineno();
+    str.clear();
 }
 
 <INLINE_STRING_SINGLE_QUOTES>[^\\\'\n]+ { str += lexer->YYText(); }
@@ -179,32 +173,32 @@ NoneType { PRINT_TYPE(); }
 <MULTILINE_STRING_DOUBLE_QUOTES>\" { str += "\""; }
 
 <INLINE_STRING_SINGLE_QUOTES>\' {
-    PRINT_MESSAGE("Found inline single-quoted string literal: " + str);
+    PRINT_MESSAGE("Found inline single-quoted string literal: \'" + str + "\'");
     BEGIN(INITIAL); 
 }
 <INLINE_STRING_DOUBLE_QUOTES>\" {
-    PRINT_MESSAGE("Found inline double-quoted string literal: " + str);
+    PRINT_MESSAGE("Found inline double-quoted string literal: \"" + str + "\"");
     BEGIN(INITIAL); 
 }
 <MULTILINE_STRING_SINGLE_QUOTES>\'{3} {
-    PRINT_MESSAGE("Found multiline single-quoted string literal:\n" + str);
+    PRINT_MESSAGE("Found multiline single-quoted string literal:\n\'" + str + "\'");
     BEGIN(INITIAL); 
 }
 <MULTILINE_STRING_DOUBLE_QUOTES>\"{3} {
-    PRINT_MESSAGE("Found multiline double-quoted string literal:\n" + str);
+    PRINT_MESSAGE("Found multiline double-quoted string literal:\n\"" + str + "\"");
     BEGIN(INITIAL); 
 }
 
 <INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES>[\n\r] {
-    PRINT_ERROR("inline string literal not closed in line: " + to_string(lineBegin));
+    PRINT_ERROR("inline string literal not closed in line: " + to_string(lexer->lineno()));
     BEGIN(INITIAL);
 }
 <INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES><<EOF>> { 
-    PRINT_ERROR("inline string literal not closed in line: " + to_string(lineBegin));
+    PRINT_ERROR("inline string literal not closed in line: " + to_string(lexer->lineno()));
     BEGIN(INITIAL);
 }
 <MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES><<EOF>> {
-    PRINT_ERROR("multiline string literal not closed for line: " + to_string(multilineBegin));
+    PRINT_ERROR("multiline string literal not closed for line: " + to_string(lexer->lineno()));
     BEGIN(INITIAL);
 }
 
