@@ -1,0 +1,15 @@
+int
+float
+complex
+bool
+list
+tuple
+range
+str
+bytes
+bytearray
+memoryview
+set
+frozenset
+dict
+NoneType

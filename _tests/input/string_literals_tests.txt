@@ -1,13 +1,20 @@
-'abc\\n'
-"\\ncba"
-
-'Hello world \\
-lol'
-
-"Hello world\\
--lol"
-
-"not closed  \"
-'not closed \'
-'''not closed \'\'\'
-"""not closed \"\"\"
+'Hello world'
+'Hello world\''
+'Hello world\'
+'Hello world
+'Hello \\n world'
+'Hello world"
+'Hello world''
+'Hello \\ world'
+'Hello \\" world'
+'Hello \\a world'
+'Hello \\b world'
+'Hello \\f world'
+'Hello \\r world'
+'Hello \\t world'
+'Hello \\v world'
+'Hello \\n world'
+'Hello \072 world'
+'Hello \x48 world'
+'Hello \u0041 world'
+'Hello \U000000A7 world'
