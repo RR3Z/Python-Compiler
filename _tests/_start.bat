@@ -8,3 +8,4 @@ type input\keywords_tests.txt | ..\x64\Debug\Python-Compiler.exe > keywords_resu
 type input\operators_test.txt | ..\x64\Debug\Python-Compiler.exe > operators_result.txt
 type input\identifiers_test.txt | ..\x64\Debug\Python-Compiler.exe > identifiers_result.txt
 type input\data_types_tests.txt | ..\x64\Debug\Python-Compiler.exe > data_types_result.txt
+type input\error_tests.txt | ..\x64\Debug\Python-Compiler.exe > error_result.txt

@@ -1,0 +1,22 @@
+'Hello world
+"Hello world
+'Hello world
+'
+"Hello world
+"
+0b102
+0b_11_2
+0x1AG
+0x_A_F_
+0o128
+0o7__7_
+0123
+12a
+0b
+0x
+0o
+0b1__01
+0x1__A
+0o1__2
+1__2
+1__234
