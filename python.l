@@ -192,7 +192,7 @@ NoneType { PRINT_TYPE(); }
     }
 }
 [0-9](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid decimal literal (unexpected character) in line: " + to_string(lexer->lineno())); }
-[0-9](\_+[0-9]*)* { PRINT_ERROR("invalid decimal literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
+[0-9]([0-9]*\_+[0-9]*)+ { PRINT_ERROR("invalid decimal literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
 
 \' { 
     BEGIN(INLINE_STRING_SINGLE_QUOTES);  
