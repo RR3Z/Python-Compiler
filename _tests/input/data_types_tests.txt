@@ -13,3 +13,6 @@ set
 frozenset
 dict
 NoneType
+
+int_id
+intId
