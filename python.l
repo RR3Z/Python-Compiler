@@ -151,7 +151,7 @@ NoneType { PRINT_TYPE(); }
     } else {
         string text = lexer->YYText();
         text = removeUnderline(text);
-        PRINT_MESSAGE("Found binary literal: " + text.substr(2));
+        PRINT_MESSAGE("Found binary literal: " + to_string(stoll(text.substr(2), NULL, 2)));
     }
 }
 0[bB](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid binary literal (illegal use of letter) in line: " + to_string(lexer->lineno())); }
@@ -163,7 +163,7 @@ NoneType { PRINT_TYPE(); }
     } else {
         string text = lexer->YYText();
         text = removeUnderline(text);
-        PRINT_MESSAGE("Found hexadecimal literal: " + text.substr(2));
+        PRINT_MESSAGE("Found hexadecimal literal: " + to_string(stoll(text.substr(2), NULL, 16)));
     }
 }
 0[xX](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid hexadecimal literal (illegal use of letter) in line: " + to_string(lexer->lineno())); }
@@ -175,7 +175,7 @@ NoneType { PRINT_TYPE(); }
     } else {
         string text = lexer->YYText();
         text = removeUnderline(text);
-        PRINT_MESSAGE("Found octal literal: " + text.substr(2));
+        PRINT_MESSAGE("Found octal literal: " + to_string(stoll("0" + text.substr(2), NULL, 8)));
     }
 }
 0[oO](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid octal literal (unexpected character) in line: " + to_string(lexer->lineno())); }
