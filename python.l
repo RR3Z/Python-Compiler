@@ -19,6 +19,7 @@
     #define PRINT_TYPE() cout << "Found data type: " << lexer->YYText() << endl;
 
     string removeUnderline(string text);
+    void calcDent(int* indentStack, int* topDent, int len);
 %}
 
 %x INLINE_STRING_SINGLE_QUOTES
@@ -31,6 +32,15 @@
 
 %{
     string str;
+
+    int topDent = 0;
+    int indentStack[1000];
+    indentStack[0] = 0;
+
+    int parenthesesBracketsCounter = 0;
+    int squareBracketsCounter = 0;
+    int curlyBracketsCounter = 0;
+    bool isString = false;
 %}
 
 # { BEGIN(COMMENT); str.clear(); }
@@ -42,6 +52,23 @@
 <COMMENT><<EOF>> { 
     PRINT_MESSAGE("Found comment: \"" + str + "\"");
     BEGIN(INITIAL);
+}
+
+
+^[ ]+ {
+    if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
+        calcDent(indentStack, &topDent, lexer->YYLeng());
+    }
+}
+^\t+ {
+    if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
+        calcDent(indentStack, &topDent, lexer->YYLeng() * 4);
+    }
+}
+^[ \t]{2,} {
+    if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
+        PRINT_ERROR("mixed tabs and spaces (in dent)");
+    }
 }
 
 \+ { PRINT_OPERATOR(); }
@@ -66,12 +93,12 @@
 \=\= { PRINT_OPERATOR(); }
 \!\= { PRINT_OPERATOR(); }
 
-\( { PRINT_DELIMITER(); }
-\) { PRINT_DELIMITER(); }
-\[ { PRINT_DELIMITER(); }
-\] { PRINT_DELIMITER(); }
-\{ { PRINT_DELIMITER(); }
-\} { PRINT_DELIMITER(); }
+\( { PRINT_DELIMITER(); parenthesesBracketsCounter++; }
+\) { PRINT_DELIMITER(); parenthesesBracketsCounter--; }
+\[ { PRINT_DELIMITER(); squareBracketsCounter++; }
+\] { PRINT_DELIMITER(); squareBracketsCounter--; }
+\{ { PRINT_DELIMITER(); curlyBracketsCounter++; }
+\} { PRINT_DELIMITER(); curlyBracketsCounter--; }
 \, { PRINT_DELIMITER(); }
 \: { PRINT_DELIMITER(); }
 \! { PRINT_DELIMITER(); }
@@ -195,20 +222,24 @@ NoneType { PRINT_TYPE(); }
 [0-9]([0-9]*\_+[0-9]*)+ { PRINT_ERROR("invalid decimal literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
 
 \' { 
-    BEGIN(INLINE_STRING_SINGLE_QUOTES);  
+    BEGIN(INLINE_STRING_SINGLE_QUOTES);
     str.clear();
+    isString = true;
 }
 \" { 
     BEGIN(INLINE_STRING_DOUBLE_QUOTES);  
     str.clear();
+    isString = true;
 }
 \'\'\' { 
     BEGIN(MULTILINE_STRING_SINGLE_QUOTES); 
     str.clear();
+    isString = true;
 }
 \"\"\" { 
     BEGIN(MULTILINE_STRING_DOUBLE_QUOTES); 
     str.clear();
+    isString = true;
 }
 
 [A-Za-z_][A-Za-z0-9_]*  { PRINT_MESSAGE("Found identifier: " + string(lexer->YYText())); }
@@ -237,18 +268,22 @@ NoneType { PRINT_TYPE(); }
 
 <INLINE_STRING_SINGLE_QUOTES>\' {
     PRINT_MESSAGE("Found inline single-quoted string literal: \'" + str + "\'");
+    isString = false;
     BEGIN(INITIAL); 
 }
 <INLINE_STRING_DOUBLE_QUOTES>\" {
     PRINT_MESSAGE("Found inline double-quoted string literal: \"" + str + "\"");
+    isString = false;
     BEGIN(INITIAL); 
 }
 <MULTILINE_STRING_SINGLE_QUOTES>\'{3} {
     PRINT_MESSAGE("Found multiline single-quoted string literal:\n\'" + str + "\'");
+    isString = false;
     BEGIN(INITIAL); 
 }
 <MULTILINE_STRING_DOUBLE_QUOTES>\"{3} {
     PRINT_MESSAGE("Found multiline double-quoted string literal:\n\"" + str + "\"");
+    isString = false;
     BEGIN(INITIAL); 
 }
 
@@ -273,6 +308,25 @@ NoneType { PRINT_TYPE(); }
 
 [[:space:]] {}
 %%
+
+void calcDent(int* indentStack, int* topDent, int len) {
+    if(len > indentStack[*topDent]) {
+        (*topDent)++;
+        indentStack[*topDent] = len;
+        PRINT_MESSAGE("Found INDENT: " + to_string(len));
+    }
+
+    if(len < indentStack[*topDent]) {
+        int dedentCount = *topDent;
+
+        while(len < indentStack[dedentCount]) { dedentCount--; }
+
+        if(len != indentStack[dedentCount]) { PRINT_ERROR("incosistent dedent: " + to_string(len)); }
+        else {
+            while(*topDent > dedentCount) { PRINT_MESSAGE("Found DEDENT"); (*topDent)--; }
+        }
+    }
+}
 
 string removeUnderline(string input)
 {

@@ -9,3 +9,4 @@ type input\operators_test.txt | ..\x64\Debug\Python-Compiler.exe > operators_res
 type input\identifiers_test.txt | ..\x64\Debug\Python-Compiler.exe > identifiers_result.txt
 type input\data_types_tests.txt | ..\x64\Debug\Python-Compiler.exe > data_types_result.txt
 type input\error_tests.txt | ..\x64\Debug\Python-Compiler.exe > error_result.txt
+type input\dent_tests.txt | ..\x64\Debug\Python-Compiler.exe > dent_result.txt
