@@ -43,17 +43,9 @@
     bool isString = false;
 %}
 
-# { BEGIN(COMMENT); str.clear(); }
-<COMMENT>[^\n]+ { str += lexer->YYText(); }
-<COMMENT>\n { 
-    PRINT_MESSAGE("Found comment: \"" + str + "\"");
-    BEGIN(INITIAL);
+#.+ {
+cout << "Found comment: \"" << lexer->YYText()+1 << "\"" << endl;
 }
-<COMMENT><<EOF>> { 
-    PRINT_MESSAGE("Found comment: \"" + str + "\"");
-    BEGIN(INITIAL);
-}
-
 
 ^[ ]+ {
     if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
