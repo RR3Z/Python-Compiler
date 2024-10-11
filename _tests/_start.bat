@@ -10,3 +10,4 @@ type input\identifiers_test.txt | ..\x64\Debug\Python-Compiler.exe > identifiers
 type input\data_types_tests.txt | ..\x64\Debug\Python-Compiler.exe > data_types_result.txt
 type input\error_tests.txt | ..\x64\Debug\Python-Compiler.exe > error_result.txt
 type input\dent_tests.txt | ..\x64\Debug\Python-Compiler.exe > dent_result.txt
+type input\keyword_dent_tests.txt | ..\x64\Debug\Python-Compiler.exe > keyword_dent_tests_result.txt

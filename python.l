@@ -14,7 +14,7 @@
 
     string removeUnderline(string text);
     void calculateIndentiation(int* indentStack, int* lastIndentIndex, int dentLen);
-    void checkIndentiationForKeywords(deque<int>& keywordLinesStack, int* indentStack, int lastIndentIndex, int dentLen);
+    void checkIndentiationForKeywords(deque<int>& keywordLines, int* indentStack, int lastIndentIndex, int* emptyLinesCounter, int dentLen);
 %}
 
 %x INLINE_STRING_SINGLE_QUOTES
@@ -32,7 +32,9 @@
     int indentStack[1000];
     indentStack[0] = 0;
 
-    deque<int> keywordLinesStack = {};
+    int emptyLinesCounter = 0;
+
+    deque<int> keywordLines = {};
 
     int parenthesesBracketsCounter = 0;
     int squareBracketsCounter = 0;
@@ -44,27 +46,33 @@
     cout << "Line: " << lexer->lineno() << ". Found comment: \"" << lexer->YYText()+1 << "\"" << endl;
 }
 
+\n[ \t]*\n+$ {
+    string text = lexer->YYText();
+    emptyLinesCounter = count(text.begin(), text.end(), '\n');
+}
+
+
 \n[ ]* {
     if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-        checkIndentiationForKeywords(keywordLinesStack, indentStack, lastIndentIndex, lexer->YYLeng() - 1);
+        checkIndentiationForKeywords(keywordLines, indentStack, lastIndentIndex, &emptyLinesCounter, lexer->YYLeng() - 1);
         calculateIndentiation(indentStack, &lastIndentIndex, lexer->YYLeng() - 1);
     }
 }
 ^[ ]+ {
     if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-        checkIndentiationForKeywords(keywordLinesStack, indentStack, lastIndentIndex, lexer->YYLeng() - 1);
+        checkIndentiationForKeywords(keywordLines, indentStack, lastIndentIndex, &emptyLinesCounter, lexer->YYLeng() - 1);
         calculateIndentiation(indentStack, &lastIndentIndex, lexer->YYLeng());
     }
 }
 \n\t* {
     if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-        checkIndentiationForKeywords(keywordLinesStack, indentStack, lastIndentIndex, (lexer->YYLeng() - 1) * 4);
+        checkIndentiationForKeywords(keywordLines, indentStack, lastIndentIndex, &emptyLinesCounter, (lexer->YYLeng() - 1) * 4);
         calculateIndentiation(indentStack, &lastIndentIndex, (lexer->YYLeng() - 1) * 4);
     }
 }
 ^\t+ {
     if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-        checkIndentiationForKeywords(keywordLinesStack, indentStack, lastIndentIndex, (lexer->YYLeng() - 1) * 4);
+        checkIndentiationForKeywords(keywordLines, indentStack, lastIndentIndex, &emptyLinesCounter, (lexer->YYLeng() - 1) * 4);
         calculateIndentiation(indentStack, &lastIndentIndex, lexer->YYLeng() * 4);
     }
 }
@@ -144,47 +152,47 @@
 
 if {
         cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
-        keywordLinesStack.push_back(lexer->lineno());
+        keywordLines.push_back(lexer->lineno());
    }
 elif {
         cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
-        keywordLinesStack.push_back(lexer->lineno());
+        keywordLines.push_back(lexer->lineno());
      }
 else {
         cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
-        keywordLinesStack.push_back(lexer->lineno());
+        keywordLines.push_back(lexer->lineno());
      }
 class {
         cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
-        keywordLinesStack.push_back(lexer->lineno());
+        keywordLines.push_back(lexer->lineno());
       }
 def {
         cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
-        keywordLinesStack.push_back(lexer->lineno());
+        keywordLines.push_back(lexer->lineno());
     }
 try {
         cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
-        keywordLinesStack.push_back(lexer->lineno());
+        keywordLines.push_back(lexer->lineno());
     }
 except {
             cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
-            keywordLinesStack.push_back(lexer->lineno());
+            keywordLines.push_back(lexer->lineno());
        }
 finally {
             cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
-            keywordLinesStack.push_back(lexer->lineno());
+            keywordLines.push_back(lexer->lineno());
         }
 for {
         cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
-        keywordLinesStack.push_back(lexer->lineno());
+        keywordLines.push_back(lexer->lineno());
     }
 while {
         cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
-        keywordLinesStack.push_back(lexer->lineno());
+        keywordLines.push_back(lexer->lineno());
       }
 with {
         cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
-        keywordLinesStack.push_back(lexer->lineno());
+        keywordLines.push_back(lexer->lineno());
      }
 False { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }     
 None { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }      
@@ -361,11 +369,9 @@ NoneType { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer
     BEGIN(INITIAL);
 }
 
-<<EOF>> { checkIndentiationForKeywords(keywordLinesStack, indentStack, lastIndentIndex, 0); return 0; }
+<<EOF>> { checkIndentiationForKeywords(keywordLines, indentStack, lastIndentIndex, &emptyLinesCounter, 0); return 0; }
 
-^[ \t]*\n$ {
-    cout << "ZAD" << endl;
-}
+. {}
 
 [[:space:]] {}
 %%
@@ -387,23 +393,25 @@ void calculateIndentiation(int* indentStack, int* lastIndentIndex, int dentLen) 
         if(dentLen != indentStack[tmpIndex]) { cout << "Line: " << lexer->lineno() << ". ERROR: incosistent dedent: " << to_string(dentLen) << endl; }
         else {
             while(*lastIndentIndex > tmpIndex) { 
-                cout << "Line: " << lexer->lineno() << ". Found dedent" << endl; 
                 (*lastIndentIndex)--;
+                cout << "Line: " << lexer->lineno() << ". Found dedent. Indent count: " << indentStack[*lastIndentIndex] << endl; 
             }
         }  
     }
 }
 
-void checkIndentiationForKeywords(deque<int>& keywordLinesStack, int* indentStack, int lastIndentIndex, int dentLen) {
-    if(keywordLinesStack.empty()) {
+void checkIndentiationForKeywords(deque<int>& keywordLines, int* indentStack, int lastIndentIndex, int* emptyLinesCounter, int dentLen) {  
+    if(keywordLines.empty()) {
+        *emptyLinesCounter = 0;
         return;
     }
 
-    if(lexer->lineno() - keywordLinesStack.front() != 1 || dentLen - indentStack[lastIndentIndex] <= 0) {
-        cout << "Line: " << keywordLinesStack.front() << ". ERROR: not found indent for keyword." << endl;
+    if(lexer->lineno() - *emptyLinesCounter - keywordLines.front() != 1 || dentLen - indentStack[lastIndentIndex] <= 0) {
+        cout << "Line: " << keywordLines.front() << ". ERROR: not found indent for keyword." << endl;
     }
 
-    keywordLinesStack.pop_front();
+    *emptyLinesCounter = 0;
+    keywordLines.pop_front();
 }
 
 string removeUnderline(string input)
