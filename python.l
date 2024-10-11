@@ -11,13 +11,6 @@
 
     extern yyFlexLexer *lexer = new yyFlexLexer();
 
-    #define PRINT_MESSAGE(message) cout << message << endl;
-    #define PRINT_ERROR(desc) cout << "ERROR: " << desc << endl;
-    #define PRINT_HARD_KEYWORD() cout << "Found hard keyword: " << lexer->YYText() << endl;
-    #define PRINT_OPERATOR() cout << "Found operator: " << lexer->YYText() << endl;
-    #define PRINT_DELIMITER() cout << "Found delimiter: " << lexer->YYText() << endl;
-    #define PRINT_TYPE() cout << "Found data type: " << lexer->YYText() << endl;
-
     string removeUnderline(string text);
     void calcDent(int* indentStack, int* topDent, int len);
 %}
@@ -26,7 +19,6 @@
 %x INLINE_STRING_DOUBLE_QUOTES
 %x MULTILINE_STRING_SINGLE_QUOTES
 %x MULTILINE_STRING_DOUBLE_QUOTES
-%x COMMENT
 
 %%
 
@@ -44,7 +36,7 @@
 %}
 
 #.+ {
-cout << "Found comment: \"" << lexer->YYText()+1 << "\"" << endl;
+    cout << "Line: " << lexer->lineno() << ". Found comment: \"" << lexer->YYText()+1 << "\"" << endl;
 }
 
 ^[ ]+ {
@@ -59,159 +51,178 @@ cout << "Found comment: \"" << lexer->YYText()+1 << "\"" << endl;
 }
 ^[ \t]{2,} {
     if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-        PRINT_ERROR("mixed tabs and spaces (in dent)");
+        cout << "Line: " << lexer->lineno() << ". ERROR: mixed tabs and spaces (dentiation)." << endl;
     }
 }
 
-\+ { PRINT_OPERATOR(); }
-\- { PRINT_OPERATOR(); }
-\* { PRINT_OPERATOR(); }
-\*\* { PRINT_OPERATOR(); }
-\/ { PRINT_OPERATOR(); }
-\/\/ { PRINT_OPERATOR(); }
-\% { PRINT_OPERATOR(); }
-\@ { PRINT_OPERATOR(); }
-\<\< { PRINT_OPERATOR(); }
-\< { PRINT_OPERATOR(); }
-\>\> { PRINT_OPERATOR(); }
-\> { PRINT_OPERATOR(); }
-\>\= { PRINT_OPERATOR(); }
-\<\= { PRINT_OPERATOR(); }
-\& { PRINT_OPERATOR(); }
-\| { PRINT_OPERATOR(); }
-\^ { PRINT_OPERATOR(); }
-\~ { PRINT_OPERATOR(); }
-\:\= { PRINT_OPERATOR(); }
-\=\= { PRINT_OPERATOR(); }
-\!\= { PRINT_OPERATOR(); }
+\+ { cout << "Line: " << lexer->lineno() << ". Found arithmetical operator: " << lexer->YYText() << endl; }
+\- { cout << "Line: " << lexer->lineno() << ". Found arithmetical operator: " << lexer->YYText() << endl; }
+\* { cout << "Line: " << lexer->lineno() << ". Found arithmetical operator: " << lexer->YYText() << endl; }
+\*\* { cout << "Line: " << lexer->lineno() << ". Found arithmetical operator: " << lexer->YYText() << endl; }
+\/ { cout << "Line: " << lexer->lineno() << ". Found arithmetical operator: " << lexer->YYText() << endl; }
+\/\/ { cout << "Line: " << lexer->lineno() << ". Found arithmetical operator: " << lexer->YYText() << endl; }
+\% { cout << "Line: " << lexer->lineno() << ". Found arithmetical operator: " << lexer->YYText() << endl; }
 
-\( { PRINT_DELIMITER(); parenthesesBracketsCounter++; }
-\) { PRINT_DELIMITER(); parenthesesBracketsCounter--; }
-\[ { PRINT_DELIMITER(); squareBracketsCounter++; }
-\] { PRINT_DELIMITER(); squareBracketsCounter--; }
-\{ { PRINT_DELIMITER(); curlyBracketsCounter++; }
-\} { PRINT_DELIMITER(); curlyBracketsCounter--; }
-\, { PRINT_DELIMITER(); }
-\: { PRINT_DELIMITER(); }
-\! { PRINT_DELIMITER(); }
-\. { PRINT_DELIMITER(); }
-\; { PRINT_DELIMITER(); }
-\= { PRINT_DELIMITER(); }
-\-\> { PRINT_DELIMITER(); }
-\+\= { PRINT_DELIMITER(); }
-\-\= { PRINT_DELIMITER(); }
-\*\= { PRINT_DELIMITER(); }
-\/\= { PRINT_DELIMITER(); }
-\/\/\= { PRINT_DELIMITER(); }
-\%\= { PRINT_DELIMITER(); }
-\@\= { PRINT_DELIMITER(); }
-\&\= { PRINT_DELIMITER(); }
-\|\= { PRINT_DELIMITER(); }
-\^\= { PRINT_DELIMITER(); }
-\>\>\= { PRINT_DELIMITER(); }
-\<\<\= { PRINT_DELIMITER(); }
-\*\*\= { PRINT_DELIMITER(); }
+\<\< { cout << "Line: " << lexer->lineno() << ". Found bitwise operator: " << lexer->YYText() << endl; }
+\>\> { cout << "Line: " << lexer->lineno() << ". Found bitwise operator: " << lexer->YYText() << endl; }
+\& { cout << "Line: " << lexer->lineno() << ". Found bitwise operator: " << lexer->YYText() << endl; }
+\| { cout << "Line: " << lexer->lineno() << ". Found bitwise operator: " << lexer->YYText() << endl; }
+\^ { cout << "Line: " << lexer->lineno() << ". Found bitwise operator: " << lexer->YYText() << endl; }
+\~ { cout << "Line: " << lexer->lineno() << ". Found bitwise operator: " << lexer->YYText() << endl; }
 
-False { PRINT_HARD_KEYWORD(); }     
-None { PRINT_HARD_KEYWORD(); }      
-True { PRINT_HARD_KEYWORD(); }        
-and { PRINT_HARD_KEYWORD(); }           
-as { PRINT_HARD_KEYWORD(); }           
-assert { PRINT_HARD_KEYWORD(); }          
-async { PRINT_HARD_KEYWORD(); }     
-await { PRINT_HARD_KEYWORD(); }  
-break { PRINT_HARD_KEYWORD(); }
-class { PRINT_HARD_KEYWORD(); }  
-continue { PRINT_HARD_KEYWORD(); }
-def { PRINT_HARD_KEYWORD(); }
-del { PRINT_HARD_KEYWORD(); }
-elif { PRINT_HARD_KEYWORD(); }
-else { PRINT_HARD_KEYWORD(); }
-except { PRINT_HARD_KEYWORD(); }
-finally { PRINT_HARD_KEYWORD(); }
-for { PRINT_HARD_KEYWORD(); }
-from { PRINT_HARD_KEYWORD(); }
-global { PRINT_HARD_KEYWORD(); }
-if { PRINT_HARD_KEYWORD(); }
-import { PRINT_HARD_KEYWORD(); }
-in { PRINT_HARD_KEYWORD(); }
-is { PRINT_HARD_KEYWORD(); }
-lambda { PRINT_HARD_KEYWORD(); }
-nonlocal { PRINT_HARD_KEYWORD(); }
-not { PRINT_HARD_KEYWORD(); }
-or { PRINT_HARD_KEYWORD(); }
-pass { PRINT_HARD_KEYWORD(); }
-raise { PRINT_HARD_KEYWORD(); }
-return { PRINT_HARD_KEYWORD(); }
-try { PRINT_HARD_KEYWORD(); }
-while { PRINT_HARD_KEYWORD(); }
-with { PRINT_HARD_KEYWORD(); }
-yield { PRINT_HARD_KEYWORD(); }
+\< { cout << "Line: " << lexer->lineno() << ". Found comparison operator: " << lexer->YYText() << endl; }
+\> { cout << "Line: " << lexer->lineno() << ". Found comparison operator: " << lexer->YYText() << endl; }
+\>\= { cout << "Line: " << lexer->lineno() << ". Found comparison operator: " << lexer->YYText() << endl; }
+\<\= { cout << "Line: " << lexer->lineno() << ". Found comparison operator: " << lexer->YYText() << endl; }
+\=\= { cout << "Line: " << lexer->lineno() << ". Found comparison operator: " << lexer->YYText() << endl; }
+\!\= { cout << "Line: " << lexer->lineno() << ". Found comparison operator: " << lexer->YYText() << endl; }
 
-int { PRINT_TYPE(); }
-float { PRINT_TYPE(); }
-complex { PRINT_TYPE(); }
-bool { PRINT_TYPE(); }
-list { PRINT_TYPE(); }
-tuple { PRINT_TYPE(); }
-range { PRINT_TYPE(); }
-str { PRINT_TYPE(); }
-bytes { PRINT_TYPE(); }
-bytearray { PRINT_TYPE(); }
-memoryview { PRINT_TYPE(); }
-set { PRINT_TYPE(); }
-frozenset { PRINT_TYPE(); }
-dict { PRINT_TYPE(); }
-NoneType { PRINT_TYPE(); }
+\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+\+\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+\-\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+\*\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+\/\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+\/\/\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+\%\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+\&\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+\|\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+\^\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+\>\>\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+\<\<\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+\*\*\= { cout << "Line: " << lexer->lineno() << ". Found assignment operator: " << lexer->YYText() << endl; }
+
+\( { 
+        cout << "Line: " << lexer->lineno() << ". Found open parentheses bracket: " << lexer->YYText() << endl;
+        parenthesesBracketsCounter++; 
+   }
+\) { 
+        cout << "Line: " << lexer->lineno() << ". Found close parentheses bracket: " << lexer->YYText() << endl;
+        parenthesesBracketsCounter--;
+   }
+\[ { 
+        cout << "Line: " << lexer->lineno() << ". Found open square bracket: " << lexer->YYText() << endl;
+        squareBracketsCounter++;
+   }
+\] {
+        cout << "Line: " << lexer->lineno() << ". Found close square bracket: " << lexer->YYText() << endl;
+        squareBracketsCounter--;
+   }
+\{ { 
+        cout << "Line: " << lexer->lineno() << ". Found open curly bracket: " << lexer->YYText() << endl;
+        curlyBracketsCounter++;
+   }
+\} {
+        cout << "Line: " << lexer->lineno() << ". Found close curly bracket: " << lexer->YYText() << endl;
+        curlyBracketsCounter--;
+   }
+
+\, { cout << "Line: " << lexer->lineno() << ". Found delimiter: " << lexer->YYText() << endl; }
+\: { cout << "Line: " << lexer->lineno() << ". Found delimiter: " << lexer->YYText() << endl; }
+\! { cout << "Line: " << lexer->lineno() << ". Found delimiter: " << lexer->YYText() << endl; }
+\. { cout << "Line: " << lexer->lineno() << ". Found delimiter: " << lexer->YYText() << endl; }
+\; { cout << "Line: " << lexer->lineno() << ". Found delimiter: " << lexer->YYText() << endl; }
+\-\> { cout << "Line: " << lexer->lineno() << ". Found delimiter: " << lexer->YYText() << endl; }
+
+False { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }     
+None { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }      
+True { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }        
+and { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }           
+as { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }           
+assert { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }          
+async { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }     
+await { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }  
+break { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+class { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }  
+continue { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+def { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+del { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+elif { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+else { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+except { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+finally { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+for { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+from { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+global { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+if { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+import { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+in { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+is { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+lambda { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+nonlocal { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+not { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+or { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+pass { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+raise { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+return { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+try { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+while { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+with { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+yield { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
+
+int { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+float { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+complex { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+bool { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+list { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+tuple { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+range { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+str { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+bytes { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+bytearray { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+memoryview { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+set { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+frozenset { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+dict { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
+NoneType { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
 
 0[bB](\_?[0-1])* {
     if(lexer->YYLeng() == 2) {
-        PRINT_ERROR("found empty binary literal in line: " + to_string(lexer->lineno()));
+        cout << "Line: " << lexer->lineno() << ". ERROR: found empty binary literal." << endl;
     } else {
         string text = lexer->YYText();
         text = removeUnderline(text);
-        PRINT_MESSAGE("Found binary literal: " + to_string(stoll(text.substr(2), NULL, 2)));
+        cout << "Line: " << lexer->lineno() << ". Found binary literal: " << to_string(stoll(text.substr(2), NULL, 2)) << endl;
     }
 }
-0[bB](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid binary literal (illegal use of letter) in line: " + to_string(lexer->lineno())); }
-0[bB][01]*(\_+[01]*)* { PRINT_ERROR("invalid binary literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
+0[bB](\_?[A-Za-z0-9])* { cout << "Line: " << lexer->lineno() << ". ERROR: invalid binary literal (illegal use of letter)." << endl; }
+0[bB][01]*(\_+[01]*)* { cout << "Line: " << lexer->lineno() << ". ERROR: invalid binary literal (illegal use of underscore)." << endl; }
 
 0[xX](\_?[0-9A-Fa-f])* {
     if(lexer->YYLeng() == 2) {
-        PRINT_ERROR("found empty hexadecimal literal in line: " + to_string(lexer->lineno()));
+        cout << "Line: " << lexer->lineno() << ". ERROR: found empty hexadecimal literal." << endl;
     } else {
         string text = lexer->YYText();
         text = removeUnderline(text);
-        PRINT_MESSAGE("Found hexadecimal literal: " + to_string(stoll(text.substr(2), NULL, 16)));
+        cout << "Line: " << lexer->lineno() << ". Found hexadecimal literal: " << to_string(stoll(text.substr(2), NULL, 16)) << endl;
     }
 }
-0[xX](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid hexadecimal literal (illegal use of letter) in line: " + to_string(lexer->lineno())); }
-0[xX][0-9A-Fa-f]*(\_+[0-9A-Fa-f]*)* { PRINT_ERROR("invalid hexadecimal literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
+0[xX](\_?[A-Za-z0-9])* { cout << "Line: " << lexer->lineno() << ". ERROR: invalid hexadecimal literal (illegal use of letter)." << endl; }
+0[xX][0-9A-Fa-f]*(\_+[0-9A-Fa-f]*)* { cout << "Line: " << lexer->lineno() << ". ERROR: invalid hexadecimal literal (illegal use of underscore)." << endl; }
 
 0[oO](\_?[0-7])* {
     if(lexer->YYLeng() == 2) {
-        PRINT_ERROR("found empty octal literal in line: " + to_string(lexer->lineno()));
+        cout << "Line: " << lexer->lineno() << ". ERROR: found empty octal literal." << endl;
     } else {
         string text = lexer->YYText();
         text = removeUnderline(text);
-        PRINT_MESSAGE("Found octal literal: " + to_string(stoll("0" + text.substr(2), NULL, 8)));
+        cout << "Line: " << lexer->lineno() << ". Found octal literal: " << stoll("0" + text.substr(2), NULL, 8) << endl;
     }
 }
-0[oO](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid octal literal (unexpected character) in line: " + to_string(lexer->lineno())); }
-0[oO][0-7]*(\_+[0-7]*)* { PRINT_ERROR("invalid octal literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
+0[oO](\_?[A-Za-z0-9])* { cout << "Line: " << lexer->lineno() << ". ERROR: invalid octal literal (unexpected character)." << endl; }
+0[oO][0-7]*(\_+[0-7]*)* { cout << "Line: " << lexer->lineno() << ". ERROR: invalid octal literal (illegal use of underscore)." << endl; }
 
 [0-9](\_?[0-9])* {
     string text = lexer->YYText();
 
     if(lexer->YYLeng() > 1 && text[0] == '0') {
-        PRINT_ERROR("invalid decimal literal (illegal use of 0) in line: " + to_string(lexer->lineno()));
+        cout << "Line: " << lexer->lineno() << ". ERROR: invalid decimal literal (illegal use of 0)." << endl;
     } else {
         text = removeUnderline(text);
-        PRINT_MESSAGE("Found decimal literal: " + text);
+        cout << "Line: " << lexer->lineno() << ". Found decimal literal: " << text << endl;
     }
 }
-[0-9](\_?[A-Za-z0-9])* { PRINT_ERROR("invalid decimal literal (unexpected character) in line: " + to_string(lexer->lineno())); }
-[0-9]([0-9]*\_+[0-9]*)+ { PRINT_ERROR("invalid decimal literal (illegal use of underscore) in line: " + to_string(lexer->lineno())); }
+[0-9](\_?[A-Za-z0-9])* { cout << "Line: " << lexer->lineno() << ". ERROR: invalid decimal literal (unexpected character)." << endl; }
+[0-9]([0-9]*\_+[0-9]*)+ { cout << "Line: " << lexer->lineno() << ". ERROR: invalid decimal literal (illegal use of underscore)." << endl; }
 
 \' { 
     BEGIN(INLINE_STRING_SINGLE_QUOTES);
@@ -234,7 +245,7 @@ NoneType { PRINT_TYPE(); }
     isString = true;
 }
 
-[A-Za-z_][A-Za-z0-9_]*  { PRINT_MESSAGE("Found identifier: " + string(lexer->YYText())); }
+[A-Za-z_][A-Za-z0-9_]*  { cout << "Line: " << lexer->lineno() << ". Found identifier: " << lexer->YYText() << endl; }
 
 <INLINE_STRING_SINGLE_QUOTES>[^\\\'\n]+ { str += lexer->YYText(); }
 <INLINE_STRING_DOUBLE_QUOTES>[^\\\"\n]+ { str += lexer->YYText(); }
@@ -259,22 +270,22 @@ NoneType { PRINT_TYPE(); }
 <MULTILINE_STRING_DOUBLE_QUOTES>\" { str += "\""; }
 
 <INLINE_STRING_SINGLE_QUOTES>\' {
-    PRINT_MESSAGE("Found inline single-quoted string literal: \'" + str + "\'");
+    cout << "Line: " << lexer->lineno() << ". Found inline single-quoted string literal: \'" + str + "\'" << endl;
     isString = false;
     BEGIN(INITIAL); 
 }
 <INLINE_STRING_DOUBLE_QUOTES>\" {
-    PRINT_MESSAGE("Found inline double-quoted string literal: \"" + str + "\"");
+    cout << "Line: " << lexer->lineno() << ". Found inline double-quoted string literal: \"" + str + "\"" << endl;
     isString = false;
     BEGIN(INITIAL); 
 }
 <MULTILINE_STRING_SINGLE_QUOTES>\'{3} {
-    PRINT_MESSAGE("Found multiline single-quoted string literal:\n\'" + str + "\'");
+    cout << "Line: " << lexer->lineno() << ". Found multiline single-quoted string literal:\n\'" + str + "\'" << endl;
     isString = false;
     BEGIN(INITIAL); 
 }
 <MULTILINE_STRING_DOUBLE_QUOTES>\"{3} {
-    PRINT_MESSAGE("Found multiline double-quoted string literal:\n\"" + str + "\"");
+    cout << "Line: " << lexer->lineno() << ". Found multiline double-quoted string literal:\n\"" + str + "\"" << endl;
     isString = false;
     BEGIN(INITIAL); 
 }
@@ -285,16 +296,16 @@ NoneType { PRINT_TYPE(); }
     if(strLength > 1 && str[strLength - 1] == '\\') {
         str.erase(strLength - 1, 1);
     } else {
-        PRINT_ERROR("inline string literal not closed in line: " + to_string(lexer->lineno()));
+        cout << "Line: " << lexer->lineno() << ". ERROR: inline string literal is not closed." << endl;
         BEGIN(INITIAL);
     }
 }
-<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES><<EOF>> { 
-    PRINT_ERROR("inline string literal not closed in line: " + to_string(lexer->lineno()));
+<INLINE_STRING_SINGLE_QUOTES,INLINE_STRING_DOUBLE_QUOTES><<EOF>> {
+    cout << "Line: " << lexer->lineno() << ". ERROR: inline string literal is not closed." << endl;
     BEGIN(INITIAL);
 }
 <MULTILINE_STRING_SINGLE_QUOTES,MULTILINE_STRING_DOUBLE_QUOTES><<EOF>> {
-    PRINT_ERROR("multiline string literal not closed for line: " + to_string(lexer->lineno()));
+    cout << "Line: " << lexer->lineno() << ". ERROR: multiline string literal is not closed." << endl;
     BEGIN(INITIAL);
 }
 
@@ -305,7 +316,7 @@ void calcDent(int* indentStack, int* topDent, int len) {
     if(len > indentStack[*topDent]) {
         (*topDent)++;
         indentStack[*topDent] = len;
-        PRINT_MESSAGE("Found INDENT: " + to_string(len));
+        cout << "Line: " << lexer->lineno() << ". Found indent: " << to_string(len) << endl;
     }
 
     if(len < indentStack[*topDent]) {
@@ -313,18 +324,21 @@ void calcDent(int* indentStack, int* topDent, int len) {
 
         while(len < indentStack[dedentCount]) { dedentCount--; }
 
-        if(len != indentStack[dedentCount]) { PRINT_ERROR("incosistent dedent: " + to_string(len)); }
+        if(len != indentStack[dedentCount]) { cout << "Line: " << lexer->lineno() << ". ERROR: incosistent dedent: " << to_string(len) << endl; }
         else {
-            while(*topDent > dedentCount) { PRINT_MESSAGE("Found DEDENT"); (*topDent)--; }
+            while(*topDent > dedentCount) { 
+                cout << "Line: " << lexer->lineno() << ". Found dedent: " << to_string(len) << endl; 
+                (*topDent)--;
+            }
         }
     }
 }
 
 string removeUnderline(string input)
 {
-    string output = input;
-    output.erase(remove(output.begin(), output.end(), '_'), output.end());
-    return output;
+    string str = input;
+    str.erase(remove(str.begin(), str.end(), '_'), str.end());
+    return str;
 }
 
 int main(int argc, char *argv[])
