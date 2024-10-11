@@ -7,27 +7,32 @@
     #include <iostream>
     #include <string>
     #include <algorithm>
+    #include <deque>
     using namespace std;
 
     extern yyFlexLexer *lexer = new yyFlexLexer();
 
     string removeUnderline(string text);
-    void calcDent(int* indentStack, int* topIndent, int len);
+    void calculateIndentiation(int* indentStack, int* lastIndentIndex, int dentLen);
+    void checkIndentiationForKeywords(deque<int>& keywordLinesStack, int* indentStack, int lastIndentIndex, int dentLen);
 %}
 
 %x INLINE_STRING_SINGLE_QUOTES
 %x INLINE_STRING_DOUBLE_QUOTES
 %x MULTILINE_STRING_SINGLE_QUOTES
 %x MULTILINE_STRING_DOUBLE_QUOTES
+%x NEW_LINE
 
 %%
 
 %{
     string str;
 
-    int topIndent = 0;
+    int lastIndentIndex = 0;
     int indentStack[1000];
     indentStack[0] = 0;
+
+    deque<int> keywordLinesStack = {};
 
     int parenthesesBracketsCounter = 0;
     int squareBracketsCounter = 0;
@@ -39,14 +44,28 @@
     cout << "Line: " << lexer->lineno() << ". Found comment: \"" << lexer->YYText()+1 << "\"" << endl;
 }
 
+\n[ ]* {
+    if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
+        checkIndentiationForKeywords(keywordLinesStack, indentStack, lastIndentIndex, lexer->YYLeng() - 1);
+        calculateIndentiation(indentStack, &lastIndentIndex, lexer->YYLeng() - 1);
+    }
+}
 ^[ ]+ {
     if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-        calcDent(indentStack, &topIndent, lexer->YYLeng());
+        checkIndentiationForKeywords(keywordLinesStack, indentStack, lastIndentIndex, lexer->YYLeng() - 1);
+        calculateIndentiation(indentStack, &lastIndentIndex, lexer->YYLeng());
+    }
+}
+\n\t* {
+    if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
+        checkIndentiationForKeywords(keywordLinesStack, indentStack, lastIndentIndex, (lexer->YYLeng() - 1) * 4);
+        calculateIndentiation(indentStack, &lastIndentIndex, (lexer->YYLeng() - 1) * 4);
     }
 }
 ^\t+ {
     if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-        calcDent(indentStack, &topIndent, lexer->YYLeng() * 4);
+        checkIndentiationForKeywords(keywordLinesStack, indentStack, lastIndentIndex, (lexer->YYLeng() - 1) * 4);
+        calculateIndentiation(indentStack, &lastIndentIndex, lexer->YYLeng() * 4);
     }
 }
 ^[ \t]{2,} {
@@ -123,6 +142,50 @@
 \; { cout << "Line: " << lexer->lineno() << ". Found delimiter: " << lexer->YYText() << endl; }
 \-\> { cout << "Line: " << lexer->lineno() << ". Found delimiter: " << lexer->YYText() << endl; }
 
+if {
+        cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
+        keywordLinesStack.push_back(lexer->lineno());
+   }
+elif {
+        cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
+        keywordLinesStack.push_back(lexer->lineno());
+     }
+else {
+        cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
+        keywordLinesStack.push_back(lexer->lineno());
+     }
+class {
+        cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
+        keywordLinesStack.push_back(lexer->lineno());
+      }
+def {
+        cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
+        keywordLinesStack.push_back(lexer->lineno());
+    }
+try {
+        cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
+        keywordLinesStack.push_back(lexer->lineno());
+    }
+except {
+            cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
+            keywordLinesStack.push_back(lexer->lineno());
+       }
+finally {
+            cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
+            keywordLinesStack.push_back(lexer->lineno());
+        }
+for {
+        cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
+        keywordLinesStack.push_back(lexer->lineno());
+    }
+while {
+        cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
+        keywordLinesStack.push_back(lexer->lineno());
+      }
+with {
+        cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl;
+        keywordLinesStack.push_back(lexer->lineno());
+     }
 False { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }     
 None { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }      
 True { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }        
@@ -132,18 +195,10 @@ assert { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexe
 async { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }     
 await { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }  
 break { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
-class { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }  
 continue { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
-def { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
 del { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
-elif { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
-else { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
-except { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
-finally { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
-for { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
 from { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
 global { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
-if { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
 import { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
 in { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
 is { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
@@ -154,9 +209,6 @@ or { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->Y
 pass { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
 raise { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
 return { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
-try { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
-while { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
-with { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
 yield { cout << "Line: " << lexer->lineno() << ". Found hard keyword: " << lexer->YYText() << endl; }
 
 int { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer->YYText() << endl; }
@@ -309,29 +361,49 @@ NoneType { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer
     BEGIN(INITIAL);
 }
 
+<<EOF>> { checkIndentiationForKeywords(keywordLinesStack, indentStack, lastIndentIndex, 0); return 0; }
+
+^[ \t]*\n$ {
+    cout << "ZAD" << endl;
+}
+
 [[:space:]] {}
 %%
 
-void calcDent(int* indentStack, int* topIndent, int len) {
-    if(len > indentStack[*topIndent]) {
-        (*topIndent)++;
-        indentStack[*topIndent] = len;
-        cout << "Line: " << lexer->lineno() << ". Found indent: " << to_string(len) << endl;
+void calculateIndentiation(int* indentStack, int* lastIndentIndex, int dentLen) {
+    /* Indent */
+    if(dentLen > indentStack[*lastIndentIndex]) {
+        (*lastIndentIndex)++;
+        indentStack[*lastIndentIndex] = dentLen;
+        cout << "Line: " << lexer->lineno() << ". Found indent: " << to_string(dentLen) << endl;
     }
 
-    if(len < indentStack[*topIndent]) {
-        int dedentCount = *topIndent;
+    /* Dedent */
+    if(dentLen < indentStack[*lastIndentIndex]) {
+        int tmpIndex = *lastIndentIndex;
 
-        while(len < indentStack[dedentCount]) { dedentCount--; }
+        while(dentLen < indentStack[tmpIndex]) { tmpIndex--; }
 
-        if(len != indentStack[dedentCount]) { cout << "Line: " << lexer->lineno() << ". ERROR: incosistent dedent: " << to_string(len) << endl; }
+        if(dentLen != indentStack[tmpIndex]) { cout << "Line: " << lexer->lineno() << ". ERROR: incosistent dedent: " << to_string(dentLen) << endl; }
         else {
-            while(*topIndent > dedentCount) { 
-                cout << "Line: " << lexer->lineno() << ". Found dedent: " << to_string(len) << endl; 
-                (*topIndent)--;
+            while(*lastIndentIndex > tmpIndex) { 
+                cout << "Line: " << lexer->lineno() << ". Found dedent" << endl; 
+                (*lastIndentIndex)--;
             }
-        }
-    }  
+        }  
+    }
+}
+
+void checkIndentiationForKeywords(deque<int>& keywordLinesStack, int* indentStack, int lastIndentIndex, int dentLen) {
+    if(keywordLinesStack.empty()) {
+        return;
+    }
+
+    if(lexer->lineno() - keywordLinesStack.front() != 1 || dentLen - indentStack[lastIndentIndex] <= 0) {
+        cout << "Line: " << keywordLinesStack.front() << ". ERROR: not found indent for keyword." << endl;
+    }
+
+    keywordLinesStack.pop_front();
 }
 
 string removeUnderline(string input)
