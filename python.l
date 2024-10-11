@@ -35,7 +35,7 @@
     bool isString = false;
 %}
 
-#.+ {
+#.* {
     cout << "Line: " << lexer->lineno() << ". Found comment: \"" << lexer->YYText()+1 << "\"" << endl;
 }
 
