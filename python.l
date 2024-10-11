@@ -12,7 +12,7 @@
     extern yyFlexLexer *lexer = new yyFlexLexer();
 
     string removeUnderline(string text);
-    void calcDent(int* indentStack, int* topDent, int len);
+    void calcDent(int* indentStack, int* topIndent, int len);
 %}
 
 %x INLINE_STRING_SINGLE_QUOTES
@@ -25,7 +25,7 @@
 %{
     string str;
 
-    int topDent = 0;
+    int topIndent = 0;
     int indentStack[1000];
     indentStack[0] = 0;
 
@@ -41,12 +41,12 @@
 
 ^[ ]+ {
     if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-        calcDent(indentStack, &topDent, lexer->YYLeng());
+        calcDent(indentStack, &topIndent, lexer->YYLeng());
     }
 }
 ^\t+ {
     if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-        calcDent(indentStack, &topDent, lexer->YYLeng() * 4);
+        calcDent(indentStack, &topIndent, lexer->YYLeng() * 4);
     }
 }
 ^[ \t]{2,} {
@@ -312,26 +312,26 @@ NoneType { cout << "Line: " << lexer->lineno() << ". Found data type: " << lexer
 [[:space:]] {}
 %%
 
-void calcDent(int* indentStack, int* topDent, int len) {
-    if(len > indentStack[*topDent]) {
-        (*topDent)++;
-        indentStack[*topDent] = len;
+void calcDent(int* indentStack, int* topIndent, int len) {
+    if(len > indentStack[*topIndent]) {
+        (*topIndent)++;
+        indentStack[*topIndent] = len;
         cout << "Line: " << lexer->lineno() << ". Found indent: " << to_string(len) << endl;
     }
 
-    if(len < indentStack[*topDent]) {
-        int dedentCount = *topDent;
+    if(len < indentStack[*topIndent]) {
+        int dedentCount = *topIndent;
 
         while(len < indentStack[dedentCount]) { dedentCount--; }
 
         if(len != indentStack[dedentCount]) { cout << "Line: " << lexer->lineno() << ". ERROR: incosistent dedent: " << to_string(len) << endl; }
         else {
-            while(*topDent > dedentCount) { 
+            while(*topIndent > dedentCount) { 
                 cout << "Line: " << lexer->lineno() << ". Found dedent: " << to_string(len) << endl; 
-                (*topDent)--;
+                (*topIndent)--;
             }
         }
-    }
+    }  
 }
 
 string removeUnderline(string input)
