@@ -122,10 +122,42 @@ enum yysymbol_kind_t
   YYSYMBOL_NEWLINE = 13,                   /* NEWLINE  */
   YYSYMBOL_INDENT = 14,                    /* INDENT  */
   YYSYMBOL_DEDENT = 15,                    /* DEDENT  */
-  YYSYMBOL_16_ = 16,                       /* ','  */
-  YYSYMBOL_17_ = 17,                       /* ':'  */
-  YYSYMBOL_YYACCEPT = 18,                  /* $accept  */
-  YYSYMBOL_program = 19                    /* program  */
+  YYSYMBOL_INT = 16,                       /* INT  */
+  YYSYMBOL_FLOAT = 17,                     /* FLOAT  */
+  YYSYMBOL_COMPLEX = 18,                   /* COMPLEX  */
+  YYSYMBOL_TRUE = 19,                      /* TRUE  */
+  YYSYMBOL_FALSE = 20,                     /* FALSE  */
+  YYSYMBOL_STR = 21,                       /* STR  */
+  YYSYMBOL_NONE = 22,                      /* NONE  */
+  YYSYMBOL_23_ = 23,                       /* '='  */
+  YYSYMBOL_PLUS_ASSIGN = 24,               /* PLUS_ASSIGN  */
+  YYSYMBOL_MINUS_ASSIGN = 25,              /* MINUS_ASSIGN  */
+  YYSYMBOL_MULT_ASSIGN = 26,               /* MULT_ASSIGN  */
+  YYSYMBOL_DEGREE_ASSIGN = 27,             /* DEGREE_ASSIGN  */
+  YYSYMBOL_DIV_ASSIGN = 28,                /* DIV_ASSIGN  */
+  YYSYMBOL_MOD_ASSIGN = 29,                /* MOD_ASSIGN  */
+  YYSYMBOL_AND = 30,                       /* AND  */
+  YYSYMBOL_OR = 31,                        /* OR  */
+  YYSYMBOL_NOT = 32,                       /* NOT  */
+  YYSYMBOL_33_ = 33,                       /* '+'  */
+  YYSYMBOL_34_ = 34,                       /* '-'  */
+  YYSYMBOL_35_ = 35,                       /* '*'  */
+  YYSYMBOL_36_ = 36,                       /* '/'  */
+  YYSYMBOL_37_ = 37,                       /* '%'  */
+  YYSYMBOL_FLOOR_DIV = 38,                 /* FLOOR_DIV  */
+  YYSYMBOL_UPLUS = 39,                     /* UPLUS  */
+  YYSYMBOL_UMINUS = 40,                    /* UMINUS  */
+  YYSYMBOL_DEGREE = 41,                    /* DEGREE  */
+  YYSYMBOL_42_ = 42,                       /* '<'  */
+  YYSYMBOL_LESSER_EQUAL = 43,              /* LESSER_EQUAL  */
+  YYSYMBOL_44_ = 44,                       /* '>'  */
+  YYSYMBOL_GREATER_EQUAL = 45,             /* GREATER_EQUAL  */
+  YYSYMBOL_NOT_EQUAL = 46,                 /* NOT_EQUAL  */
+  YYSYMBOL_EQUAL = 47,                     /* EQUAL  */
+  YYSYMBOL_48_ = 48,                       /* ','  */
+  YYSYMBOL_49_ = 49,                       /* ':'  */
+  YYSYMBOL_YYACCEPT = 50,                  /* $accept  */
+  YYSYMBOL_program = 51                    /* program  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -456,7 +488,7 @@ union yyalloc
 #define YYLAST   0
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  18
+#define YYNTOKENS  50
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  2
 /* YYNRULES -- Number of rules.  */
@@ -465,7 +497,7 @@ union yyalloc
 #define YYNSTATES  3
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   270
+#define YYMAXUTOK   294
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -482,10 +514,10 @@ static const yytype_int8 yytranslate[] =
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,    16,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    17,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,    37,     2,     2,
+       2,     2,    35,    33,    48,    34,     2,    36,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    49,     2,
+      42,    23,    44,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -506,14 +538,16 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15
+      15,    16,    17,    18,    19,    20,    21,    22,    24,    25,
+      26,    27,    28,    29,    30,    31,    32,    38,    39,    40,
+      41,    43,    45,    46,    47
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    33,    33
+       0,    65,    65
 };
 #endif
 
@@ -531,7 +565,12 @@ static const char *const yytname[] =
 {
   "\"end of file\"", "error", "\"invalid token\"", "FOR", "WHILE", "IN",
   "IF", "ELSE", "ELIF", "TRY", "EXCEPT", "FINALLY", "ID", "NEWLINE",
-  "INDENT", "DEDENT", "','", "':'", "$accept", "program", YY_NULLPTR
+  "INDENT", "DEDENT", "INT", "FLOAT", "COMPLEX", "TRUE", "FALSE", "STR",
+  "NONE", "'='", "PLUS_ASSIGN", "MINUS_ASSIGN", "MULT_ASSIGN",
+  "DEGREE_ASSIGN", "DIV_ASSIGN", "MOD_ASSIGN", "AND", "OR", "NOT", "'+'",
+  "'-'", "'*'", "'/'", "'%'", "FLOOR_DIV", "UPLUS", "UMINUS", "DEGREE",
+  "'<'", "LESSER_EQUAL", "'>'", "GREATER_EQUAL", "NOT_EQUAL", "EQUAL",
+  "','", "':'", "$accept", "program", YY_NULLPTR
 };
 
 static const char *
@@ -595,13 +634,13 @@ static const yytype_int8 yycheck[] =
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    19,     0
+       0,    51,     0
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    18,    19
+       0,    50,    51
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
@@ -1071,7 +1110,7 @@ yyreduce:
   switch (yyn)
     {
 
-#line 1075 "python.tab.cpp"
+#line 1114 "python.tab.cpp"
 
       default: break;
     }
@@ -1264,7 +1303,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 103 "python.y"
+#line 167 "python.y"
 
 
 int yyerror(const char *errormsg)
