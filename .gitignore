@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Own ignores
+.vs/
+x64/
+Python-Compiler/x64/
+.vs/

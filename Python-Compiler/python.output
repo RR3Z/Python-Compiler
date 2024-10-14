@@ -1,0 +1,151 @@
+Nonterminals useless in grammar
+
+    expr
+    exprList
+    exprListEmpty
+    idList
+    body
+    elseStmt
+    forStmt
+    whileStmt
+    ifStmt
+    elifStmt
+    elifStmtList
+    tryStmt
+    exceptStmt
+    exceptStmtList
+    finallyStmt
+
+
+Terminals unused in grammar
+
+    FOR
+    WHILE
+    IN
+    IF
+    ELSE
+    ELIF
+    TRY
+    EXCEPT
+    FINALLY
+    ID
+    NEWLINE
+    INDENT
+    DEDENT
+    ','
+    ':'
+
+
+Rules useless in grammar
+
+    2 expr: %empty
+
+    3 exprList: exprList ',' expr
+    4         | expr
+
+    5 exprListEmpty: exprList
+    6              | %empty
+
+    7 idList: ID
+    8       | idList ',' ID
+
+    9 body: expr
+   10     | NEWLINE INDENT exprList DEDENT
+
+   11 elseStmt: ELSE ':' expr
+   12         | ELSE ':' body
+
+   13 forStmt: FOR idList IN expr ':' body elseStmt
+   14        | FOR idList IN expr ':' body
+
+   15 whileStmt: WHILE expr ':' body elseStmt
+   16          | WHILE expr ':' body
+
+   17 ifStmt: IF expr ':' expr
+   18       | IF expr ':' body
+   19       | IF expr ':' body elseStmt
+   20       | IF expr ':' body elifStmtList
+   21       | IF expr ':' body elifStmtList elseStmt
+
+   22 elifStmt: ELIF ':' expr
+   23         | ELIF ':' body
+
+   24 elifStmtList: elifStmt
+   25             | elifStmtList elifStmt
+
+   26 tryStmt: TRY ':' expr
+   27        | TRY ':' body
+   28        | TRY ':' body elseStmt
+   29        | TRY ':' body exceptStmtList
+   30        | TRY ':' body exceptStmtList elseStmt
+   31        | TRY ':' body exceptStmtList finallyStmt
+   32        | TRY ':' body exceptStmtList finallyStmt elseStmt
+
+   33 exceptStmt: EXCEPT ':' expr
+   34           | EXCEPT ':' body
+
+   35 exceptStmtList: exceptStmt
+   36               | exceptStmtList exceptStmt
+
+   37 finallyStmt: FINALLY ':' expr
+   38            | FINALLY ':' body
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: %empty
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    ',' (44)
+    ':' (58)
+    error (256)
+    FOR (258)
+    WHILE (259)
+    IN (260)
+    IF (261)
+    ELSE (262)
+    ELIF (263)
+    TRY (264)
+    EXCEPT (265)
+    FINALLY (266)
+    ID (267)
+    NEWLINE (268)
+    INDENT (269)
+    DEDENT (270)
+
+
+Nonterminals, with rules where they appear
+
+    $accept (18)
+        on left: 0
+    program (19)
+        on left: 1
+        on right: 0
+
+
+State 0
+
+    0 $accept: . program $end
+
+    $default  reduce using rule 1 (program)
+
+    program  go to state 1
+
+
+State 1
+
+    0 $accept: program . $end
+
+    $end  shift, and go to state 2
+
+
+State 2
+
+    0 $accept: program $end .
+
+    $default  accept
