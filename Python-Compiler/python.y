@@ -8,40 +8,26 @@
   int yyerror(const char *s);
 %}
 
-%token FOR
-%token WHILE
-%token IN
-%token IF
-%token ELSE
-%token ELIF
-%token TRY
-%token EXCEPT
-%token FINALLY
+%token
+LITERAL_INT LITERAL_FLOAT STRING
+TRUE FALSE NONE ID
 
-%token NEWLINE
-%token INDENT
-%token DEDENT
+'=' '+' '-' '*' '/' '%'
+PLUS_ASSIGN MINUS_ASSIGN MULT_ASSIGN
+POW_ASSIGN DIV_ASSIGN MOD_ASSIGN
+FLOOR_DIV UPLUS UMINUS POW
 
-%token ID
-%token INT
-%token FLOAT
-%token COMPLEX
-%token TRUE
-%token FALSE
-%token STR
-%token NONE
+'<' '>' EQUAL NOT_EQUAL
+LESSER_EQUAL GREATER_EQUAL
 
-%token '='
-%token PLUS_ASSIGN
-%token MINUS_ASSIGN
-%token MULT_ASSIGN
-%token POW_ASSIGN
-%token DIV_ASSIGN
-%token MOD_ASSIGN
+IF ELSE ELIF
+FOR WHILE IN
+TRY EXCEPT FINALLY
+AS AND OR NOT
 
-%token AND
-%token OR
-%token NOT
+NEWLINE INDENT DEDENT
+
+LAMBDA
 
 %left '+' '-'
 %left '*' '/' '%' FLOOR_DIV
@@ -49,6 +35,7 @@
 %left UMINUS
 %left AND OR NOT
 %left '<' LESSER_EQUAL '>' GREATER_EQUAL NOT_EQUAL EQUAL
+%left ','
 
 %right POW
 %right LAMBDA
@@ -57,17 +44,39 @@
 
 %%
 
-program: 
+program: expr
+	   | idList
        ;
 
+varDeclaration: idList '=' exprList
+			  | idListAssign '=' expr
+			  ;
+
+varList: varDeclaration
+	   | varList ',' varDeclaration
+	   ;
+
+idList: ID
+	  | idList ',' ID
+	  ;
+
+idListEmpty: idList
+		   | idList ','
+		   | /* EMPTY */
+		   ;
+
+idListAssign: idList '=' expr
+			| idListAssign '=' expr
+			;
+
 expr: ID
-	| INT 
-	| FLOAT
-	| COMPLEX
+	| LITERAL_INT 
+	| LITERAL_FLOAT
+	| STRING
 	| TRUE
 	| FALSE
-	| STR
 	| NONE
+	/*
 	| expr '+' expr
 	| expr '-' expr
 	| expr '*' expr
@@ -77,13 +86,12 @@ expr: ID
 	| expr POW expr
 	| '+' expr %prec UPLUS
 	| '-' expr %prec UMINUS
-	| expr '=' expr
-	| expr PLUS_ASSIGN expr
-	| expr MINUS_ASSIGN expr
-	| expr MULT_ASSIGN expr
-	| expr POW_ASSIGN expr
-	| expr DIV_ASSIGN expr
-	| expr MOD_ASSIGN expr
+	| ID PLUS_ASSIGN expr
+	| ID MINUS_ASSIGN expr
+	| ID MULT_ASSIGN expr
+	| ID POW_ASSIGN expr 
+	| ID DIV_ASSIGN expr
+	| ID MOD_ASSIGN expr
 	| expr AND expr
 	| expr OR expr
 	| NOT expr
@@ -98,9 +106,10 @@ expr: ID
 	| '[' expr FOR ID IN expr ']'
 	| expr '[' expr ']'
 	| expr '[' slice ']'
-	| '(' expr ')'
+	| '(' exprListEmpty ')'
 	| expr '(' exprListEmpty ')'
 	| LAMBDA idListEmpty ':' expr
+	*/
 	;
 
 exprList: expr
@@ -112,80 +121,67 @@ exprListEmpty: exprList
 			 | /* EMPTY */
 			 ;
 
+exprNamed: expr
+		 | expr AS ID
+		 ;
+
+slice: sliceDim ':' sliceDim ':' sliceDim
+	 | sliceDim ':' sliceDim
+	 ;
+
+sliceDim: LITERAL_INT
+	    | /* EMPTY */
+		;
+
 stmt: /* TODO */ 
 	;
 
 stmtList: /* TODO */
 		;
 
-slice: sliceDim ':' sliceDim ':' sliceDim
-	 | sliceDim ':' sliceDim
-	 ;
-
-sliceDim: expr
-	    | /* EMPTY */
-		;
-
-idList: ID
-	  | idList ','
-	  | idList ',' ID
-	  ;
-
-idListEmpty: idList
-		   | /* EMPTY */
-		   ;
-
 suite: stmt
-	 | NEWLINE INDENT stmtList DEDENT
+	 | NEWLINE INDENT stmtList DEDENT 
      ;
 
 elseStmt: ELSE ':' stmt
 		| ELSE ':' suite
 		;
 
-forStmt: FOR idList IN expr ':' suite elseStmt
-		| FOR idList IN expr ':' suite
+forStmt: FOR idList IN expr ':' suite
+		| FOR idList IN expr ':' suite elseStmt
 		;
 
 whileStmt: WHILE expr ':' suite
 		 | WHILE expr ':' suite elseStmt
 		 ;
 
-ifStmt: IF expr ':' expr
-	  | IF expr ':' suite
-	  | IF expr ':' suite elseStmt
-	  | IF expr ':' suite elifStmtList
-	  | IF expr ':' suite elifStmtList elseStmt
-	  ;
-
-elifStmt: ELIF ':' expr
-		| ELIF ':' suite
-		;
-
-elifStmtList: elifStmt
-			| elifStmtList elifStmt
-			;
-
-tryStmt: TRY ':' expr
-	   | TRY ':' suite
-	   | TRY ':' suite elseStmt
-	   | TRY ':' suite exceptStmtList
+tryStmt: TRY ':' suite exceptStmtList
 	   | TRY ':' suite exceptStmtList elseStmt
-	   | TRY ':' suite exceptStmtList finallyStmt
-	   | TRY ':' suite exceptStmtList finallyStmt elseStmt
+	   | TRY ':' suite exceptStmtList FINALLY ':' suite
+	   | TRY ':' suite exceptStmtList elseStmt FINALLY ':' suite
+	   | TRY ':' suite FINALLY ':' suite
 	   ;
 
-exceptStmt: EXCEPT ':' expr
-		  | EXCEPT ':' suite
+exceptStmt: EXCEPT ':' suite
+		  | EXCEPT exprNamed ':' suite
 		  ;
 
 exceptStmtList: exceptStmt
 			  | exceptStmtList exceptStmt
 			  ;
 
-finallyStmt: FINALLY ':' expr
-           | FINALLY ':' suite
-		   ;
+ifStmt: IF expr ':' suite
+	  | IF expr ':' suite elseStmt
+	  | IF expr ':' suite elifStmtList
+	  | IF expr ':' suite elifStmtList elseStmt
+	  ;
+
+elifStmt: ELIF ':' suite
+		;
+
+elifStmtList: elifStmt
+			| elifStmtList elifStmt
+			;
 
 %%
 
