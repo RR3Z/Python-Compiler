@@ -30,7 +30,10 @@
     <Text Include="input.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Bison Include="python.y" />
+    <Bison Include="python.y">
+      <Warnings Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">conflicts-rr</Warnings>
+      <Warnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">conflicts-rr</Warnings>
+    </Bison>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="python.tab.h" />
