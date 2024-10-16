@@ -50,7 +50,7 @@ program: assignmentStmt
 expr: ID
     ;
 
-assignmentStmt: targetAssignList '=' expr
+assignmentStmt: targetAssignList expr
               ;
 
 targetAssignList: targetList '='
