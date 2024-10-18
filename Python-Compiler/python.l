@@ -51,6 +51,7 @@
             isString = false;
             BEGIN(INDENTIATION);
         }
+        cout << "Line: " << yylineno << ". Found \\n (NEWLINE)" << endl;
    }
 
 ^[ ]+ {
