@@ -8,68 +8,86 @@
   int yyerror(const char *s);
 %}
 
-%token
-LITERAL_INT LITERAL_FLOAT STRING
-TRUE FALSE NONE ID
+%token INT_C FLOAT_C STRING_C ID TRUE FALSE
+%token NEWLINE INDENT DEDENT
+%token AND OR
+%token GT GE LT LE EQ NE
+%token ASSIGN_OP UMINUS ':'
+%token IF ELSE ELIF
 
-'=' '+' '-' '*' '/' '%'
-PLUS_ASSIGN MINUS_ASSIGN MULT_ASSIGN
-POW_ASSIGN DIV_ASSIGN MOD_ASSIGN
-FLOOR_DIV UPLUS UMINUS POW
-
-'<' '>' EQUAL NOT_EQUAL
-LESSER_EQUAL GREATER_EQUAL
-
-IF ELSE ELIF
-FOR WHILE IN
-TRY EXCEPT FINALLY
-AS AND OR NOT
-
-NEWLINE INDENT DEDENT
-
-LAMBDA
-
+%left '='
+%left '|' '&' AND OR
+%left GT GE LT LE EQ NE
 %left '+' '-'
-%left '*' '/' '%' FLOOR_DIV
-%left UPLUS
-%left UMINUS
-%left AND OR NOT
-%left '<' LESSER_EQUAL '>' GREATER_EQUAL NOT_EQUAL EQUAL
-%left ','
-
-%right POW
-%right LAMBDA
+%left '*' '/'
+%right ASSIGN_OP
+%right UMINUS
 
 %start program
 
 %%
 
-program: assignmentStmt
+program: stmtsList
        ;
 
-expr: ID
+stmt: expr NEWLINE
+    | ifStmt
     ;
 
-assignmentStmt: targetAssignList expr
-              ;
+stmtsList: stmt
+         | stmtsList stmt
+         ;
 
-targetAssignList: targetList '='
-                | targetAssignList '=' targetList '='
-                ;
+suite: NEWLINE INDENT stmtsList DEDENT
+     ;
 
-target: ID
-      | '(' targetListEmpty ')'
-      | '[' targetListEmpty ']'
+// Start of IF STATEMENT
+
+/*
+    IF ... : ...
+    IF ... : ... ELSE : ...
+    IF ... : ... ELIF : ...
+    IF ... : ... ELIF : ... ELSE : ...
+
+    In this case, there may be several elif blocks, or there may not be
+*/
+
+ifStmt: IF expr ':' suite
+      | IF expr ':' suite ELSE ':' suite
+      | IF expr ':' suite elifStmtList
+      | IF expr ':' suite elifStmtList ELSE ':' suite
       ;
 
-targetList: target
-          | targetList ',' target
-          ;
+elifStmtList: ELIF ':' suite
+            | elifStmtList ELIF ':' suite
+            ;
 
-targetListEmpty: targetList
-               | targetList ','
-               | /* empty */
-               ;
+// End of IF STATEMENT
+
+expr: expr '+' expr
+    | expr '-' expr
+    | expr '*' expr
+    | expr '/' expr
+    | expr AND expr
+    | expr '&' expr
+    | expr OR expr
+    | expr '|' expr
+    | expr GT expr
+    | expr GE expr
+    | expr LT expr
+    | expr LE expr
+    | expr EQ expr
+    | expr NE expr
+    | ID ASSIGN_OP expr
+    | '(' expr ')'
+    | '-' expr %prec UMINUS
+    | INT_C
+    | FLOAT_C
+    | STRING_C
+    | TRUE
+    | FALSE
+    | ID
+    ;
 
 %%
 
