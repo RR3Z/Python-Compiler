@@ -9,6 +9,8 @@
     #include <deque>
     using namespace std;
 
+    #include "python.tab.h"
+
     string removeUnderline(string text);
     void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int indentLength);
     void checkIndentiationForKeywords(deque<int>& keywordsLineNumber, int* indentStack, int indentStackTopIndex, int* emptyLinesCounter, int indentLength);
