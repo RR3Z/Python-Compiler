@@ -51,6 +51,8 @@ simpleStmtList: simpleStmt
               ;
 
 suite: NEWLINE INDENT stmtsList DEDENT
+     | simpleStmtList NEWLINE
+     | simpleStmtList ';' NEWLINE
      ;
 
 // Start of IF STATEMENT
