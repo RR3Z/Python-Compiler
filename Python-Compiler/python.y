@@ -14,6 +14,7 @@
 %token GT GE LT LE EQ NE
 %token ASSIGN_OP UMINUS ':'
 %token IF ELSE ELIF
+%token TEST /*TODO: REMOVE IT*/
 
 %left '='
 %left '|' '&' AND OR
@@ -30,13 +31,24 @@
 program: stmtsList
        ;
 
-stmt: expr NEWLINE
-    | ifStmt
+stmt: compoundStmt
+    | simpleStmt
     ;
 
 stmtsList: stmt
          | stmtsList stmt
          ;
+
+compoundStmt: ifStmt
+            | expr NEWLINE
+            ;
+
+simpleStmt: assignmentStmt
+          ;
+
+simpleStmtList: simpleStmt
+              | simpleStmtList ';' simpleStmt
+              ;
 
 suite: NEWLINE INDENT stmtsList DEDENT
      ;
@@ -62,7 +74,11 @@ elifStmtList: ELIF ':' suite
             | elifStmtList ELIF ':' suite
             ;
 
-// End of IF STATEMENT
+// Start of ASSIGNMENT STATEMENT
+
+assignmentStmt: TEST
+              ;
+
 
 expr: expr '+' expr
     | expr '-' expr
