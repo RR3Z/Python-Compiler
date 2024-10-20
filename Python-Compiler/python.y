@@ -12,17 +12,18 @@
 %token NEWLINE INDENT DEDENT
 %token AND OR
 %token GT GE LT LE EQ NE
-%token ASSIGN_OP UMINUS ':'
+%token ASSIGN_OP UPLUS UMINUS
 %token IF ELSE ELIF
-%token TEST /*TODO: REMOVE IT*/
+%token FOR WHILE IN
+%token TRY FINALLY EXCEPT AS
+%token DEF
 
-%left '='
-%left '|' '&' AND OR
-%left GT GE LT LE EQ NE
 %left '+' '-'
 %left '*' '/'
-%right ASSIGN_OP
-%right UMINUS
+%left '|' '&' AND OR
+%left GT GE LT LE EQ NE
+%right ASSIGN_OP '='
+%right UPLUS UMINUS
 
 %start program
 
@@ -40,10 +41,13 @@ stmtsList: stmt
          ;
 
 compoundStmt: ifStmt
-            | expr NEWLINE
+            | forStmt
+            | whileStmt
+            | tryStmt
+            | funcDef
             ;
 
-simpleStmt: assignmentStmt
+simpleStmt: assignStmt
           ;
 
 simpleStmtList: simpleStmt
@@ -55,7 +59,7 @@ suite: NEWLINE INDENT stmtsList DEDENT
      | simpleStmtList ';' NEWLINE
      ;
 
-// Start of IF STATEMENT
+// IF STATEMENT
 
 /*
     IF ... : ...
@@ -76,11 +80,78 @@ elifStmtList: ELIF ':' suite
             | elifStmtList ELIF ':' suite
             ;
 
-// Start of ASSIGNMENT STATEMENT
+// FOR STATEMENT
 
-assignmentStmt: TEST
+forStmt: FOR targetList IN expr ':' suite
+       | FOR targetList IN expr ':' suite ELSE ':' suite
+       ;
+
+// WHILE STATEMENT
+
+whileStmt: WHILE expr ':' suite
+         | WHILE expr ':' suite ELSE ':' suite
+         ;
+
+// TRY STATEMENT
+
+tryStmt: TRY ':' suite exceptStmtList
+       | TRY ':' suite exceptStmtList ELSE ':' suite
+       | TRY ':' suite exceptStmtList FINALLY ':' suite
+       | TRY ':' suite exceptStmtList ELSE ':' suite FINALLY ':' suite
+       | TRY ':' suite FINALLY ':' suite
+       ;
+
+exceptStmt: EXCEPT ':' suite
+          | EXCEPT expr ':' suite
+          | EXCEPT expr AS identifier ':' suite
+          ;
+
+exceptStmtList: exceptStmt
+              | exceptStmtList exceptStmt
               ;
 
+// FUNCTION DEFINITION
+
+funcDef: DEF identifier '(' paramsListE ')' ':' suite
+       ;
+
+param: identifier
+     | identifier ':' expr
+     | identifier '=' expr
+     ;
+
+paramsList: param
+          | paramsList ',' param
+          ;
+
+paramsListE: paramsList
+           | paramsList ','
+           | /* empty */
+           ;
+
+// ASSIGNMENT STATEMENT
+
+assignStmt: targetAssignList '=' expr
+          ;
+
+target: identifier
+      //| '(' targetListE ')' don't know how to solve this conflict
+      //| '[' targetListE ']' don't know how to solve this conflict
+      ;
+
+targetList: target
+          | targetList ',' target
+          ;
+
+targetListE: targetList
+           | /* empty */
+           ;
+
+targetAssignList: targetList
+                | targetList ','
+                | targetAssignList '=' targetList
+                | targetAssignList '=' targetList ','
+                ;
 
 expr: expr '+' expr
     | expr '-' expr
@@ -96,16 +167,29 @@ expr: expr '+' expr
     | expr LE expr
     | expr EQ expr
     | expr NE expr
-    | ID ASSIGN_OP expr
-    | '(' expr ')'
+    | '+' expr %prec UPLUS
     | '-' expr %prec UMINUS
+    | '(' expr ')'
     | INT_C
     | FLOAT_C
     | STRING_C
     | TRUE
     | FALSE
-    | ID
+    | identifier
+    | identifier ASSIGN_OP expr
     ;
+
+exprList: expr
+        | exprList ',' expr
+        ;
+
+exprListE: exprList
+         | exprList ','
+         | /* empty */
+         ;
+
+identifier: ID
+          ;
 
 %%
 
