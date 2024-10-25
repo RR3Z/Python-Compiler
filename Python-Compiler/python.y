@@ -17,7 +17,7 @@
 %token IF ELSE ELIF
 %token FOR WHILE IN
 %token TRY FINALLY EXCEPT AS
-%token DEF
+%token DEF CLASS
 %token RETURN
 
 %left '+' '-'
@@ -48,6 +48,7 @@ compoundStmt: ifStmt
             | whileStmt
             | tryStmt
             | funcDef
+            | classDef
             ;
 
 simpleStmt: assignStmt
@@ -133,6 +134,12 @@ paramsListE: paramsList
            | /* empty */
            ;
 
+// CLASS DEFINITION
+
+classDef: CLASS identifier ':' suite
+        | CLASS identifier '(' identifiersE ')' ':' suite
+        ;
+
 // ASSIGNMENT STATEMENT
 
 assignStmt: assignStmtTargetAssignList '=' expr
@@ -190,6 +197,15 @@ exprListE: exprList
 
 identifier: ID
           ;
+
+identifiers: identifier
+           | identifiers ',' identifier
+           ;
+
+identifiersE: identifiers
+            | identifiers ','
+            | /* empty */
+            ;
 
 targetList: identifier
           | targetList ',' identifier
