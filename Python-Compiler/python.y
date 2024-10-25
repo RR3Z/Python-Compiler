@@ -18,6 +18,7 @@
 %token FOR WHILE IN
 %token TRY FINALLY EXCEPT AS
 %token DEF
+%token RETURN
 
 %left '+' '-'
 %left '*' '/'
@@ -49,6 +50,7 @@ compoundStmt: ifStmt
             ;
 
 simpleStmt: assignStmt
+          | returnStmt
           ;
 
 simpleStmtList: simpleStmt
@@ -144,6 +146,11 @@ assignStmtTargetAssignList: targetList
                           | assignStmtTargetAssignList '=' targetList
                           | assignStmtTargetAssignList '=' targetList ','
                           ;
+
+// RETURN STATEMENT
+ 
+returnStmt: RETURN exprListE NEWLINE
+          ;
 
 expr: expr '+' expr
     | expr '-' expr
