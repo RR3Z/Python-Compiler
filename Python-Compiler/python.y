@@ -36,6 +36,7 @@ program: stmtsList
 
 stmt: compoundStmt
     | simpleStmt
+    | stmt NEWLINE
     ;
 
 stmtsList: stmt
