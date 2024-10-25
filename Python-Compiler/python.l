@@ -259,7 +259,7 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
     } else {
         string text = yytext;
         text = removeUnderline(text);
-        cout << "Line: " << yylineno << ". Found binary literal: " << to_string(stoll(text.substr(2), NULL, 2)) << endl;
+        cout << "Line: " << yylineno << ". Found binary literal: " << stoll(text.substr(2), NULL, 2) << endl;
     }
 }
 0[bB](\_?[A-Za-z0-9])* { cout << "Line: " << yylineno << ". ERROR: invalid binary literal (illegal use of letter)." << endl; }
@@ -271,7 +271,7 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
     } else {
         string text = yytext;
         text = removeUnderline(text);
-        cout << "Line: " << yylineno << ". Found hexadecimal literal: " << to_string(stoll(text.substr(2), NULL, 16)) << endl;
+        cout << "Line: " << yylineno << ". Found hexadecimal literal: " << stoll(text.substr(2), NULL, 16) << endl;
     }
 }
 0[xX](\_?[A-Za-z0-9])* { cout << "Line: " << yylineno << ". ERROR: invalid hexadecimal literal (illegal use of letter)." << endl; }
