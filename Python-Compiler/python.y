@@ -13,6 +13,7 @@
 %token AND OR
 %token GT GE LT LE EQ NE
 %token ASSIGN_OP UPLUS UMINUS
+%token PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
 %token IF ELSE ELIF
 %token FOR WHILE IN
 %token TRY FINALLY EXCEPT AS
@@ -22,7 +23,7 @@
 %left '*' '/'
 %left '|' '&' AND OR
 %left GT GE LT LE EQ NE
-%right ASSIGN_OP '='
+%right ASSIGN_OP '=' PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
 %right UPLUS UMINUS
 
 %start program
@@ -131,27 +132,18 @@ paramsListE: paramsList
 
 // ASSIGNMENT STATEMENT
 
-assignStmt: targetAssignList '=' expr
+assignStmt: assignStmtTargetAssignList '=' expr
+          | identifier PLUS_ASSIGN expr
+          | identifier MINUS_ASSIGN expr
+          | identifier MUL_ASSIGN expr
+          | identifier DIV_ASSIGN expr
           ;
 
-target: identifier
-      //| '(' targetListE ')' don't know how to solve this conflict
-      //| '[' targetListE ']' don't know how to solve this conflict
-      ;
-
-targetList: target
-          | targetList ',' target
-          ;
-
-targetListE: targetList
-           | /* empty */
-           ;
-
-targetAssignList: targetList
-                | targetList ','
-                | targetAssignList '=' targetList
-                | targetAssignList '=' targetList ','
-                ;
+assignStmtTargetAssignList: targetList
+                          | targetList ','
+                          | assignStmtTargetAssignList '=' targetList
+                          | assignStmtTargetAssignList '=' targetList ','
+                          ;
 
 expr: expr '+' expr
     | expr '-' expr
@@ -189,6 +181,10 @@ exprListE: exprList
          ;
 
 identifier: ID
+          ;
+
+targetList: identifier
+          | targetList ',' identifier
           ;
 
 %%
