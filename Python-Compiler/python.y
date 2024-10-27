@@ -18,13 +18,14 @@
 %token FOR WHILE IN
 %token TRY FINALLY EXCEPT AS
 %token DEF CLASS
-%token RETURN
+%token RETURN LAMBDA
 
+%right ASSIGN_OP '=' PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
+%left LAMBDA
 %left '+' '-'
 %left '*' '/'
 %left '|' '&' AND OR
 %left GT GE LT LE EQ NE
-%right ASSIGN_OP '=' PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
 %right UPLUS UMINUS
 
 %start program
@@ -184,6 +185,7 @@ expr: expr '+' expr
     | FALSE
     | identifier
     | identifier ASSIGN_OP expr
+    | LAMBDA paramsListE ':' expr %prec LAMBDA
     ;
 
 exprList: expr
