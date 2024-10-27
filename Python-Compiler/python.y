@@ -96,6 +96,10 @@ ifHeaderList: ifHeader
             | ifHeaderList ifHeader
             ;
 
+ifHeaderListE: ifHeaderList
+             | /* empty */
+             ;
+
 elifStmtList: ELIF expr ':' suite
             | elifStmtList ELIF expr ':' suite
             ;
@@ -207,7 +211,7 @@ expr: expr '+' expr
     | identifier ASSIGN_OP expr
     | LAMBDA paramsListE ':' expr %prec LAMBDA
     | '[' exprListE ']'
-    | '[' exprList forHeaderList ifHeaderList ']'
+    | '[' exprList forHeaderList ifHeaderListE ']'
     | expr '[' expr ']'
     | expr '(' exprListE ')' {cout<<"P: expr '(' exprListE ')'"<<endl;}
     | attributeRefList {cout<<"P: attributeRefList"<<endl;}
