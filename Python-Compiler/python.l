@@ -289,8 +289,11 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 0[oO](\_?[A-Za-z0-9])* { cout << "Line: " << yylineno << ". ERROR: invalid octal literal (unexpected character)." << endl; }
 0[oO][0-7]*(\_+[0-7]*)* { cout << "Line: " << yylineno << ". ERROR: invalid octal literal (illegal use of underscore)." << endl; }
 
-([0-9]\_?)*([0-9]\.|\.[0-9])(\_?[0-9])*([eE][+-]?[0-9](\_?[0-9])*)?|([0-9]\_?)*([eE][+-]?[0-9](\_?[0-9])*) {
+([0-9]\_?)*([0-9]\.|\.[0-9])(\_?[0-9])*([eE][+-]?[0-9](\_?[0-9])*)?|[0-9](\_?[0-9])*([eE][+-]?[0-9](\_?[0-9])*) {
     cout << "Line: " << yylineno << ". Found float literal: " << removeUnderline(yytext) << endl;
+}
+([0-9]\_?)*([0-9]\.|\.[0-9])(\_+[0-9]*)*([eE][+-]?[0-9](\_+[0-9]*)*)?|([0-9]\_?)+([eE][+-]?[0-9](\_+[0-9]*)*) {
+     cout << "Line: " << yylineno << ". ERROR: invalid float literal (illegal use of underscore)." << endl;
 }
 
 [0-9](\_?[0-9])* {
