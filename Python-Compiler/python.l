@@ -52,6 +52,7 @@
             BEGIN(INDENTIATION);
         }
         cout << "Line: " << yylineno << ". Found \\n (NEWLINE)" << endl;
+        return NEWLINE;
    }
 
 ^[ ]+ {
@@ -101,7 +102,7 @@
 
 \+ { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
 \- { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
-\* { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
+\* { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; return '*'; }
 \*\* { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
 \/ { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
 \/\/ { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
@@ -122,7 +123,7 @@
 \!\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; }
 
 \:\= { cout << "Line: " << yylineno << ". Found assignment operator: " << yytext << endl; }
-\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
+\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; return '='; }
 \+\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
 \-\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
 \*\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
@@ -139,25 +140,29 @@
 \, { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; }
 \: { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; }
 \! { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; }
-\. { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; }
+\. { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; return '.'; }
 \; { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; }
 \-\> { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; }
 
 \( { 
         cout << "Line: " << yylineno << ". Found open parentheses bracket: " << yytext << endl;
         parenthesesBracketsCounter++; 
+        return '(';
    }
 \) { 
         cout << "Line: " << yylineno << ". Found close parentheses bracket: " << yytext << endl;
         parenthesesBracketsCounter--;
+        return ')';
    }
 \[ { 
         cout << "Line: " << yylineno << ". Found open square bracket: " << yytext << endl;
         squareBracketsCounter++;
+        return '[';
    }
 \] {
         cout << "Line: " << yylineno << ". Found close square bracket: " << yytext << endl;
         squareBracketsCounter--;
+        return ']';
    }
 \{ { 
         cout << "Line: " << yylineno << ". Found open curly bracket: " << yytext << endl;
@@ -303,6 +308,7 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
         cout << "Line: " << yylineno << ". ERROR: invalid decimal literal (illegal use of 0)." << endl;
     } else {
         cout << "Line: " << yylineno << ". Found decimal literal: " << number << endl;
+        return INT_C;
     }
 }
 [0-9](\_?[A-Za-z0-9])* { cout << "Line: " << yylineno << ". ERROR: invalid decimal literal (unexpected character)." << endl; }
@@ -391,7 +397,7 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
     BEGIN(INITIAL);
 }
 
-[A-Za-z_][A-Za-z0-9_]*  { cout << "Line: " << yylineno << ". Found identifier: " << yytext << endl; }
+[A-Za-z_][A-Za-z0-9_]*  { cout << "Line: " << yylineno << ". Found identifier: " << yytext << endl; return ID; }
 
 <<EOF>> {
             checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, 0);

@@ -31,6 +31,9 @@
 %left '+' '-'
 %left '*' '/'
 %right UPLUS UMINUS
+%left '.'
+%nonassoc '('
+%nonassoc '['
 
 %start program
 
@@ -41,7 +44,7 @@ program: stmtsList
 
 stmt: compoundStmt
     | simpleStmt
-    | stmt NEWLINE
+    | expr NEWLINE
     ;
 
 stmtsList: stmt
@@ -74,27 +77,41 @@ suite: NEWLINE INDENT stmtsList DEDENT
 /*
     IF ... : ...
     IF ... : ... ELSE : ...
-    IF ... : ... ELIF : ...
-    IF ... : ... ELIF : ... ELSE : ...
+    IF ... : ... ELIF ... : ...
+    IF ... : ... ELIF ... : ... ELSE : ...
 
     In this case, there may be several elif blocks, or there may not be
 */
 
-ifStmt: IF expr ':' suite
-      | IF expr ':' suite ELSE ':' suite
-      | IF expr ':' suite elifStmtList
-      | IF expr ':' suite elifStmtList ELSE ':' suite
+ifStmt: ifHeader ':' suite
+      | ifHeader ':' suite ELSE ':' suite
+      | ifHeader ':' suite elifStmtList
+      | ifHeader ':' suite elifStmtList ELSE ':' suite
       ;
 
-elifStmtList: ELIF ':' suite
-            | elifStmtList ELIF ':' suite
+ifHeader: IF expr
+        ;
+
+ifHeaderList: ifHeader
+            | ifHeaderList ifHeader
+            ;
+
+elifStmtList: ELIF expr ':' suite
+            | elifStmtList ELIF expr ':' suite
             ;
 
 // FOR STATEMENT
 
-forStmt: FOR targetList IN expr ':' suite
-       | FOR targetList IN expr ':' suite ELSE ':' suite
+forStmt: forHeader ':' suite
+       | forHeader ':' suite ELSE ':' suite
        ;
+
+forHeader: FOR targetList IN expr
+         ;
+
+forHeaderList: forHeader
+             | forHeaderList forHeader
+             ;
 
 // WHILE STATEMENT
 
@@ -166,7 +183,7 @@ returnStmt: RETURN exprListE NEWLINE
 
 expr: expr '+' expr
     | expr '-' expr
-    | expr '*' expr
+    | expr '*' expr {cout << "P: expr '*' expr" << endl;}
     | expr '/' expr
     | expr AND expr
     | expr '&' expr
@@ -180,15 +197,20 @@ expr: expr '+' expr
     | expr NE expr
     | '+' expr %prec UPLUS
     | '-' expr %prec UMINUS
-    | '(' expr ')'
+    | '(' expr ')' {cout<<"P: '(' expr ')'"<<endl;}
     | INT_C
     | FLOAT_C
     | STRING_C
     | TRUE
     | FALSE
-    | identifier
+    | identifier {cout<<"P: identifier"<<endl;}
     | identifier ASSIGN_OP expr
     | LAMBDA paramsListE ':' expr %prec LAMBDA
+    | '[' exprListE ']'
+    | '[' exprList forHeaderList ifHeaderList ']'
+    | expr '[' expr ']'
+    | expr '(' exprListE ')' {cout<<"P: expr '(' exprListE ')'"<<endl;}
+    | attributeRefList {cout<<"P: attributeRefList"<<endl;}
     ;
 
 exprList: expr
@@ -215,6 +237,13 @@ identifiersE: identifiers
 targetList: identifier
           | targetList ',' identifier
           ;
+
+attributeRef: identifier '.' identifier
+            ;
+
+attributeRefList: attributeRef
+                | attributeRef '.' identifier
+                ;
 
 %%
 
