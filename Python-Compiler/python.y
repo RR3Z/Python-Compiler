@@ -22,10 +22,14 @@
 
 %right ASSIGN_OP '=' PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
 %left LAMBDA
+%left OR
+%left AND
+%right NOT
+%left GT GE LT LE EQ NE
+%left '|'
+%left '&'
 %left '+' '-'
 %left '*' '/'
-%left '|' '&' AND OR
-%left GT GE LT LE EQ NE
 %right UPLUS UMINUS
 
 %start program
