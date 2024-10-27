@@ -122,7 +122,6 @@ funcDef: DEF identifier '(' paramsListE ')' ':' suite
        ;
 
 param: identifier
-     | identifier ':' expr
      | identifier '=' expr
      ;
 
