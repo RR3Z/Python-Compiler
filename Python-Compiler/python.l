@@ -292,14 +292,14 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 ([0-9]\_?)*([0-9]\.|\.[0-9])(\_?[0-9])*([eE][+-]?[0-9](\_?[0-9])*)?|([0-9]\_?)*([eE][+-]?[0-9](\_?[0-9])*) {
     cout << "Line: " << yylineno << ". Found float literal: " << removeUnderline(yytext) << endl;
 }
-[0-9](\_?[0-9])* {
-    string text = yytext;
 
-    if(yyleng > 1 && text[0] == '0') {
+[0-9](\_?[0-9])* {
+    int number = stoi(removeUnderline(yytext));
+    
+    if(yyleng > 1 && yytext[0] == '0' && number != 0) {
         cout << "Line: " << yylineno << ". ERROR: invalid decimal literal (illegal use of 0)." << endl;
     } else {
-        text = removeUnderline(text);
-        cout << "Line: " << yylineno << ". Found decimal literal: " << text << endl;
+        cout << "Line: " << yylineno << ". Found decimal literal: " << number << endl;
     }
 }
 [0-9](\_?[A-Za-z0-9])* { cout << "Line: " << yylineno << ". ERROR: invalid decimal literal (unexpected character)." << endl; }
