@@ -21,7 +21,7 @@
 %token RETURN LAMBDA
 
 %right ASSIGN_OP '=' PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
-%left LAMBDA
+%nonassoc LAMBDA
 %left OR
 %left AND
 %right NOT
@@ -32,8 +32,8 @@
 %left '*' '/'
 %right UPLUS UMINUS
 %left '.'
-%nonassoc '('
-%nonassoc '['
+%nonassoc '(' ')'
+%nonassoc '[' ']'
 
 %start program
 
