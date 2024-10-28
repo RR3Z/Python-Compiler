@@ -288,9 +288,10 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
     if(yyleng == 2) {
         cout << "Line: " << yylineno << ". ERROR: found empty binary literal." << endl;
     } else {
-        string text = yytext;
-        text = removeUnderline(text);
-        cout << "Line: " << yylineno << ". Found binary literal: " << stoll(text.substr(2), NULL, 2) << endl;
+        int intNum = stoll(removeUnderline(yytext).substr(2), NULL, 2);
+        cout << "Line: " << yylineno << ". Found binary literal: " << intNum << endl;
+        yylval.intVal = intNum;
+        return INT_C;
     }
 }
 0[bB](\_?[A-Za-z0-9])* { cout << "Line: " << yylineno << ". ERROR: invalid binary literal (illegal use of letter)." << endl; }
@@ -300,9 +301,10 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
     if(yyleng == 2) {
         cout << "Line: " << yylineno << ". ERROR: found empty hexadecimal literal." << endl;
     } else {
-        string text = yytext;
-        text = removeUnderline(text);
-        cout << "Line: " << yylineno << ". Found hexadecimal literal: " << stoll(text.substr(2), NULL, 16) << endl;
+        int intNum = stoll(removeUnderline(yytext).substr(2), NULL, 16);
+        cout << "Line: " << yylineno << ". Found hexadecimal literal: " << intNum << endl;
+        yylval.intVal = intNum;
+        return INT_C;
     }
 }
 0[xX](\_?[A-Za-z0-9])* { cout << "Line: " << yylineno << ". ERROR: invalid hexadecimal literal (illegal use of letter)." << endl; }
@@ -312,28 +314,33 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
     if(yyleng == 2) {
         cout << "Line: " << yylineno << ". ERROR: found empty octal literal." << endl;
     } else {
-        string text = yytext;
-        text = removeUnderline(text);
-        cout << "Line: " << yylineno << ". Found octal literal: " << stoll("0" + text.substr(2), NULL, 8) << endl;
+        int intNum = stoll(removeUnderline(yytext).substr(2), NULL, 8);
+        cout << "Line: " << yylineno << ". Found octal literal: " << intNum << endl;
+        yylval.intVal = intNum;
+        return INT_C;
     }
 }
 0[oO](\_?[A-Za-z0-9])* { cout << "Line: " << yylineno << ". ERROR: invalid octal literal (unexpected character)." << endl; }
 0[oO][0-7]*(\_+[0-7]*)* { cout << "Line: " << yylineno << ". ERROR: invalid octal literal (illegal use of underscore)." << endl; }
 
 ([0-9]\_?)*([0-9]\.|\.[0-9])(\_?[0-9])*([eE][+-]?[0-9](\_?[0-9])*)?|[0-9](\_?[0-9])*([eE][+-]?[0-9](\_?[0-9])*) {
-    cout << "Line: " << yylineno << ". Found float literal: " << removeUnderline(yytext) << endl;
+    float floatNum = stof(removeUnderline(yytext));
+    cout << "Line: " << yylineno << ". Found float literal: " << floatNum << endl;
+    yylval.floatVal = floatNum;
+    return FLOAT_C;
 }
 ([0-9]\_?)*([0-9]\.|\.[0-9])(\_+[0-9]*)*([eE][+-]?[0-9](\_+[0-9]*)*)?|([0-9]\_?)+([eE][+-]?[0-9](\_+[0-9]*)*) {
      cout << "Line: " << yylineno << ". ERROR: invalid float literal (illegal use of underscore)." << endl;
 }
 
 [0-9](\_?[0-9])* {
-    int number = stoi(removeUnderline(yytext));
+    int intNum = stoi(removeUnderline(yytext));
     
-    if(yyleng > 1 && yytext[0] == '0' && number != 0) {
+    if(yyleng > 1 && yytext[0] == '0' && intNum != 0) {
         cout << "Line: " << yylineno << ". ERROR: invalid decimal literal (illegal use of 0)." << endl;
     } else {
-        cout << "Line: " << yylineno << ". Found decimal literal: " << number << endl;
+        cout << "Line: " << yylineno << ". Found decimal literal: " << intNum << endl;
+        yylval.intVal = intNum;
         return INT_C;
     }
 }
@@ -386,22 +393,34 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 <SHORT_SINGLE_STRING>\' {
     cout << "Line: " << yylineno << ". Found inline single-quoted string literal: \'" + str + "\'" << endl;
     isString = false;
-    BEGIN(INITIAL); 
+    BEGIN(INITIAL);
+    
+    yylval.stringVal = &str;
+    return STRING_C; 
 }
 <SHORT_DOUBLE_STRING>\" {
     cout << "Line: " << yylineno << ". Found inline double-quoted string literal: \"" + str + "\"" << endl;
     isString = false;
     BEGIN(INITIAL); 
+
+    yylval.stringVal = &str;
+    return STRING_C; 
 }
 <LONG_SINGLE_STRING>\'{3} {
     cout << "Line: " << yylineno << ". Found multiline single-quoted string literal:\n\'" + str + "\'" << endl;
     isString = false;
     BEGIN(INITIAL); 
+
+    yylval.stringVal = &str;
+    return STRING_C; 
 }
 <LONG_DOUBLE_STRING>\"{3} {
     cout << "Line: " << yylineno << ". Found multiline double-quoted string literal:\n\"" + str + "\"" << endl;
     isString = false;
     BEGIN(INITIAL); 
+
+    yylval.stringVal = &str;
+    return STRING_C; 
 }
 
 <SHORT_SINGLE_STRING,SHORT_DOUBLE_STRING>[\n\r] {
@@ -423,18 +442,24 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
     BEGIN(INITIAL);
 }
 
-[A-Za-z_][A-Za-z0-9_]*  { cout << "Line: " << yylineno << ". Found identifier: " << yytext << endl; return ID; }
+[A-Za-z_][A-Za-z0-9_]*  { 
+    cout << "Line: " << yylineno << ". Found identifier: " << yytext << endl;
+
+    string text = yytext; 
+    yylval.stringVal = &text;
+    return ID; 
+}
 
 <INITIAL><<EOF>> {
             checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, 0);
             cout << "EOF: return NEWLINE" << endl;
             BEGIN(END_OF_FILE);
-            return NEWLINE;
+            return dents.DentType;
         }
 
 <END_OF_FILE><<EOF>> {
     BEGIN(INITIAL);
-    return 0;
+    return NEWLINE;
 }
 
 . {}

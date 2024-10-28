@@ -2,11 +2,18 @@
   #include <stdio.h>
   #include <stdlib.h>
   #include <iostream>
+  #include <string>
   using namespace std;
 
   int yylex(void);
   int yyerror(const char *s);
 %}
+
+%union {
+    int intVal;
+    float floatVal;
+    string* stringVal;
+}
 
 %token INT_C FLOAT_C STRING_C ID TRUE FALSE
 %token NEWLINE INDENT DEDENT
