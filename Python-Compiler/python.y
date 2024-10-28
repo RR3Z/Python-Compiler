@@ -255,7 +255,7 @@ attributeRef: identifier '.' identifier
             ;
 
 attributeRefList: attributeRef
-                | attributeRef '.' identifier
+                | attributeRefList '.' identifier
                 ;
 
 %%
