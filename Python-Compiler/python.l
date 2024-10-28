@@ -43,7 +43,7 @@
     int indentStackTopIndex = 0;
     int indentStack[1000];
     indentStack[0] = 0;
-    struct DentStruct dents;
+    struct DentStruct dents{0,0};
 
     int parenthesesBracketsCounter = 0;
     int squareBracketsCounter = 0;
@@ -52,7 +52,6 @@
 
 <INDENT_OUTPUT>""/. {
     if(dents.count > 0) {
-        dents.count--;
         return dents.DentType;
     } else {
         cout << "OUT OF INDENT_OUTPUT" << endl;
@@ -117,9 +116,9 @@
                         BEGIN(INDENT_OUTPUT);
                    }
 
-\+ { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; return '+'; }
-\- { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; return '-'; }
-\* { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; return '*'; }
+\+ { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; return '+'; return '+'; }
+\- { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; return '-'; return '-'; }
+\* { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; return '*'; return '*'; }
 \*\* { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
 \/ { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; return '/'; }
 \/\/ { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
@@ -127,24 +126,24 @@
 
 \<\< { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; }
 \>\> { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; }
-\& { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; }
-\| { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; }
+\& { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; return '%'; }
+\| { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; return '|'; }
 \^ { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; }
 \~ { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; }
 
-\< { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; }
-\> { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; }
-\>\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; }
-\<\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; }
-\=\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; }
-\!\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; }
+\< { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; return LT; }
+\> { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; return GT; }
+\>\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; return GE; }
+\<\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; return LE; }
+\=\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; return EQ; }
+\!\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; return NE; }
 
-\:\= { cout << "Line: " << yylineno << ". Found assignment operator: " << yytext << endl; return ':'; }
+\:\= { cout << "Line: " << yylineno << ". Found assignment operator: " << yytext << endl; }
 \= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; return '='; }
-\+\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
-\-\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
-\*\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
-\/\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
+\+\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; return PLUS_ASSIGN; }
+\-\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; return MINUS_ASSIGN; }
+\*\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; return MUL_ASSIGN; }
+\/\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; return DIV_ASSIGN; }
 \/\/\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
 \%\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
 \&\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
@@ -154,11 +153,11 @@
 \<\<\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
 \*\*\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
 
-\, { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; }
-\: { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; }
-\! { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; }
+\, { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; return ','; }
+\: { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; return ':'; }
+\! { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; return '!'; }
 \. { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; return '.'; }
-\; { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; }
+\; { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; return ';'; }
 \-\> { cout << "Line: " << yylineno << ". Found delimiter: " << yytext << endl; }
 
 \( { 
@@ -209,18 +208,22 @@ NoneType { cout << "Line: " << yylineno << ". Found data type: " << yytext << en
 if {
         cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
         keywordsLineNumber.push_back(yylineno);
+        return IF;
    }
 elif {
         cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
         keywordsLineNumber.push_back(yylineno);
+        return ELIF;
      }
 else {
         cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
         keywordsLineNumber.push_back(yylineno);
+        return ELSE;
      }
 class {
         cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
         keywordsLineNumber.push_back(yylineno);
+        return CLASS;
       }
 def {
         cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
@@ -230,32 +233,37 @@ def {
 try {
         cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
         keywordsLineNumber.push_back(yylineno);
+        return TRY;
     }
 except {
             cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
             keywordsLineNumber.push_back(yylineno);
+            return EXCEPT;
        }
 finally {
             cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
             keywordsLineNumber.push_back(yylineno);
+            return FINALLY;
         }
 for {
         cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
         keywordsLineNumber.push_back(yylineno);
+        return FOR;
     }
 while {
         cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
         keywordsLineNumber.push_back(yylineno);
+        return WHILE;
       }
 with {
         cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
         keywordsLineNumber.push_back(yylineno);
      }
-False { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }     
+False { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; return FALSE; }     
 None { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }      
-True { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }        
-and { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }           
-as { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }           
+True { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; return TRUE;}        
+and { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; return AND; }           
+as { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; return AS; }           
 assert { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }          
 async { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }     
 await { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }  
@@ -265,15 +273,15 @@ del { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 from { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 global { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 import { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
-in { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
+in { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; return IN; }
 is { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
-lambda { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
+lambda { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; return LAMBDA; }
 nonlocal { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
-not { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
-or { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
+not { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; return NOT; }
+or { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; return OR; }
 pass { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 raise { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
-return { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
+return { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; return RETURN; }
 yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 
 0[bB](\_?[0-1])* {
