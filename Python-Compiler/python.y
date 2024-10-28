@@ -214,8 +214,8 @@ expr: expr '+' expr
     | '[' exprList forHeaderList ifHeaderListE ']'
     | expr '[' expr ']'
     | expr '[' arraySlice ']'
-    | expr '(' exprListE ')' {cout<<"P: expr '(' exprListE ')'"<<endl;}
-    | attributeRefList {cout<<"P: attributeRefList"<<endl;}
+    | expr '(' funcArgs ')'
+    | attributeRefList
     ;
 
 exprE: expr
@@ -257,6 +257,19 @@ attributeRef: identifier '.' identifier
 attributeRefList: attributeRef
                 | attributeRefList '.' identifier
                 ;
+
+namedArgsList: identifier '=' expr
+             | namedArgsList ',' identifier '=' expr
+             ;
+
+funcArgs: exprList
+        | namedArgsList
+        | exprList ','
+        | namedArgsList ','
+        | exprList ',' namedArgsList
+        | exprList ',' namedArgsList ','
+        | /* empty */
+        ;
 
 %%
 
