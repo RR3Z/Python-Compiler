@@ -11,8 +11,13 @@
 
     #include "python.tab.h"
 
+    struct DentStruct {
+        int count;
+        int DentType;
+    };
+
     string removeUnderline(string text);
-    void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int indentLength);
+    void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int indentLength, struct DentStruct* dents);
     void checkIndentiationForKeywords(deque<int>& keywordsLineNumber, int* indentStack, int indentStackTopIndex, int* emptyLinesCounter, int indentLength);
 %}
 
@@ -21,6 +26,7 @@
 %x LONG_SINGLE_STRING
 %x LONG_DOUBLE_STRING
 %x INDENTIATION
+%x INDENT_OUTPUT
 %x COMMENT
 %x FIRSTLINE
 
@@ -36,11 +42,22 @@
     int indentStackTopIndex = 0;
     int indentStack[1000];
     indentStack[0] = 0;
+    struct DentStruct dents;
 
     int parenthesesBracketsCounter = 0;
     int squareBracketsCounter = 0;
     int curlyBracketsCounter = 0;
 %}
+
+<INDENT_OUTPUT>""/. {
+    if(dents.count > 0) {
+        dents.count--;
+        return dents.DentType;
+    } else {
+        cout << "OUT OF INDENT_OUTPUT" << endl;
+        BEGIN(INITIAL);
+    }
+}
 
 \s*# { BEGIN(COMMENT); }
 <COMMENT>[^\n]* { cout << "Line: " << yylineno << ". Found comment: \"" << yytext << "\"" << endl; }
@@ -50,61 +67,60 @@
         if(parenthesesBracketsCounter == 0 && squareBracketsCounter == 0 && curlyBracketsCounter == 0) {
             isString = false;
             BEGIN(INDENTIATION);
+            cout << "Line: " << yylineno << ". Found \\n (NEWLINE)" << endl;
+            return NEWLINE;
         }
-        cout << "Line: " << yylineno << ". Found \\n (NEWLINE)" << endl;
-        return NEWLINE;
    }
 
 ^[ ]+ {
             if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-                calculateIndentiation(indentStack, &indentStackTopIndex, yyleng);
+                calculateIndentiation(indentStack, &indentStackTopIndex, yyleng, &dents);
             }
       }
 
 ^\t+ {
             if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-                calculateIndentiation(indentStack, &indentStackTopIndex, yyleng*4);
+                calculateIndentiation(indentStack, &indentStackTopIndex, yyleng * 4, &dents);
             }
       }
 
 <INDENTIATION>^[ \t]*\n { 
                             emptyLinesCounter++; 
-                            calculateIndentiation(indentStack, &indentStackTopIndex, 0); 
+                            calculateIndentiation(indentStack, &indentStackTopIndex, 0, &dents);
                         }
 
 <INDENTIATION>^[\t]+ {
                             if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
                                 checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, yyleng * 4);
-                                calculateIndentiation(indentStack, &indentStackTopIndex, yyleng * 4);
-                                BEGIN(INITIAL);
+                                calculateIndentiation(indentStack, &indentStackTopIndex, yyleng * 4, &dents);
+                                BEGIN(INDENT_OUTPUT);
                             }
                      }
 
 <INDENTIATION>^[ ]+ {
                         if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
                             checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, yyleng);
-                            calculateIndentiation(indentStack, &indentStackTopIndex, yyleng);
-                            BEGIN(INITIAL);
+                            calculateIndentiation(indentStack, &indentStackTopIndex, yyleng, &dents);
+                            BEGIN(INDENT_OUTPUT);
                         }
                     }
 
 <INDENTIATION>^[ \t]{2,} {
                                 if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
                                     cout << "Line: " << yylineno << ". ERROR: mixed tabs and spaces (dentiation)." << endl;
-                                    BEGIN(INITIAL);
                                 }
                          }
 
 <INDENTIATION>""/. {
-                        calculateIndentiation(indentStack, &indentStackTopIndex, 0);
-                        BEGIN(INITIAL);
+                        calculateIndentiation(indentStack, &indentStackTopIndex, 0, &dents);
+                        BEGIN(INDENT_OUTPUT);
                    }
 
-\+ { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
-\- { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
+\+ { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; return '+'; }
+\- { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; return '-'; }
 \* { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; return '*'; }
 \*\* { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
-\/ { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
+\/ { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; return '/'; }
 \/\/ { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
 \% { cout << "Line: " << yylineno << ". Found arithmetical operator: " << yytext << endl; }
 
@@ -208,6 +224,7 @@ class {
 def {
         cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
         keywordsLineNumber.push_back(yylineno);
+        return DEF;
     }
 try {
         cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl;
@@ -401,7 +418,7 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 
 <<EOF>> {
             checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, 0);
-            return 0;
+            return NEWLINE;
         }
 
 . {}
@@ -417,11 +434,14 @@ string removeUnderline(string input)
     return str;
 }
 
-void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int indentLength) {
+void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int indentLength, struct DentStruct* dents) {
     if(indentLength > indentStack[*indentStackTopIndex]) {
         (*indentStackTopIndex)++;
         indentStack[*indentStackTopIndex] = indentLength;
         cout << "Line: " << yylineno << ". Found indent: " << to_string(indentLength) << endl;
+
+        (*dents).count = 1;
+        (*dents).DentType = INDENT;
     }
 
     if(indentLength < indentStack[*indentStackTopIndex]) {
@@ -431,8 +451,12 @@ void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int inden
 
         if(indentLength != indentStack[tmpIndex]) { cout << "Line: " << yylineno << ". ERROR: incosistent dedent: " << to_string(indentLength) << endl; }
         else {
+            (*dents).count = 0;
+            (*dents).DentType = DEDENT;
+
             while(*indentStackTopIndex > tmpIndex) { 
                 (*indentStackTopIndex)--;
+                (*dents).count += 1;
                 cout << "Line: " << yylineno << ". Found dedent. Indent count: " << indentStack[*indentStackTopIndex] << endl; 
             }
         }  
