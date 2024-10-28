@@ -29,6 +29,7 @@
 %x INDENT_OUTPUT
 %x COMMENT
 %x FIRSTLINE
+%x END_OF_FILE
 
 %%
 
@@ -138,7 +139,7 @@
 \=\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; }
 \!\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; }
 
-\:\= { cout << "Line: " << yylineno << ". Found assignment operator: " << yytext << endl; }
+\:\= { cout << "Line: " << yylineno << ". Found assignment operator: " << yytext << endl; return ':'; }
 \= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; return '='; }
 \+\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
 \-\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; }
@@ -416,10 +417,17 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 
 [A-Za-z_][A-Za-z0-9_]*  { cout << "Line: " << yylineno << ". Found identifier: " << yytext << endl; return ID; }
 
-<<EOF>> {
+<INITIAL><<EOF>> {
             checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, 0);
+            cout << "EOF: return NEWLINE" << endl;
+            BEGIN(END_OF_FILE);
             return NEWLINE;
         }
+
+<END_OF_FILE><<EOF>> {
+    BEGIN(INITIAL);
+    return 0;
+}
 
 . {}
 
