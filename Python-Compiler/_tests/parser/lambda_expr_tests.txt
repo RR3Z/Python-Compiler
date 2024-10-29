@@ -1,0 +1,10 @@
+square = lambda x: x + 2
+lambda x, y: x + y
+lambda x: (lambda y: (lambda z: x + y + z))
+lambda x: lambda y: x+y
+print(list(lambda x: x/2))
+lambda s: s.capitalize()
+lambda x=5, y: x+y
+lambda x=5, y,: x+y
+lambda: x+y
+(lambda x, y: x + y)(5, 10)

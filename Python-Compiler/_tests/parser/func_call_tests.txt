@@ -1,0 +1,17 @@
+greet("Alice", 25)
+
+greet("Alice", 25,)
+
+greet(age=25, name="Alice")
+
+greet()
+
+display(1, 2, 3, name="Alice", age=25)
+
+(lambda x, y: x + y)(5, 10)
+
+apply_function(lambda x: x + 2, 5)
+
+square(add(2, 3))
+
+g.c.d.e.f.greet("Alice")
