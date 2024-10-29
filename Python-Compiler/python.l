@@ -66,6 +66,8 @@
 <COMMENT>[^\n]* { cout << "Line: " << yylineno << ". Found comment: \"" << yytext << "\"" << endl; }
 <COMMENT>\n { BEGIN(INITIAL); }
 
+^\s*\n {;}
+
 \n {
         if(parenthesesBracketsCounter == 0 && squareBracketsCounter == 0 && curlyBracketsCounter == 0) {
             isString = false;
@@ -75,7 +77,15 @@
         }
    }
 
-<INDENTIATION>^[ \t]*\n { emptyLinesCounter++; }
+<INDENTIATION>^[ \t]*\n { 
+                            emptyLinesCounter++;
+
+                            if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
+                                checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, 0);
+                                calculateIndentiation(indentStack, &indentStackTopIndex, 0, &dents);
+                                BEGIN(INDENT_OUTPUT);
+                            }
+                        }
 
 <INDENTIATION>^[\t]+ {
                             if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
