@@ -26,6 +26,7 @@
 %token TRY FINALLY EXCEPT AS
 %token DEF CLASS
 %token RETURN LAMBDA
+%token INT_TYPE FLOAT_TYPE LIST_TYPE RANGE_TYPE BOOL_TYPE STR_TYPE
 
 %right ASSIGN_OP '=' PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
 %nonassoc LAMBDA
@@ -151,7 +152,7 @@ exceptStmtList: exceptStmt
 
 // FUNCTION DEFINITION
 
-funcDef: DEF identifier '(' paramsListE ')' ':' suite
+funcDef: DEF identifier '(' paramsListE ')' ':' suite { cout << "P: DEF identifier '(' paramsListE ')' ':' suite -> funcDef" << endl; }
        ;
 
 param: identifier
@@ -169,23 +170,23 @@ paramsListE: paramsList
 
 // CLASS DEFINITION
 
-classDef: CLASS identifier ':' suite
-        | CLASS identifier '(' identifiersE ')' ':' suite
+classDef: CLASS identifier ':' suite  { cout << "P: CLASS identifier ':' suite -> classDef" << endl; }
+        | CLASS identifier '(' identifiersE ')' ':' suite { cout << "P: CLASS identifier '(' identifiersE ')' ':' suite -> classDef" << endl; }
         ;
 
 // ASSIGNMENT STATEMENT
 
 assignStmt: assignStmtTargetAssignList '=' expr { cout << "P: assignStmtTargetAssignList '=' expr -> assignStmt" << endl; }
-          | identifier PLUS_ASSIGN expr
-          | identifier MINUS_ASSIGN expr
-          | identifier MUL_ASSIGN expr
-          | identifier DIV_ASSIGN expr
+          | identifier PLUS_ASSIGN expr { cout << "P: identifier PLUS_ASSIGN expr -> assignStmt" << endl; }
+          | identifier MINUS_ASSIGN expr { cout << "P: identifier MINUS_ASSIGN expr -> assignStmt" << endl; }
+          | identifier MUL_ASSIGN expr { cout << "P: identifier MUL_ASSIGN expr -> assignStmt" << endl; }
+          | identifier DIV_ASSIGN expr { cout << "P: identifier DIV_ASSIGN expr -> assignStmt" << endl; }
           ;
 
 assignStmtTargetAssignList: targetList { cout << "P: targetList -> assignStmtTargetAssignList" << endl; }
-                          | targetList ','
-                          | assignStmtTargetAssignList '=' targetList
-                          | assignStmtTargetAssignList '=' targetList ','
+                          | targetList ',' { cout << "P: targetList ',' -> assignStmtTargetAssignList" << endl; }
+                          | assignStmtTargetAssignList '=' targetList { cout << "P: assignStmtTargetAssignList '=' targetList -> assignStmtTargetAssignList" << endl; }
+                          | assignStmtTargetAssignList '=' targetList ',' { cout << "P: assignStmtTargetAssignList '=' targetList ',' -> assignStmtTargetAssignList" << endl; }
                           ;
 
 // RETURN STATEMENT
@@ -224,6 +225,15 @@ expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
     | expr '[' arraySlice ']' { cout << "P: expr '[' arraySlice ']' -> expr" << endl; }
     | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr" << endl; }
     | attributeRefList { cout << "P: attributeRefList -> expr" << endl; }
+    | type '(' exprListE ')' { cout << "P: type '(' exprE ')' -> expr" << endl; }
+    ;
+
+type: INT_TYPE
+    | FLOAT_TYPE
+    | LIST_TYPE
+    | RANGE_TYPE
+    | BOOL_TYPE
+    | STR_TYPE
     ;
 
 exprE: expr
@@ -252,7 +262,7 @@ identifiersE: identifiers
             ;
 
 targetList: identifier { cout << "P: identifier->targetList" << endl; }
-          | targetList ',' identifier { cout << "P: targetList\,identifier->targetList" << endl; }
+          | targetList ',' identifier { cout << "P: targetList , identifier -> targetList" << endl; }
           ;
 
 arraySlice: exprE ':' exprE

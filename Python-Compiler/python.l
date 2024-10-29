@@ -178,14 +178,14 @@
         curlyBracketsCounter--;
    }
 
-int { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
-float { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
+int { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; return INT_TYPE; }
+float { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; return FLOAT_TYPE; }
 complex { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
-bool { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
-list { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
+bool { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; return BOOL_TYPE; }
+list { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; return LIST_TYPE; }
 tuple { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
-range { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
-str { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
+range { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; return RANGE_TYPE; }
+str { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; return STR_TYPE; }
 bytes { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
 bytearray { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
 memoryview { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
