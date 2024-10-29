@@ -52,6 +52,7 @@ program: stmtsList
 stmt: compoundStmt
     | simpleStmt
     | expr NEWLINE
+    | stmt NEWLINE
     ;
 
 stmtsList: stmt
@@ -59,14 +60,14 @@ stmtsList: stmt
          ;
 
 compoundStmt: ifStmt
-            | forStmt
+            | forStmt { cout << "P: forStmt -> compoundStmt" << endl; }
             | whileStmt
             | tryStmt
             | funcDef
             | classDef
             ;
 
-simpleStmt: assignStmt
+simpleStmt: assignStmt { cout << "P: assignStmt -> simpleStmt" << endl; }
           | returnStmt
           ;
 
@@ -74,9 +75,9 @@ simpleStmtList: simpleStmt
               | simpleStmtList ';' simpleStmt
               ;
 
-suite: NEWLINE INDENT stmtsList DEDENT
-     | simpleStmtList NEWLINE
-     | simpleStmtList ';' NEWLINE
+suite: NEWLINE INDENT stmtsList DEDENT { cout << "P: NEWLINE INDENT stmtsList DEDENT -> suite" << endl; }
+     | simpleStmtList NEWLINE { cout << "P: simpleStmtList NEWLINE -> suite" << endl; }
+     | simpleStmtList ';' NEWLINE { cout << "P: simpleStmtList ';' NEWLINE -> suite" << endl; }
      ;
 
 // IF STATEMENT
@@ -117,7 +118,7 @@ forStmt: forHeader ':' suite
        | forHeader ':' suite ELSE ':' suite
        ;
 
-forHeader: FOR targetList IN expr
+forHeader: FOR targetList IN expr { cout << "P: forHeader" << endl; }
          ;
 
 forHeaderList: forHeader
@@ -174,14 +175,14 @@ classDef: CLASS identifier ':' suite
 
 // ASSIGNMENT STATEMENT
 
-assignStmt: assignStmtTargetAssignList '=' expr
+assignStmt: assignStmtTargetAssignList '=' expr { cout << "P: assignStmtTargetAssignList '=' expr -> assignStmt" << endl; }
           | identifier PLUS_ASSIGN expr
           | identifier MINUS_ASSIGN expr
           | identifier MUL_ASSIGN expr
           | identifier DIV_ASSIGN expr
           ;
 
-assignStmtTargetAssignList: targetList
+assignStmtTargetAssignList: targetList { cout << "P: targetList -> assignStmtTargetAssignList" << endl; }
                           | targetList ','
                           | assignStmtTargetAssignList '=' targetList
                           | assignStmtTargetAssignList '=' targetList ','
@@ -189,40 +190,40 @@ assignStmtTargetAssignList: targetList
 
 // RETURN STATEMENT
  
-returnStmt: RETURN exprListE NEWLINE
+returnStmt: RETURN exprListE NEWLINE { cout << "P: RETURN exprListE NEWLINE -> returnStmt" << endl; }
           ;
 
-expr: expr '+' expr
-    | expr '-' expr
-    | expr '*' expr {cout << "P: expr '*' expr" << endl;}
-    | expr '/' expr
-    | expr AND expr
-    | expr '&' expr
-    | expr OR expr
-    | expr '|' expr
-    | expr GT expr
-    | expr GE expr
-    | expr LT expr
-    | expr LE expr
-    | expr EQ expr
-    | expr NE expr
-    | '+' expr %prec UPLUS
-    | '-' expr %prec UMINUS
-    | '(' expr ')' {cout<<"P: '(' expr ')'"<<endl;}
-    | INT_C
-    | FLOAT_C
-    | STRING_C
-    | TRUE
-    | FALSE
-    | identifier {cout<<"P: identifier"<<endl;}
-    | identifier ASSIGN_OP expr
-    | LAMBDA paramsListE ':' expr %prec LAMBDA
-    | '[' exprListE ']'
-    | '[' exprList forHeaderList ifHeaderListE ']'
-    | expr '[' expr ']'
-    | expr '[' arraySlice ']'
-    | expr '(' funcArgs ')'
-    | attributeRefList
+expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
+    | expr '-' expr {cout << "P: expr '-' expr -> expr" << endl;}
+    | expr '*' expr {cout << "P: expr '*' expr -> expr" << endl;}
+    | expr '/' expr {cout << "P: expr '/' expr -> expr" << endl;}
+    | expr AND expr {cout << "P: expr AND expr -> expr" << endl;}
+    | expr '&' expr {cout << "P: expr '&' expr -> expr" << endl;}
+    | expr OR expr {cout << "P: expr OR expr -> expr" << endl;}
+    | expr '|' expr {cout << "P: expr '|' expr -> expr" << endl;}
+    | expr GT expr {cout << "P: expr GT expr -> expr" << endl;}
+    | expr GE expr {cout << "P: expr GE expr -> expr" << endl;}
+    | expr LT expr {cout << "P: expr LT expr -> expr" << endl;}
+    | expr LE expr {cout << "P: expr LE expr -> expr" << endl;}
+    | expr EQ expr {cout << "P: expr EQ expr -> expr" << endl;}
+    | expr NE expr {cout << "P: expr NE expr -> expr" << endl;}
+    | '+' expr %prec UPLUS {cout << "P: '+' expr -> expr" << endl;}
+    | '-' expr %prec UMINUS {cout << "P: '-' expr -> expr" << endl;}
+    | '(' expr ')' {cout << "P: '(' expr ')' -> expr" << endl;}
+    | INT_C {cout << "P: INT_C -> expr" << endl;}
+    | FLOAT_C {cout << "P: FLOAT_C -> expr" << endl;}
+    | STRING_C {cout << "P: STRING_C -> expr" << endl;}
+    | TRUE {cout << "P: TRUE -> expr" << endl;}
+    | FALSE {cout << "P: FALSE -> expr" << endl;}
+    | identifier { cout << "P: identifier->expr" << endl; }
+    | identifier ASSIGN_OP expr {cout << "P: identifier ASSIGN_OP expr -> expr" << endl;}
+    | LAMBDA paramsListE ':' expr %prec LAMBDA { cout << "P: lambdaExpr -> expr" << endl; }
+    | '[' exprListE ']' { cout << "P: '[' exprListE ']' -> expr" << endl; }
+    | '[' exprList forHeaderList ifHeaderListE ']' { cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
+    | expr '[' expr ']' { cout << "P: expr '[' expr ']' -> expr" << endl; }
+    | expr '[' arraySlice ']' { cout << "P: expr '[' arraySlice ']' -> expr" << endl; }
+    | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr" << endl; }
+    | attributeRefList { cout << "P: attributeRefList -> expr" << endl; }
     ;
 
 exprE: expr
@@ -250,15 +251,15 @@ identifiersE: identifiers
             | /* empty */
             ;
 
-targetList: identifier
-          | targetList ',' identifier
+targetList: identifier { cout << "P: identifier->targetList" << endl; }
+          | targetList ',' identifier { cout << "P: targetList\,identifier->targetList" << endl; }
           ;
 
 arraySlice: exprE ':' exprE
           | exprE ':' exprE ':' exprE
           ;
 
-attributeRef: identifier '.' identifier
+attributeRef: identifier '.' identifier { cout << "P: identifier '.' identifier -> attributeRef" << endl; }
             ;
 
 attributeRefList: attributeRef
