@@ -1,0 +1,25 @@
+class MyClass:
+	b = 1
+a = MyClass()
+print(a)
+
+class MyClass():
+	b = 1
+a = MyClass()
+print(a)
+
+class MyClass(A):
+	b = 1
+a = MyClass()
+print(a)
+
+class MyClass(A,):
+	b = 1
+a = MyClass()
+print(a)
+
+class MyClass(A,B,   C):
+	b = 1
+a = MyClass()
+print(a)
+

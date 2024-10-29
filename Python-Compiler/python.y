@@ -128,8 +128,8 @@ forHeaderList: forHeader
 
 // WHILE STATEMENT
 
-whileStmt: WHILE expr ':' suite
-         | WHILE expr ':' suite ELSE ':' suite
+whileStmt: WHILE expr ':' suite { cout << "P: WHILE expr ':' suite -> whileStmt" << endl; }
+         | WHILE expr ':' suite ELSE ':' suite { cout << "P: WHILE expr ':' suite ELSE ':' suite  -> whileStmt" << endl; }
          ;
 
 // TRY STATEMENT
