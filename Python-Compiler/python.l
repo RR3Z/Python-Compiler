@@ -16,6 +16,19 @@
         int DentType;
     };
 
+    int indentStack[1000];
+    int indentStackTopIndex = 0;
+    struct DentStruct dents{0,0};
+
+    int parenthesesBracketsCounter = 0;
+    int squareBracketsCounter = 0;
+    int curlyBracketsCounter = 0;
+
+    int emptyLinesCounter = 0;
+
+    bool isString = false;
+    bool isFirstLine = true;
+
     string removeUnderline(string text);
     void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int indentLength, struct DentStruct* dents);
     void checkIndentiationForKeywords(deque<int>& keywordsLineNumber, int* indentStack, int indentStackTopIndex, int* emptyLinesCounter, int indentLength);
@@ -36,25 +49,15 @@
 %{
     string str;
     deque<int> keywordsLineNumber = {};
-    int emptyLinesCounter = 0;
-    bool isString = false;
-    bool isFirstLine = true;
-
-    int indentStackTopIndex = 0;
-    int indentStack[1000];
     indentStack[0] = 0;
-    struct DentStruct dents{0,0};
-
-    int parenthesesBracketsCounter = 0;
-    int squareBracketsCounter = 0;
-    int curlyBracketsCounter = 0;
 %}
 
 <INDENT_OUTPUT>""/. {
     if(dents.count > 0) {
+        cout << "return DentType: " << dents.DentType << " Dents count: " << dents.count << endl;
+        dents.count--;
         return dents.DentType;
     } else {
-        cout << "OUT OF INDENT_OUTPUT" << endl;
         BEGIN(INITIAL);
     }
 }
@@ -108,6 +111,7 @@
 <INDENTIATION>^[ \t]{2,} {
                                 if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
                                     cout << "Line: " << yylineno << ". ERROR: mixed tabs and spaces (dentiation)." << endl;
+                                    BEGIN(INITIAL);
                                 }
                          }
 
@@ -452,12 +456,15 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 
 <INITIAL><<EOF>> {
             checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, 0);
-            cout << "EOF: return NEWLINE" << endl;
+            calculateIndentiation(indentStack, &indentStackTopIndex, 0, &dents);
+
+            cout << "Line: FIRST EOF. Return dents.DentType" << endl;
             BEGIN(END_OF_FILE);
             return dents.DentType;
         }
 
 <END_OF_FILE><<EOF>> {
+    cout << "Line: SECOND EOF. Return NEWLINE" << endl;
     BEGIN(INITIAL);
     return NEWLINE;
 }
@@ -476,6 +483,7 @@ string removeUnderline(string input)
 }
 
 void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int indentLength, struct DentStruct* dents) {
+    // INDENT
     if(indentLength > indentStack[*indentStackTopIndex]) {
         (*indentStackTopIndex)++;
         indentStack[*indentStackTopIndex] = indentLength;
@@ -484,7 +492,8 @@ void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int inden
         (*dents).count = 1;
         (*dents).DentType = INDENT;
     }
-
+    
+    // DEDENT
     if(indentLength < indentStack[*indentStackTopIndex]) {
         int tmpIndex = *indentStackTopIndex;
 
