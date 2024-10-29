@@ -43,7 +43,6 @@
 %x COMMENT
 %x FIRSTLINE
 %x END_OF_FILE
-%x STOP
 
 %%
 
@@ -455,13 +454,9 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
         cout << "Line: SECOND EOF. Return dents.DentType: " << dents.DentType << endl;
         return dents.DentType;
     } else {
-        BEGIN(STOP);
+        cout << "LEXER: yyterminate()" << endl;
+        yyterminate();
     }
-}
-
-<STOP><<EOF>> {
-    cout << "Line: THIRD EOF. yyterminate()" << endl;
-    yyterminate();
 }
 
 . {}
