@@ -76,21 +76,7 @@
         }
    }
 
-^[ ]+ {
-            if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-                calculateIndentiation(indentStack, &indentStackTopIndex, yyleng, &dents);
-            }
-      }
-
-^\t+ {
-            if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-                calculateIndentiation(indentStack, &indentStackTopIndex, yyleng * 4, &dents);
-            }
-      }
-
-<INDENTIATION>^[ \t]*\n { 
-                            emptyLinesCounter++;
-                        }
+<INDENTIATION>^[ \t]*\n { emptyLinesCounter++; }
 
 <INDENTIATION>^[\t]+ {
                             if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
@@ -454,22 +440,24 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
     return ID; 
 }
 
-<INITIAL><<EOF>> {
-            checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, 0);
-            calculateIndentiation(indentStack, &indentStackTopIndex, 0, &dents);
+<INITIAL,INDENTIATION><<EOF>> {
+    checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, 0);
+    calculateIndentiation(indentStack, &indentStackTopIndex, 0, &dents);
 
-            if(dents.count > 0) {
-                BEGIN(END_OF_FILE);
-                dents.count--;
-                cout << "Line: FIRST EOF. Return NEWLINE" << endl;
-                return NEWLINE;
-            }
-        }
+    BEGIN(END_OF_FILE);
+    cout << "Line: FIRST EOF. Return NEWLINE" << endl;
+    return NEWLINE;
+}
 
 <END_OF_FILE><<EOF>> {
     cout << "Line: SECOND EOF. Return dents.DentType: " << dents.DentType << endl;
     BEGIN(STOP);
     return dents.DentType;
+}
+
+<STOP><<EOF>> {
+    cout << "Line: THIRD EOF. yyterminate()" << endl;
+    yyterminate();
 }
 
 . {}
