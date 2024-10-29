@@ -450,9 +450,13 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 }
 
 <END_OF_FILE><<EOF>> {
-    cout << "Line: SECOND EOF. Return dents.DentType: " << dents.DentType << endl;
-    BEGIN(STOP);
-    return dents.DentType;
+    if(dents.count > 0) {
+        dents.count--;
+        cout << "Line: SECOND EOF. Return dents.DentType: " << dents.DentType << endl;
+        return dents.DentType;
+    } else {
+        BEGIN(STOP);
+    }
 }
 
 <STOP><<EOF>> {
