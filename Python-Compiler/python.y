@@ -46,20 +46,20 @@
 
 %%
 
-program: stmtsList
+program: stmtsList { cout << "P: stmtsList -> program" << endl; }
        ;
 
-stmt: compoundStmt
-    | simpleStmt
-    | expr NEWLINE
-    | stmt NEWLINE
+stmt: compoundStmt { cout << "P: compoundStmt -> stmt" << endl; }
+    | simpleStmt { cout << "P: simpleStmt -> stmt" << endl; }
+    | expr NEWLINE { cout << "P: expr NEWLINE -> stmt" << endl; }
+    | stmt NEWLINE { cout << "P: stmt NEWLINE -> stmt" << endl; }
     ;
 
-stmtsList: stmt
-         | stmtsList stmt
+stmtsList: stmt { cout << "P: stmt -> stmtsList" << endl; }
+         | stmtsList stmt { cout << "P: stmtsList stmt -> stmtsList" << endl; }
          ;
 
-compoundStmt: ifStmt
+compoundStmt: ifStmt { cout << "P: ifStmt -> compoundStmt" << endl; }
             | forStmt { cout << "P: forStmt -> compoundStmt" << endl; }
             | whileStmt
             | tryStmt
@@ -71,8 +71,8 @@ simpleStmt: assignStmt { cout << "P: assignStmt -> simpleStmt" << endl; }
           | returnStmt
           ;
 
-simpleStmtList: simpleStmt
-              | simpleStmtList ';' simpleStmt
+simpleStmtList: simpleStmt { cout << "P: simpleStmt -> simpleStmtList" << endl; }
+              | simpleStmtList ';' simpleStmt { cout << "P: simpleStmtList ';' simpleStmt -> simpleStmtList" << endl; }
               ;
 
 suite: NEWLINE INDENT stmtsList DEDENT { cout << "P: NEWLINE INDENT stmtsList DEDENT -> suite" << endl; }

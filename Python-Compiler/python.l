@@ -43,6 +43,7 @@
 %x COMMENT
 %x FIRSTLINE
 %x END_OF_FILE
+%x STOP
 
 %%
 
@@ -54,7 +55,7 @@
 
 <INDENT_OUTPUT>""/. {
     if(dents.count > 0) {
-        cout << "return DentType: " << dents.DentType << " Dents count: " << dents.count << endl;
+        cout << "Line: " << yylineno << " return DentType (265-indent, 266-dedent): " << dents.DentType << endl;
         dents.count--;
         return dents.DentType;
     } else {
@@ -88,8 +89,7 @@
       }
 
 <INDENTIATION>^[ \t]*\n { 
-                            emptyLinesCounter++; 
-                            calculateIndentiation(indentStack, &indentStackTopIndex, 0, &dents);
+                            emptyLinesCounter++;
                         }
 
 <INDENTIATION>^[\t]+ {
@@ -458,15 +458,18 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
             checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, 0);
             calculateIndentiation(indentStack, &indentStackTopIndex, 0, &dents);
 
-            cout << "Line: FIRST EOF. Return dents.DentType" << endl;
-            BEGIN(END_OF_FILE);
-            return dents.DentType;
+            if(dents.count > 0) {
+                BEGIN(END_OF_FILE);
+                dents.count--;
+                cout << "Line: FIRST EOF. Return NEWLINE" << endl;
+                return NEWLINE;
+            }
         }
 
 <END_OF_FILE><<EOF>> {
-    cout << "Line: SECOND EOF. Return NEWLINE" << endl;
-    BEGIN(INITIAL);
-    return NEWLINE;
+    cout << "Line: SECOND EOF. Return dents.DentType: " << dents.DentType << endl;
+    BEGIN(STOP);
+    return dents.DentType;
 }
 
 . {}
@@ -487,7 +490,7 @@ void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int inden
     if(indentLength > indentStack[*indentStackTopIndex]) {
         (*indentStackTopIndex)++;
         indentStack[*indentStackTopIndex] = indentLength;
-        cout << "Line: " << yylineno << ". Found indent: " << to_string(indentLength) << endl;
+        //cout << "Line: " << yylineno << ". Found indent: " << to_string(indentLength) << endl;
 
         (*dents).count = 1;
         (*dents).DentType = INDENT;
@@ -507,7 +510,7 @@ void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int inden
             while(*indentStackTopIndex > tmpIndex) { 
                 (*indentStackTopIndex)--;
                 (*dents).count += 1;
-                cout << "Line: " << yylineno << ". Found dedent. Indent count: " << indentStack[*indentStackTopIndex] << endl; 
+                //cout << "Line: " << yylineno << ". Found dedent. Indent count: " << indentStack[*indentStackTopIndex] << endl; 
             }
         }  
     }
