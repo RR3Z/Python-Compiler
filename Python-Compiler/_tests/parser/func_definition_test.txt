@@ -1,0 +1,11 @@
+def my_function(param1, param2):
+    return param1 + param2
+
+def outer_function(x):
+    def inner_function(y):
+        return x + y
+    return inner_function
+
+ def inner_function():
+        return x + y
+
