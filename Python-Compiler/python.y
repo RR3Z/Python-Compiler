@@ -79,6 +79,8 @@ simpleStmtList: simpleStmt { cout << "P: simpleStmt -> simpleStmtList" << endl; 
 suite: NEWLINE INDENT stmtsList DEDENT { cout << "P: NEWLINE INDENT stmtsList DEDENT -> suite" << endl; }
      | simpleStmtList NEWLINE { cout << "P: simpleStmtList NEWLINE -> suite" << endl; }
      | simpleStmtList ';' NEWLINE { cout << "P: simpleStmtList ';' NEWLINE -> suite" << endl; }
+     | exprListSemicolon NEWLINE { cout << "P: exprListSemicolon NEWLINE -> suite" << endl; }
+     | exprListSemicolon ';' NEWLINE { cout << "P: exprListSemicolon ';' NEWLINE -> suite" << endl; }
      ;
 
 // IF STATEMENT
@@ -243,6 +245,10 @@ exprE: expr
 exprList: expr
         | exprList ',' expr
         ;
+
+exprListSemicolon: expr { cout << "P: expr -> exprListSemicolon" << endl; }
+                 | exprListSemicolon ';' expr { cout << "P: exprListSemicolon ';' expr -> exprListSemicolon" << endl; }
+                 ;
 
 exprListE: exprList
          | exprList ','
