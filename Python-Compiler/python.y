@@ -62,14 +62,14 @@ stmtsList: stmt { cout << "P: stmt -> stmtsList" << endl; }
 
 compoundStmt: ifStmt { cout << "P: ifStmt -> compoundStmt" << endl; }
             | forStmt { cout << "P: forStmt -> compoundStmt" << endl; }
-            | whileStmt
-            | tryStmt
-            | funcDef
-            | classDef
+            | whileStmt { cout << "P: whileStmt -> compoundStmt" << endl; }
+            | tryStmt { cout << "P: tryStmt -> compoundStmt" << endl; }
+            | funcDef { cout << "P: funcDef -> compoundStmt" << endl; }
+            | classDef { cout << "P: classDef -> compoundStmt" << endl; }
             ;
 
 simpleStmt: assignStmt { cout << "P: assignStmt -> simpleStmt" << endl; }
-          | returnStmt
+          | returnStmt { cout << "P: returnStmt -> simpleStmt" << endl; }
           ;
 
 simpleStmtList: simpleStmt { cout << "P: simpleStmt -> simpleStmtList" << endl; }
@@ -94,38 +94,38 @@ suite: NEWLINE INDENT stmtsList DEDENT { cout << "P: NEWLINE INDENT stmtsList DE
     In this case, there may be several elif blocks, or there may not be
 */
 
-ifStmt: ifHeader ':' suite
-      | ifHeader ':' suite ELSE ':' suite
-      | ifHeader ':' suite elifStmtList
-      | ifHeader ':' suite elifStmtList ELSE ':' suite
+ifStmt: ifHeader ':' suite { cout << "P: ifHeader ':' suite -> ifStmt" << endl; }
+      | ifHeader ':' suite ELSE ':' suite { cout << "P: ifHeader ':' suite ELSE ':' suite -> ifStmt" << endl; }
+      | ifHeader ':' suite elifStmtList { cout << "P: ifHeader ':' suite elifStmtList -> ifStmt" << endl; }
+      | ifHeader ':' suite elifStmtList ELSE ':' suite { cout << "P: ifHeader ':' suite elifStmtList ELSE ':' suite -> ifStmt" << endl; }
       ;
 
-ifHeader: IF expr
+ifHeader: IF expr { cout << "P: IF expr -> ifHeader" << endl; }
         ;
 
-ifHeaderList: ifHeader
-            | ifHeaderList ifHeader
+ifHeaderList: ifHeader { cout << "P: ifHeader -> ifHeaderList" << endl; }
+            | ifHeaderList ifHeader { cout << "P: ifHeaderList ifHeader -> ifHeaderList" << endl; }
             ;
 
-ifHeaderListE: ifHeaderList
-             | /* empty */
+ifHeaderListE: ifHeaderList { cout << "P: ifHeaderList -> ifHeaderListE" << endl; }
+             | /* empty */ { cout << "P: /* empty */ -> ifHeaderListE" << endl; }
              ;
 
-elifStmtList: ELIF expr ':' suite
-            | elifStmtList ELIF expr ':' suite
+elifStmtList: ELIF expr ':' suite { cout << "P: ELIF expr ':' suite -> elifStmtList" << endl; }
+            | elifStmtList ELIF expr ':' suite { cout << "P: elifStmtList ELIF expr ':' suite -> elifStmtList" << endl; }
             ;
 
 // FOR STATEMENT
 
-forStmt: forHeader ':' suite
-       | forHeader ':' suite ELSE ':' suite
+forStmt: forHeader ':' suite { cout << "P: forHeader ':' suite -> forStmt" << endl; }
+       | forHeader ':' suite ELSE ':' suite { cout << "P: forHeader ':' suite ELSE ':' suite -> forStmt" << endl; }
        ;
 
 forHeader: FOR targetList IN expr { cout << "P: forHeader" << endl; }
          ;
 
-forHeaderList: forHeader
-             | forHeaderList forHeader
+forHeaderList: forHeader { cout << "P: forHeader -> forHeaderList" << endl; }
+             | forHeaderList forHeader { cout << "P: forHeaderList forHeader -> forHeaderList" << endl; }
              ;
 
 // WHILE STATEMENT
@@ -157,17 +157,17 @@ exceptStmtList: exceptStmt
 funcDef: DEF identifier '(' paramsListE ')' ':' suite { cout << "P: DEF identifier '(' paramsListE ')' ':' suite -> funcDef" << endl; }
        ;
 
-param: identifier
-     | identifier '=' expr
+param: identifier { cout << "P: identifier -> param" << endl; }
+     | identifier '=' expr { cout << "P: identifier '=' expr -> param" << endl; }
      ;
 
-paramsList: param
-          | paramsList ',' param
+paramsList: param { cout << "P: param -> paramsList" << endl; }
+          | paramsList ',' param { cout << "P: paramsList ',' param -> paramsList" << endl; }
           ;
 
-paramsListE: paramsList
-           | paramsList ','
-           | /* empty */
+paramsListE: paramsList { cout << "P: paramsList -> paramsListE" << endl; }
+           | paramsList ',' { cout << "P: paramsList ',' -> paramsListE" << endl; }
+           | /* empty */ { cout << "P: /* empty */ -> paramsListE" << endl; }
            ;
 
 // CLASS DEFINITION
@@ -242,8 +242,8 @@ exprE: expr
      | /* empty */
      ;
 
-exprList: expr
-        | exprList ',' expr
+exprList: expr { cout << "P: expr -> exprList" << endl; }
+        | exprList ',' expr { cout << "P: exprList ',' expr -> exprList" << endl; }
         ;
 
 exprListSemicolon: expr { cout << "P: expr -> exprListSemicolon" << endl; }
