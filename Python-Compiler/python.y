@@ -48,9 +48,13 @@
 %%
 
 program: stmtsList { cout << "P: stmtsList -> program" << endl; }
-       | NEWLINE
+       | newLineList stmtsList { cout << "P: newLineList stmtsList -> program" << endl; }
+       | newLineList { cout << "P: newLineList -> program" << endl; }
        ;
 
+newLineList: NEWLINE
+           | newLineList NEWLINE
+           ;
 stmt: compoundStmt { cout << "P: compoundStmt -> stmt" << endl; }
     | simpleStmt { cout << "P: simpleStmt -> stmt" << endl; }
     | expr NEWLINE { cout << "P: expr NEWLINE -> stmt" << endl; }
