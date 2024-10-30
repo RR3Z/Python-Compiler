@@ -62,11 +62,11 @@
     }
 }
 
-\s*# { BEGIN(COMMENT); }
-<COMMENT>[^\n]* { cout << "Line: " << yylineno << ". Found comment: \"" << yytext << "\"" << endl; }
-<COMMENT>\n { BEGIN(INITIAL); }
+^\s*\n {;}  
 
-^\s*\n {;}
+# { BEGIN(COMMENT); }
+<COMMENT>[^\n]+ { cout << "Line: " << yylineno << ". Found comment: \"" << yytext << "\"" << endl; }
+<COMMENT>\n { BEGIN(INDENTIATION);  }
 
 \n {
         if(parenthesesBracketsCounter == 0 && squareBracketsCounter == 0 && curlyBracketsCounter == 0) {
@@ -76,6 +76,8 @@
             return NEWLINE;
         }
    }
+
+<INDENTIATION>^[ \t]*# { BEGIN(COMMENT); }
 
 <INDENTIATION>^[ \t]*\n { 
                             emptyLinesCounter++;
@@ -487,7 +489,7 @@ void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int inden
     if(indentLength > indentStack[*indentStackTopIndex]) {
         (*indentStackTopIndex)++;
         indentStack[*indentStackTopIndex] = indentLength;
-        //cout << "Line: " << yylineno << ". Found indent: " << to_string(indentLength) << endl;
+        cout << "Line: " << yylineno << ". Found indent: " << to_string(indentLength) << endl;
 
         (*dents).count = 1;
         (*dents).DentType = INDENT;
@@ -507,7 +509,7 @@ void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int inden
             while(*indentStackTopIndex > tmpIndex) { 
                 (*indentStackTopIndex)--;
                 (*dents).count += 1;
-                //cout << "Line: " << yylineno << ". Found dedent. Indent count: " << indentStack[*indentStackTopIndex] << endl; 
+                cout << "Line: " << yylineno << ". Found dedent. Indent count: " << indentStack[*indentStackTopIndex] << endl; 
             }
         }  
     }
