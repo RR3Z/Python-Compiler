@@ -48,6 +48,7 @@
 %%
 
 program: stmtsList { cout << "P: stmtsList -> program" << endl; }
+       | NEWLINE
        ;
 
 stmt: compoundStmt { cout << "P: compoundStmt -> stmt" << endl; }
