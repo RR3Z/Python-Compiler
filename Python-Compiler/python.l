@@ -77,17 +77,10 @@
         }
    }
 
+
 <INDENTIATION>^[ \t]*# { BEGIN(COMMENT); }
 
-<INDENTIATION>^[ \t]*\n { 
-                            emptyLinesCounter++;
-
-                            if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
-                                checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, 0);
-                                calculateIndentiation(indentStack, &indentStackTopIndex, 0, &dents);
-                                BEGIN(INDENT_OUTPUT);
-                            }
-                        }
+<INDENTIATION>^[ \t]*\n { emptyLinesCounter++; }
 
 <INDENTIATION>^[\t]+ {
                             if(!(isString || parenthesesBracketsCounter || squareBracketsCounter || curlyBracketsCounter)) {
