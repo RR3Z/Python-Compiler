@@ -25,4 +25,5 @@ int main(int argc, const char* argv[])
 	}
 	yyparse();
 
+	fclose(yyin);
 }
