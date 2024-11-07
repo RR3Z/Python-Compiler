@@ -29,6 +29,9 @@
     bool isString = false;
     bool isFirstLine = true;
 
+    bool isEofWithIndent = false;
+    int dentsCountEOF = 0;
+
     string removeUnderline(string text);
     void calculateIndentiation(int* indentStack, int* indentStackTopIndex, int indentLength, struct DentStruct* dents);
     void checkIndentiationForKeywords(deque<int>& keywordsLineNumber, int* indentStack, int indentStackTopIndex, int* emptyLinesCounter, int indentLength);
@@ -444,9 +447,17 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
     return ID; 
 }
 
-<INITIAL,INDENTIATION><<EOF>> {
+<INITIAL,INDENTIATION,INDENT_OUTPUT><<EOF>> {
+    // Used to correctly count indent/dedent in line with EOF
+    if(dents.count > 0 && dents.DentType == INDENT) { isEofWithIndent = true; }
+    else if(dents.count > 0 && dents.DentType == DEDENT) { dentsCountEOF += dents.count; }
+
     checkIndentiationForKeywords(keywordsLineNumber, indentStack, indentStackTopIndex, &emptyLinesCounter, 0);
     calculateIndentiation(indentStack, &indentStackTopIndex, 0, &dents);
+
+    // Used to correctly count indent/dedent in line with EOF
+    if(isEofWithIndent) { dentsCountEOF += dents.count - 1; }
+    else { dentsCountEOF += dents.count; }
 
     BEGIN(END_OF_FILE);
     cout << "Line: FIRST EOF. Return NEWLINE" << endl;
@@ -454,8 +465,8 @@ yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 }
 
 <END_OF_FILE><<EOF>> {
-    if(dents.count > 0) {
-        dents.count--;
+    if(dentsCountEOF > 0) {
+        dentsCountEOF--;
         cout << "Line: SECOND EOF. Return dents.DentType: " << dents.DentType << endl;
         return dents.DentType;
     } else {
