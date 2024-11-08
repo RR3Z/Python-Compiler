@@ -16,17 +16,17 @@
 }
 
 %token INT_C FLOAT_C STRING_C ID TRUE FALSE
-%token NEWLINE INDENT DEDENT
-%token AND OR
-%token GT GE LT LE EQ NE
-%token ASSIGN_OP
-%token PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
-%token IF ELSE ELIF
-%token FOR WHILE IN
-%token TRY FINALLY EXCEPT AS
-%token DEF CLASS
-%token RETURN LAMBDA
-%token INT_TYPE FLOAT_TYPE LIST_TYPE RANGE_TYPE BOOL_TYPE STR_TYPE
+NEWLINE INDENT DEDENT
+AND OR
+GT GE LT LE EQ NE
+ASSIGN_OP
+PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
+IF ELSE ELIF
+FOR WHILE IN
+TRY FINALLY EXCEPT AS
+DEF CLASS SELF SUPER
+RETURN LAMBDA
+INT_TYPE FLOAT_TYPE LIST_TYPE RANGE_TYPE BOOL_TYPE STR_TYPE
 
 %right ASSIGN_OP '=' PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
 %nonassoc LAMBDA
@@ -229,13 +229,6 @@ expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
     | '+' expr %prec UPLUS {cout << "P: '+' expr -> expr" << endl;}
     | '-' expr %prec UMINUS {cout << "P: '-' expr -> expr" << endl;}
     | '(' expr ')' {cout << "P: '(' expr ')' -> expr" << endl;}
-    | INT_C {cout << "P: INT_C -> expr" << endl;}
-    | FLOAT_C {cout << "P: FLOAT_C -> expr" << endl;}
-    | STRING_C {cout << "P: STRING_C -> expr" << endl;}
-    | TRUE {cout << "P: TRUE -> expr" << endl;}
-    | FALSE {cout << "P: FALSE -> expr" << endl;}
-    | identifier { cout << "P: identifier->expr" << endl; }
-    | identifier ASSIGN_OP expr {cout << "P: identifier ASSIGN_OP expr -> expr" << endl;}
     | LAMBDA paramsListE ':' expr %prec LAMBDA { cout << "P: lambdaExpr -> expr" << endl; }
     | '[' exprListE ']' { cout << "P: '[' exprListE ']' -> expr" << endl; }
     | '[' exprList forHeaderList ifHeaderListE ']' { cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
@@ -245,6 +238,15 @@ expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
     | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
     | expr '.' identifier { cout << "P: expr '.' identifier -> expr | ATTRIBUTE REF" << endl; }
     | type '(' exprListE ')' { cout << "P: type '(' exprE ')' -> expr" << endl; }
+    | INT_C {cout << "P: INT_C -> expr" << endl;}
+    | FLOAT_C {cout << "P: FLOAT_C -> expr" << endl;}
+    | STRING_C {cout << "P: STRING_C -> expr" << endl;}
+    | TRUE {cout << "P: TRUE -> expr" << endl;}
+    | FALSE {cout << "P: FALSE -> expr" << endl;}
+    | identifier { cout << "P: identifier->expr" << endl; }
+    | identifier ASSIGN_OP expr {cout << "P: identifier ASSIGN_OP expr -> expr" << endl;}
+    | SELF { cout << "P: SELF -> expr" << endl; }
+    | SUPER { cout << "P: SUPER -> expr" << endl; }
     ;
 
 type: INT_TYPE

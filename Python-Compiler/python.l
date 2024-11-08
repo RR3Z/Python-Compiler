@@ -284,6 +284,8 @@ pass { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 raise { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
 return { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; return RETURN; }
 yield { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; }
+self { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; return SELF; }
+super { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; return SUPER; }
 
 0[bB](\_?[0-1])* {
     if(yyleng == 2) {
