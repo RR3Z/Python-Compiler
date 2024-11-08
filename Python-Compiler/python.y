@@ -48,13 +48,23 @@ INT_TYPE FLOAT_TYPE LIST_TYPE RANGE_TYPE BOOL_TYPE STR_TYPE
 %%
 
 program: programStmtsList { cout << "P: programStmtsList -> program" << endl; }
-       | newLineList stmtsList { cout << "P: newLineList stmtsList -> program" << endl; }
+       | newLineList programStmtsList { cout << "P: newLineList programStmtsList -> program" << endl; }
        | newLineList { cout << "P: newLineList -> program" << endl; }
        ;
 
 newLineList: NEWLINE
            | newLineList NEWLINE
            ;
+
+programStmtsList: topLevelStmt
+                | stmt
+                | programStmtsList topLevelStmt
+                | programStmtsList stmt
+                ;
+
+topLevelStmt: funcDef { cout << "P: funcDef -> topLevelStmt" << endl; }
+            | classDef { cout << "P: classDef -> topLevelStmt" << endl; }
+            ;
 
 stmt: compoundStmt { cout << "P: compoundStmt -> stmt" << endl; }
     | simpleStmt { cout << "P: simpleStmt -> stmt" << endl; }
@@ -65,18 +75,6 @@ stmt: compoundStmt { cout << "P: compoundStmt -> stmt" << endl; }
 stmtsList: stmt { cout << "P: stmt -> stmtsList" << endl; }
          | stmtsList stmt { cout << "P: stmtsList stmt -> stmtsList" << endl; }
          ;
-
-programStmtsList: topLevelStmtsList
-                | stmtsList
-                ;
-
-topLevelStmtsList: topLevelStmt { cout << "P: topLevelStmt -> topLevelStmtsList" << endl; }
-                 | topLevelStmtsList topLevelStmt { cout << "P: topLevelStmtsList topLevelStmt -> topLevelStmtsList" << endl; }
-                 ;
-
-topLevelStmt: funcDef { cout << "P: funcDef -> topLevelStmt" << endl; }
-            | classDef { cout << "P: classDef -> topLevelStmt" << endl; }
-            ;
 
 compoundStmt: ifStmt { cout << "P: ifStmt -> compoundStmt" << endl; }
             | forStmt { cout << "P: forStmt -> compoundStmt" << endl; }
@@ -237,7 +235,7 @@ expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
     | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
     | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
     | expr '.' identifier { cout << "P: expr '.' identifier -> expr | ATTRIBUTE REF" << endl; }
-    | type '(' exprListE ')' { cout << "P: type '(' exprE ')' -> expr" << endl; }
+    | type '(' exprListE ')' { cout << "P: type '(' exprE ')' -> expr | CONSTRUCTOR" << endl; }
     | INT_C {cout << "P: INT_C -> expr" << endl;}
     | FLOAT_C {cout << "P: FLOAT_C -> expr" << endl;}
     | STRING_C {cout << "P: STRING_C -> expr" << endl;}
@@ -254,7 +252,7 @@ type: INT_TYPE
     | LIST_TYPE
     | RANGE_TYPE
     | BOOL_TYPE
-    | STR_TYPE
+    | STR_TYPE 
     ;
 
 exprE: expr
