@@ -56,10 +56,10 @@ newLineList: NEWLINE
            | newLineList NEWLINE
            ;
 
-programStmtsList: topLevelStmt
-                | stmt
-                | programStmtsList topLevelStmt
-                | programStmtsList stmt
+programStmtsList: topLevelStmt { cout << "P: topLevelStmt -> programStmtsList" << endl; }
+                | stmt { cout << "P: stmt -> programStmtsList" << endl; }
+                | programStmtsList topLevelStmt { cout << "P: programStmtsList topLevelStmt -> programStmtsList" << endl; }
+                | programStmtsList stmt { cout << "P: programStmtsList stmt -> programStmtsList" << endl; }
                 ;
 
 topLevelStmt: funcDef { cout << "P: funcDef -> topLevelStmt" << endl; }
@@ -241,7 +241,7 @@ expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
     | STRING_C {cout << "P: STRING_C -> expr" << endl;}
     | TRUE {cout << "P: TRUE -> expr" << endl;}
     | FALSE {cout << "P: FALSE -> expr" << endl;}
-    | identifier { cout << "P: identifier->expr" << endl; }
+    | identifier { cout << "P: identifier -> expr" << endl; }
     | identifier ASSIGN_OP expr {cout << "P: identifier ASSIGN_OP expr -> expr" << endl;}
     | SELF { cout << "P: SELF -> expr" << endl; }
     | SUPER { cout << "P: SUPER -> expr" << endl; }
@@ -252,7 +252,7 @@ type: INT_TYPE
     | LIST_TYPE
     | RANGE_TYPE
     | BOOL_TYPE
-    | STR_TYPE 
+    | STR_TYPE
     ;
 
 exprE: expr
