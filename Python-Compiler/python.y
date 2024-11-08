@@ -47,7 +47,7 @@
 
 %%
 
-program: stmtsList { cout << "P: stmtsList -> program" << endl; }
+program: programStmtsList { cout << "P: programStmtsList -> program" << endl; }
        | newLineList stmtsList { cout << "P: newLineList stmtsList -> program" << endl; }
        | newLineList { cout << "P: newLineList -> program" << endl; }
        ;
@@ -55,6 +55,7 @@ program: stmtsList { cout << "P: stmtsList -> program" << endl; }
 newLineList: NEWLINE
            | newLineList NEWLINE
            ;
+
 stmt: compoundStmt { cout << "P: compoundStmt -> stmt" << endl; }
     | simpleStmt { cout << "P: simpleStmt -> stmt" << endl; }
     | expr NEWLINE { cout << "P: expr NEWLINE -> stmt" << endl; }
@@ -65,12 +66,22 @@ stmtsList: stmt { cout << "P: stmt -> stmtsList" << endl; }
          | stmtsList stmt { cout << "P: stmtsList stmt -> stmtsList" << endl; }
          ;
 
+programStmtsList: topLevelStmtsList
+                | stmtsList
+                ;
+
+topLevelStmtsList: topLevelStmt { cout << "P: topLevelStmt -> topLevelStmtsList" << endl; }
+                 | topLevelStmtsList topLevelStmt { cout << "P: topLevelStmtsList topLevelStmt -> topLevelStmtsList" << endl; }
+                 ;
+
+topLevelStmt: funcDef { cout << "P: funcDef -> topLevelStmt" << endl; }
+            | classDef { cout << "P: classDef -> topLevelStmt" << endl; }
+            ;
+
 compoundStmt: ifStmt { cout << "P: ifStmt -> compoundStmt" << endl; }
             | forStmt { cout << "P: forStmt -> compoundStmt" << endl; }
             | whileStmt { cout << "P: whileStmt -> compoundStmt" << endl; }
             | tryStmt { cout << "P: tryStmt -> compoundStmt" << endl; }
-            | funcDef { cout << "P: funcDef -> compoundStmt" << endl; }
-            | classDef { cout << "P: classDef -> compoundStmt" << endl; }
             ;
 
 simpleStmt: assignStmt { cout << "P: assignStmt -> simpleStmt" << endl; }
