@@ -103,6 +103,10 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Bison>
+      <Warnings>all</Warnings>
+      <AdditionalOptions>-Wcounterexamples %(AdditionalOptions)</AdditionalOptions>
+    </Bison>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -141,6 +145,8 @@
     </PostBuildEvent>
     <Bison>
       <Verbose>true</Verbose>
+      <Warnings>all</Warnings>
+      <AdditionalOptions>-Wcounterexamples %(AdditionalOptions)</AdditionalOptions>
     </Bison>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
