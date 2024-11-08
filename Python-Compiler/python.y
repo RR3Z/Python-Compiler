@@ -242,7 +242,7 @@ expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
     | expr '[' expr ']' { cout << "P: expr '[' expr ']' -> expr" << endl; }
     | expr '[' arraySlice ']' { cout << "P: expr '[' arraySlice ']' -> expr" << endl; }
     | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr" << endl; }
-    | attributeRefList { cout << "P: attributeRefList -> expr" << endl; }
+    | expr '.' identifier { cout << "P: expr '.' identifier -> expr" << endl; }
     | type '(' exprListE ')' { cout << "P: type '(' exprE ')' -> expr" << endl; }
     ;
 
@@ -291,14 +291,7 @@ arraySlice: exprE ':' exprE
           | exprE ':' exprE ':' exprE
           ;
 
-attributeRef: identifier '.' identifier { cout << "P: identifier '.' identifier -> attributeRef" << endl; }
-            ;
-
-attributeRefList: attributeRef
-                | attributeRefList '.' identifier
-                ;
-
-namedArgsList: identifier '=' expr
+namedArgsList: identifier '=' expr 
              | namedArgsList ',' identifier '=' expr
              ;
 
