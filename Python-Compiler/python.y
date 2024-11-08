@@ -241,8 +241,9 @@ expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
     | '[' exprList forHeaderList ifHeaderListE ']' { cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
     | expr '[' expr ']' { cout << "P: expr '[' expr ']' -> expr" << endl; }
     | expr '[' arraySlice ']' { cout << "P: expr '[' arraySlice ']' -> expr" << endl; }
-    | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr" << endl; }
-    | expr '.' identifier { cout << "P: expr '.' identifier -> expr" << endl; }
+    | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
+    | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
+    | expr '.' identifier { cout << "P: expr '.' identifier -> expr | ATTRIBUTE REF" << endl; }
     | type '(' exprListE ')' { cout << "P: type '(' exprE ')' -> expr" << endl; }
     ;
 
