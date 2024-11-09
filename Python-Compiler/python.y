@@ -86,16 +86,19 @@ simpleStmt: assignStmt { cout << "P: assignStmt -> simpleStmt" << endl; }
           | returnStmt { cout << "P: returnStmt -> simpleStmt" << endl; }
           ;
 
-simpleStmtList: simpleStmt { cout << "P: simpleStmt -> simpleStmtList" << endl; }
-              | simpleStmtList ';' simpleStmt { cout << "P: simpleStmtList ';' simpleStmt -> simpleStmtList" << endl; }
+suite: NEWLINE INDENT stmtsList DEDENT { cout << "P: NEWLINE INDENT stmtsList DEDENT -> suite" << endl; }
+     | oneLineWritingSemicolon NEWLINE { cout << "P: oneLineWritingSemicolon NEWLINE -> suite" << endl; }
+     ;
+
+oneLineWriting: simpleStmt { cout << "P: simpleStmt -> oneLineWriting" << endl; }
+              | expr { cout << "P: expr -> oneLineWriting" << endl; }
+              | oneLineWriting ';' simpleStmt { cout << "P: oneLineWriting ';' simpleStmt -> oneLineWriting" << endl; }
+              | oneLineWriting ';' expr { cout << "P: oneLineWriting ';' expr -> oneLineWriting" << endl; } 
               ;
 
-suite: NEWLINE INDENT stmtsList DEDENT { cout << "P: NEWLINE INDENT stmtsList DEDENT -> suite" << endl; }
-     | simpleStmtList NEWLINE { cout << "P: simpleStmtList NEWLINE -> suite" << endl; }
-     | simpleStmtList ';' NEWLINE { cout << "P: simpleStmtList ';' NEWLINE -> suite" << endl; }
-     | exprListSemicolon NEWLINE { cout << "P: exprListSemicolon NEWLINE -> suite" << endl; }
-     | exprListSemicolon ';' NEWLINE { cout << "P: exprListSemicolon ';' NEWLINE -> suite" << endl; }
-     ;
+oneLineWritingSemicolon: oneLineWriting { cout << "P: oneLineWriting -> oneLineWritingSemicolon" << endl; } 
+                       | oneLineWriting ';' { cout << "P: oneLineWriting ';' -> oneLineWritingSemicolon" << endl; } 
+                       ;
 
 // IF STATEMENT
 
@@ -262,10 +265,6 @@ exprE: expr
 exprList: expr { cout << "P: expr -> exprList" << endl; }
         | exprList ',' expr { cout << "P: exprList ',' expr -> exprList" << endl; }
         ;
-
-exprListSemicolon: expr { cout << "P: expr -> exprListSemicolon" << endl; }
-                 | exprListSemicolon ';' expr { cout << "P: exprListSemicolon ';' expr -> exprListSemicolon" << endl; }
-                 ;
 
 exprListE: exprList
          | exprList ','
