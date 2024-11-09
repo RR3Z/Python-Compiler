@@ -60,6 +60,9 @@ programStmtsList: topLevelStmt { cout << "P: topLevelStmt -> programStmtsList" <
                 | stmt { cout << "P: stmt -> programStmtsList" << endl; }
                 | programStmtsList topLevelStmt { cout << "P: programStmtsList topLevelStmt -> programStmtsList" << endl; }
                 | programStmtsList stmt { cout << "P: programStmtsList stmt -> programStmtsList" << endl; }
+/* !!! CONFLICTS: LOOKS LIKE DEFAULT SOLUTION IS CORRECT !!! */
+                | oneLineWritingSemicolon NEWLINE { cout << "P: oneLineWritingSemicolon NEWLINE -> programStmtsList" << endl; }
+                | programStmtsList oneLineWritingSemicolon NEWLINE { cout << "P: programStmtsList oneLineWritingSemicolon NEWLINE -> programStmtsList" << endl; }
                 ;
 
 topLevelStmt: funcDef { cout << "P: funcDef -> topLevelStmt" << endl; }
