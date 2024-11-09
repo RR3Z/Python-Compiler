@@ -60,9 +60,6 @@ programStmtsList: topLevelStmt { cout << "P: topLevelStmt -> programStmtsList" <
                 | stmt { cout << "P: stmt -> programStmtsList" << endl; }
                 | programStmtsList topLevelStmt { cout << "P: programStmtsList topLevelStmt -> programStmtsList" << endl; }
                 | programStmtsList stmt { cout << "P: programStmtsList stmt -> programStmtsList" << endl; }
-/* !!! CONFLICTS: LOOKS LIKE DEFAULT SOLUTION IS CORRECT !!! */
-                | oneLineWritingSemicolon NEWLINE { cout << "P: oneLineWritingSemicolon NEWLINE -> programStmtsList" << endl; }
-                | programStmtsList oneLineWritingSemicolon NEWLINE { cout << "P: programStmtsList oneLineWritingSemicolon NEWLINE -> programStmtsList" << endl; }
                 ;
 
 topLevelStmt: funcDef { cout << "P: funcDef -> topLevelStmt" << endl; }
@@ -90,18 +87,7 @@ simpleStmt: assignStmt { cout << "P: assignStmt -> simpleStmt" << endl; }
           ;
 
 suite: NEWLINE INDENT stmtsList DEDENT { cout << "P: NEWLINE INDENT stmtsList DEDENT -> suite" << endl; }
-     | oneLineWritingSemicolon NEWLINE { cout << "P: oneLineWritingSemicolon NEWLINE -> suite" << endl; }
      ;
-
-oneLineWriting: simpleStmt { cout << "P: simpleStmt -> oneLineWriting" << endl; }
-              | expr { cout << "P: expr -> oneLineWriting" << endl; }
-              | oneLineWriting ';' simpleStmt { cout << "P: oneLineWriting ';' simpleStmt -> oneLineWriting" << endl; }
-              | oneLineWriting ';' expr { cout << "P: oneLineWriting ';' expr -> oneLineWriting" << endl; } 
-              ;
-
-oneLineWritingSemicolon: oneLineWriting { cout << "P: oneLineWriting -> oneLineWritingSemicolon" << endl; } 
-                       | oneLineWriting ';' { cout << "P: oneLineWriting ';' -> oneLineWritingSemicolon" << endl; } 
-                       ;
 
 // IF STATEMENT
 
