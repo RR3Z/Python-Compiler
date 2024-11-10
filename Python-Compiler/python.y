@@ -228,23 +228,23 @@ expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
     | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
     | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
     | expr '.' identifier { cout << "P: expr '.' identifier -> expr | ATTRIBUTE REF" << endl; }
-    | type '(' exprListE ')' { cout << "P: type '(' exprE ')' -> expr | CONSTRUCTOR" << endl; }
     | INT_C {cout << "P: INT_C -> expr" << endl;}
     | FLOAT_C {cout << "P: FLOAT_C -> expr" << endl;}
     | STRING_C {cout << "P: STRING_C -> expr" << endl;}
     | TRUE {cout << "P: TRUE -> expr" << endl;}
     | FALSE {cout << "P: FALSE -> expr" << endl;}
-    | identifier { cout << "P: identifier -> expr" << endl; }
+    | type { cout << "P: type -> expr" << endl; }
     | SELF { cout << "P: SELF -> expr" << endl; }
     | SUPER { cout << "P: SUPER -> expr" << endl; }
     ;
 
-type: INT_TYPE
-    | FLOAT_TYPE
-    | LIST_TYPE
-    | RANGE_TYPE
-    | BOOL_TYPE
-    | STR_TYPE
+type: INT_TYPE { cout << "P: INT_TYPE -> type" << endl; }
+    | FLOAT_TYPE { cout << "P: FLOAT_TYPE -> type" << endl; }
+    | LIST_TYPE { cout << "P: LIST_TYPE -> type" << endl; }
+    | RANGE_TYPE { cout << "P: RANGE_TYPE -> type" << endl; }
+    | BOOL_TYPE { cout << "P: BOOL_TYPE -> type" << endl; }
+    | STR_TYPE { cout << "P: STR_TYPE -> type" << endl; } 
+    | identifier { cout << "P: identifier -> type" << endl; }
     ;
 
 exprE: expr
