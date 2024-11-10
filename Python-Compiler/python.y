@@ -218,8 +218,9 @@ expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
     | expr NE expr {cout << "P: expr NE expr -> expr" << endl;}
     | '+' expr %prec UPLUS {cout << "P: '+' expr -> expr" << endl;}
     | '-' expr %prec UMINUS {cout << "P: '-' expr -> expr" << endl;}
-    | '(' expr ')' {cout << "P: '(' expr ')' -> expr" << endl;}
     | LAMBDA paramsListE ':' expr %prec LAMBDA { cout << "P: lambdaExpr -> expr" << endl; }
+    | identifier ASSIGN_OP expr {cout << "P: identifier ASSIGN_OP expr -> expr" << endl;}
+    | '(' expr ')' {cout << "P: '(' expr ')' -> expr" << endl;}
     | '[' exprListE ']' { cout << "P: '[' exprListE ']' -> expr" << endl; }
     | '[' exprList forHeaderList ifHeaderListE ']' { cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
     | expr '[' expr ']' { cout << "P: expr '[' expr ']' -> expr" << endl; }
@@ -234,7 +235,6 @@ expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
     | TRUE {cout << "P: TRUE -> expr" << endl;}
     | FALSE {cout << "P: FALSE -> expr" << endl;}
     | identifier { cout << "P: identifier -> expr" << endl; }
-    | identifier ASSIGN_OP expr {cout << "P: identifier ASSIGN_OP expr -> expr" << endl;}
     | SELF { cout << "P: SELF -> expr" << endl; }
     | SUPER { cout << "P: SUPER -> expr" << endl; }
     ;
@@ -272,8 +272,14 @@ identifiersE: identifiers
             | /* empty */
             ;
 
-targetList: identifier { cout << "P: identifier->targetList" << endl; }
-          | targetList ',' identifier { cout << "P: targetList , identifier -> targetList" << endl; }
+target: identifier { cout << "P: identifier -> target" << endl; }
+      | expr '[' expr ']' { cout << "P: expr '[' expr ']' -> target" << endl; }
+      | expr '[' arraySlice ']' { cout << "P: expr '[' arraySlice ']' -> target" << endl; }
+      | expr '.' identifier { cout << "P: expr '.' identifier -> target" << endl; }
+      ;
+
+targetList: target { cout << "P: target -> targetList" << endl; }
+          | targetList ',' target { cout << "P: targetList , target -> targetList" << endl; }
           ;
 
 arraySlice: exprE ':' exprE
