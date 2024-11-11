@@ -81,11 +81,20 @@ stmt: assignStmt { cout << "P: assignStmt -> stmt" << endl; }
 stmtsList: stmt { cout << "P: stmt -> stmtsList" << endl; }
          | stmtsList stmt { cout << "P: stmtsList stmt -> stmtsList" << endl; }
          ;
+                  
+classElement: funcDef { cout << "P: funcDef -> classElement" << endl; }
+            | stmt { cout << "P: stmtWithoutReturn -> classElement" << endl; }
             ;
 
+classElementsList: classElement { cout << "P: classElement -> classElementsList" << endl; }
+                 | classElementsList classElement { cout << "P: classElementsList classElement -> classElementsList" << endl; }
+                 ;
 
 suite: NEWLINE INDENT stmtsList DEDENT { cout << "P: NEWLINE INDENT stmtsList DEDENT -> suite" << endl; }
      ;
+
+classSuite: NEWLINE INDENT classElementsList DEDENT { cout << "P: NEWLINE INDENT classElementsList DEDENT -> classSuite" << endl; }
+          ;
 
 // IF STATEMENT
 
@@ -185,8 +194,8 @@ paramsListE: paramsList { cout << "P: paramsList -> paramsListE" << endl; }
 
 // CLASS DEFINITION
 
-classDef: CLASS identifier ':' suite  { cout << "P: CLASS identifier ':' suite -> classDef" << endl; }
-        | CLASS identifier '(' identifiersE ')' ':' suite { cout << "P: CLASS identifier '(' identifiersE ')' ':' suite -> classDef" << endl; }
+classDef: CLASS identifier ':' classSuite  { cout << "P: CLASS identifier ':' classSuite -> classDef" << endl; }
+        | CLASS identifier '(' identifiersE ')' ':' classSuite { cout << "P: CLASS identifier '(' identifiersE ')' ':' classSuite -> classDef" << endl; }
         ;
 
 // ASSIGNMENT STATEMENT
