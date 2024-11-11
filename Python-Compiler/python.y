@@ -7,6 +7,8 @@
 
   int yylex(void);
   int yyerror(const char *s);
+
+  bool isFunc = false;
 %}
 
 %union {
@@ -160,8 +162,17 @@ exceptStmtList: exceptStmt
 
 // FUNCTION DEFINITION
 
-funcDef: DEF identifier '(' paramsListE ')' ':' suite { cout << "P: DEF identifier '(' paramsListE ')' ':' suite -> funcDef" << endl; }
+funcDef: funcHeader ':' suite { 
+                                isFunc = false; 
+                                cout << "P: funcHeader ':' suite -> funcDef" << endl; 
+                              }
        ;
+
+funcHeader: DEF identifier '(' paramsListE ')' { 
+                                                 isFunc = true; 
+                                                 cout << "P: DEF identifier '(' paramsListE ')' -> funcHeader" << endl; 
+                                               }
+          ;
 
 param: identifier { cout << "P: identifier -> param" << endl; }
      | identifier '=' expr { cout << "P: identifier '=' expr -> param" << endl; }
@@ -199,7 +210,10 @@ assignStmtTargetAssignList: targetList { cout << "P: targetList -> assignStmtTar
 
 // RETURN STATEMENT
  
-returnStmt: RETURN exprListE NEWLINE { cout << "P: RETURN exprListE NEWLINE -> returnStmt" << endl; }
+returnStmt: RETURN exprListE NEWLINE { 
+                                        if(!isFunc) { yyerror("syntax error (\'return\' outside function)"); }
+                                        cout << "P: RETURN exprListE NEWLINE -> returnStmt" << endl; 
+                                     }
           ;
 
 expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
