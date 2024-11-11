@@ -50,13 +50,8 @@ INT_TYPE FLOAT_TYPE LIST_TYPE RANGE_TYPE BOOL_TYPE STR_TYPE
 %%
 
 program: programStmtsList { cout << "P: programStmtsList -> program" << endl; }
-       | newLineList programStmtsList { cout << "P: newLineList programStmtsList -> program" << endl; }
-       | newLineList { cout << "P: newLineList -> program" << endl; }
+       | NEWLINE { cout << "P: newLineList -> program" << endl; }
        ;
-
-newLineList: NEWLINE
-           | newLineList NEWLINE
-           ;
 
 programStmtsList: topLevelStmt { cout << "P: topLevelStmt -> programStmtsList" << endl; }
                 | stmt { cout << "P: stmt -> programStmtsList" << endl; }
