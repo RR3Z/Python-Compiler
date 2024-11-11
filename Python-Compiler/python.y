@@ -68,8 +68,12 @@ topLevelStmt: funcDef { cout << "P: funcDef -> topLevelStmt" << endl; }
             | classDef { cout << "P: classDef -> topLevelStmt" << endl; }
             ;
 
-stmt: compoundStmt { cout << "P: compoundStmt -> stmt" << endl; }
-    | simpleStmt { cout << "P: simpleStmt -> stmt" << endl; }
+stmt: assignStmt { cout << "P: assignStmt -> stmt" << endl; }
+    | returnStmt { cout << "P: returnStmt -> stmt" << endl; }
+    | ifStmt { cout << "P: ifStmt -> stmt" << endl; }
+    | forStmt { cout << "P: forStmt -> stmt" << endl; }
+    | whileStmt { cout << "P: whileStmt -> stmt" << endl; }
+    | tryStmt { cout << "P: tryStmt -> stmt" << endl; }
     | expr NEWLINE { cout << "P: expr NEWLINE -> stmt" << endl; }
     | stmt NEWLINE { cout << "P: stmt NEWLINE -> stmt" << endl; }
     ;
@@ -77,16 +81,8 @@ stmt: compoundStmt { cout << "P: compoundStmt -> stmt" << endl; }
 stmtsList: stmt { cout << "P: stmt -> stmtsList" << endl; }
          | stmtsList stmt { cout << "P: stmtsList stmt -> stmtsList" << endl; }
          ;
-
-compoundStmt: ifStmt { cout << "P: ifStmt -> compoundStmt" << endl; }
-            | forStmt { cout << "P: forStmt -> compoundStmt" << endl; }
-            | whileStmt { cout << "P: whileStmt -> compoundStmt" << endl; }
-            | tryStmt { cout << "P: tryStmt -> compoundStmt" << endl; }
             ;
 
-simpleStmt: assignStmt { cout << "P: assignStmt -> simpleStmt" << endl; }
-          | returnStmt { cout << "P: returnStmt -> simpleStmt" << endl; }
-          ;
 
 suite: NEWLINE INDENT stmtsList DEDENT { cout << "P: NEWLINE INDENT stmtsList DEDENT -> suite" << endl; }
      ;
