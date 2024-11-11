@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Исходные файлы\nodes">
+      <UniqueIdentifier>{7598bd81-7870-46c5-a041-e0bd0f7c9c94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\nodes">
+      <UniqueIdentifier>{0b5811f0-0ea4-4995-bad2-2bd17171901e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Flex Include="python.l">
@@ -29,6 +35,15 @@
     <ClCompile Include="python.tab.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="nodes\DotHelpers.cpp">
+      <Filter>Исходные файлы\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="nodes\parsing_tree.cpp">
+      <Filter>Исходные файлы\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="nodes\dot_generation.cpp">
+      <Filter>Исходные файлы\nodes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt">
@@ -43,6 +58,18 @@
   <ItemGroup>
     <ClInclude Include="python.tab.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\DotHelpers.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\nodes.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\parsing_tree.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\dot_generation.h">
+      <Filter>Файлы заголовков\nodes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

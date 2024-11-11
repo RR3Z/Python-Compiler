@@ -23,6 +23,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="nodes\DotHelpers.cpp" />
+    <ClCompile Include="nodes\dot_generation.cpp" />
+    <ClCompile Include="nodes\parsing_tree.cpp" />
     <ClCompile Include="python.flex.cpp" />
     <ClCompile Include="python.tab.cpp" />
   </ItemGroup>
@@ -36,6 +39,10 @@
     </Bison>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="nodes\DotHelpers.h" />
+    <ClInclude Include="nodes\dot_generation.h" />
+    <ClInclude Include="nodes\nodes.h" />
+    <ClInclude Include="nodes\parsing_tree.h" />
     <ClInclude Include="python.tab.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
