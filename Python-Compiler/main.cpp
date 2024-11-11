@@ -1,7 +1,10 @@
 #include <iostream>
+#include <string>
+#include "nodes/dot_generation.h"
 
 extern int yyparse();
 extern FILE* yyin;
+extern struct ExprNode* exprTest;
 
 int main(int argc, const char* argv[])
 {
@@ -23,7 +26,14 @@ int main(int argc, const char* argv[])
 		std::cout << "Couldn't open file! Check the path!" << std::endl;
 		return 1;
 	}
-	yyparse();
 
+	yyparse();
 	fclose(yyin);
+
+	std::string parseRes = "digraph G {\n" + generateDotFromExprNode(exprTest) + "}";
+	std::cout << parseRes << std::endl;
+	FILE* dotFile;
+	fopen_s(&dotFile, "diagram.dot", "w");
+	fprintf(dotFile, parseRes.c_str());
+	fclose(dotFile);
 }

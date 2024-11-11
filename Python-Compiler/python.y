@@ -5,19 +5,33 @@
   #include <string>
   using namespace std;
 
+  #include "nodes/parsing_tree.h"
+
   int yylex(void);
   int yyerror(const char *s);
 
   bool isFunc = false;
+  struct ExprNode* exprTest;
 %}
 
 %union {
     int intVal;
     float floatVal;
     string* stringVal;
+
+    string* identifier;
+
+    struct ExprNode* expression;
 }
 
-%token INT_C FLOAT_C STRING_C ID TRUE FALSE
+%token <intVal>INT_C
+%token <stringVal>STRING_C
+%token <floatVal>FLOAT_C
+%token <identifier>ID
+
+%type <expression>expr
+
+%token TRUE FALSE
 NEWLINE INDENT DEDENT
 AND OR
 GT GE LT LE EQ NE
@@ -216,7 +230,7 @@ returnStmt: RETURN exprListE NEWLINE {
                                      }
           ;
 
-expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
+expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P: expr '+' expr -> expr" << endl; }
     | expr '-' expr {cout << "P: expr '-' expr -> expr" << endl;}
     | expr '*' expr {cout << "P: expr '*' expr -> expr" << endl;}
     | expr '/' expr {cout << "P: expr '/' expr -> expr" << endl;}
@@ -242,7 +256,7 @@ expr: expr '+' expr { cout << "P: expr '+' expr -> expr" << endl; }
     | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
     | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
     | expr '.' identifier { cout << "P: expr '.' identifier -> expr | ATTRIBUTE REF" << endl; }
-    | INT_C {cout << "P: INT_C -> expr" << endl;}
+    | INT_C { $$ = createIntConstExprNode($1); cout << "P: INT_C -> expr" << endl; }
     | FLOAT_C {cout << "P: FLOAT_C -> expr" << endl;}
     | STRING_C {cout << "P: STRING_C -> expr" << endl;}
     | TRUE {cout << "P: TRUE -> expr" << endl;}
@@ -274,7 +288,7 @@ exprListE: exprList
          | /* empty */
          ;
 
-identifier: ID
+identifier: ID {  }
           ;
 
 identifiers: identifier

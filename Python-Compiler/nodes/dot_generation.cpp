@@ -20,4 +20,6 @@ string generateDotFromExprNode(struct ExprNode* node) {
 		dot += dotConnection(node->id, node->right->id);
 		break;
 	}
+
+	return dot;
 }

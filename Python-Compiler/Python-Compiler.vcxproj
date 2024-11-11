@@ -115,9 +115,12 @@
       <AdditionalOptions>-Wcounterexamples %(AdditionalOptions)</AdditionalOptions>
     </Bison>
     <PostBuildEvent>
-      <Command>copy /b main.cpp +,,
-$(ProjectDir)Graphviz\bin\dot.exe -Tpng -O $(ProjectDir)diagram.dot</Command>
+      <Command>$(ProjectDir)Graphviz\bin\dot.exe -Tpng -O $(ProjectDir)diagram.dot"
+copy /b main.cpp +,,</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>copy /b main.cpp +,,</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -152,14 +155,17 @@ $(ProjectDir)Graphviz\bin\dot.exe -Tpng -O $(ProjectDir)diagram.dot</Command>
     <CustomBuildStep />
     <CustomBuildStep />
     <PostBuildEvent>
-      <Command>copy /b main.cpp +,,
-$(ProjectDir)Graphviz\bin\dot.exe -Tpng -O $(ProjectDir)diagram.dot</Command>
+      <Command>$(ProjectDir)Graphviz\bin\dot.exe -Tpng -O $(ProjectDir)diagram.dot"
+copy /b main.cpp +,,</Command>
     </PostBuildEvent>
     <Bison>
       <Verbose>true</Verbose>
       <Warnings>all</Warnings>
       <AdditionalOptions>-Wcounterexamples %(AdditionalOptions)</AdditionalOptions>
     </Bison>
+    <PreBuildEvent>
+      <Command>copy /b main.cpp +,,</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

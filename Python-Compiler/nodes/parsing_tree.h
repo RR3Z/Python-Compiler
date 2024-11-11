@@ -3,7 +3,7 @@
 
 /* ========== EXPRESSION ========== */
 
-struct ExprNode* createIdExprNode(string id);
+struct ExprNode* createIdExprNode(string* id);
 
 struct ExprNode* createIntConstExprNode(int value);
 
