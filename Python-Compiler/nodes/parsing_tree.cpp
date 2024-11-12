@@ -1,5 +1,7 @@
 #include "parsing_tree.h"
 
+#pragma warning(disable: 6011)
+
 int ID = 0;
 
 /* ========== EXPRESSION ========== */
@@ -248,6 +250,28 @@ struct ExprNode* createUnaryMinusExprNode(struct ExprNode* value) {
 	node->type = _U_MINUS,
 	node->left = NULL;
 	node->right = value;
+	node->id = ID++;
+
+	return node;
+}
+
+struct ExprNode* createSelfExprNode() {
+	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
+
+	node->type = _SELF;
+	node->left = NULL;
+	node->right = NULL;
+	node->id = ID++;
+
+	return node;
+}
+
+struct ExprNode* createSuperExprNode() {
+	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
+
+	node->type = _SUPER;
+	node->left = NULL;
+	node->right = NULL;
 	node->id = ID++;
 
 	return node;

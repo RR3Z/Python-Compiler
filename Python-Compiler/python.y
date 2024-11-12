@@ -262,8 +262,8 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | TRUE { $$ = createTrueConstExprNode(); cout << "P: TRUE -> expr" << endl;}
     | FALSE { $$ = createFalseConstExprNode(); cout << "P: FALSE -> expr" << endl;}
     | type { cout << "P: type -> expr" << endl; }
-    | SELF { cout << "P: SELF -> expr" << endl; }
-    | SUPER { cout << "P: SUPER -> expr" << endl; }
+    | SELF { $$ = createSelfExprNode(); cout << "P: SELF -> expr" << endl; }
+    | SUPER { $$ = createSuperExprNode(); cout << "P: SUPER -> expr" << endl; }
     ;
 
 type: INT_TYPE { cout << "P: INT_TYPE -> type" << endl; }
