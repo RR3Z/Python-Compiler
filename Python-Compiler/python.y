@@ -251,7 +251,8 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | '(' expr ')' {cout << "P: '(' expr ')' -> expr" << endl;}
     | '[' exprListE ']' { cout << "P: '[' exprListE ']' -> expr" << endl; }
     | '[' exprList forHeaderList ifHeaderListE ']' { cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
-    | expr '[' expr ']' { cout << "P: expr '[' expr ']' -> expr" << endl; }
+    | expr '[' exprList ']' { cout << "P: expr '[' exprList ']' -> expr" << endl; }
+    | expr '[' exprList ',' ']' { cout << "P: expr '[' exprList ',' ']' -> expr" << endl; }
     | expr '[' arraySlice ']' { cout << "P: expr '[' arraySlice ']' -> expr" << endl; }
     | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
     | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
@@ -301,7 +302,8 @@ identifiersE: identifiers
             ;
 
 target: identifier { cout << "P: identifier -> target" << endl; }
-      | expr '[' expr ']' { cout << "P: expr '[' expr ']' -> target" << endl; }
+      | expr '[' exprList ']' { cout << "P: expr '[' expr ']' -> target" << endl; }
+      | expr '[' exprList ',' ']' { cout << "P: expr '[' expr ',' ']' -> target" << endl; }
       | expr '[' arraySlice ']' { cout << "P: expr '[' arraySlice ']' -> target" << endl; }
       | expr '.' identifier { cout << "P: expr '.' identifier -> target" << endl; }
       ;
