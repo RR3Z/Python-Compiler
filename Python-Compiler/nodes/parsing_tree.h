@@ -43,8 +43,11 @@ struct ExprNode* createEqualExprNode(struct ExprNode* leftOperand, struct ExprNo
 
 struct ExprNode* createNotEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
 
+// my part
+struct ExprNode* createAndLogicExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
 
+struct ExprNode* createAndBitwiseExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
 
+struct ExprNode* createOrLogicExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
 
-
-
+struct ExprNode* createOrBitwiseExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);

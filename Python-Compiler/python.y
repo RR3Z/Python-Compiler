@@ -231,21 +231,21 @@ returnStmt: RETURN exprListE NEWLINE {
           ;
 
 expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P: expr '+' expr -> expr" << endl; }
-    | expr '-' expr {cout << "P: expr '-' expr -> expr" << endl;}
-    | expr '*' expr {cout << "P: expr '*' expr -> expr" << endl;}
-    | expr '/' expr {cout << "P: expr '/' expr -> expr" << endl;}
-    | expr AND expr {cout << "P: expr AND expr -> expr" << endl;}
-    | expr '&' expr {cout << "P: expr '&' expr -> expr" << endl;}
-    | expr OR expr {cout << "P: expr OR expr -> expr" << endl;}
-    | expr '|' expr {cout << "P: expr '|' expr -> expr" << endl;}
-    | expr GT expr {cout << "P: expr GT expr -> expr" << endl;}
-    | expr GE expr {cout << "P: expr GE expr -> expr" << endl;}
-    | expr LT expr {cout << "P: expr LT expr -> expr" << endl;}
-    | expr LE expr {cout << "P: expr LE expr -> expr" << endl;}
-    | expr EQ expr {cout << "P: expr EQ expr -> expr" << endl;}
-    | expr NE expr {cout << "P: expr NE expr -> expr" << endl;}
-    | '+' expr %prec UPLUS {cout << "P: '+' expr -> expr" << endl;}
-    | '-' expr %prec UMINUS {cout << "P: '-' expr -> expr" << endl;}
+    | expr '-' expr { $$ = createMinusExprNode($1, $3); exprTest = $$; cout << "P: expr '-' expr -> expr" << endl;}
+    | expr '*' expr { $$ = createMulExprNode($1, $3); exprTest = $$;  cout << "P: expr '*' expr -> expr" << endl;}
+    | expr '/' expr { $$ = createDivExprNode($1, $3); exprTest = $$;  cout << "P: expr '/' expr -> expr" << endl;}
+    | expr AND expr { $$ = createAndLogicExprNode($1, $3); exprTest = $$; cout << "P: expr AND expr -> expr" << endl;}
+    | expr '&' expr { $$ = createAndBitwiseExprNode($1, $3); exprTest = $$; cout << "P: expr '&' expr -> expr" << endl;}
+    | expr OR expr { $$ = createOrLogicExprNode($1, $3); exprTest = $$;  cout << "P: expr OR expr -> expr" << endl;}
+    | expr '|' expr { $$ = createOrBitwiseExprNode($1, $3); exprTest = $$; cout << "P: expr '|' expr -> expr" << endl;}
+    | expr GT expr { $$ = createGreatExprNode($1, $3); exprTest = $$; cout << "P: expr GT expr -> expr" << endl;}
+    | expr GE expr { $$ = createGreateEqualExprNode($1, $3); exprTest = $$; cout << "P: expr GE expr -> expr" << endl;}
+    | expr LT expr { $$ = createLessExprNode($1, $3); exprTest = $$; cout << "P: expr LT expr -> expr" << endl;}
+    | expr LE expr { $$ = createLessEqualExprNode($1, $3); exprTest = $$; cout << "P: expr LE expr -> expr" << endl;}
+    | expr EQ expr { $$ = createEqualExprNode($1, $3); exprTest = $$; cout << "P: expr EQ expr -> expr" << endl;}
+    | expr NE expr  $$ = createNotEqualExprNode($1, $3); exprTest = $$; {cout << "P: expr NE expr -> expr" << endl;}
+    | '+' expr %prec UPLUS { $$ = createUnaryPlusExprNode($2); exprTest = $$; cout << "P: '+' expr -> expr" << endl;}
+    | '-' expr %prec UMINUS { $$ = createUnaryMinusExprNode($2); exprTest = $$; cout << "P: '-' expr -> expr" << endl;}
     | LAMBDA paramsListE ':' expr %prec LAMBDA { cout << "P: lambdaExpr -> expr" << endl; }
     | identifier ASSIGN_OP expr {cout << "P: identifier ASSIGN_OP expr -> expr" << endl;}
     | '(' expr ')' {cout << "P: '(' expr ')' -> expr" << endl;}
@@ -257,10 +257,10 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
     | expr '.' identifier { cout << "P: expr '.' identifier -> expr | ATTRIBUTE REF" << endl; }
     | INT_C { $$ = createIntConstExprNode($1); cout << "P: INT_C -> expr" << endl; }
-    | FLOAT_C {cout << "P: FLOAT_C -> expr" << endl;}
-    | STRING_C {cout << "P: STRING_C -> expr" << endl;}
-    | TRUE {cout << "P: TRUE -> expr" << endl;}
-    | FALSE {cout << "P: FALSE -> expr" << endl;}
+    | FLOAT_C { $$ = createFloatConstExprNode($1); cout << "P: FLOAT_C -> expr" << endl;}
+    | STRING_C { $$ = createStringConstExprNode($1); cout << "P: STRING_C -> expr" << endl;}
+    | TRUE { $$ = createTrueConstExprNode(); cout << "P: TRUE -> expr" << endl;}
+    | FALSE {  $$ = createFalseConstExprNode($1); cout << "P: FALSE -> expr" << endl;}
     | type { cout << "P: type -> expr" << endl; }
     | SELF { cout << "P: SELF -> expr" << endl; }
     | SUPER { cout << "P: SUPER -> expr" << endl; }
