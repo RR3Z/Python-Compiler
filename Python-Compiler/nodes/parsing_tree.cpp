@@ -10,7 +10,7 @@ struct ExprNode* createIdExprNode(string* id) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
 	node->type = _IDENTIFIER;
-	node->identifier = *id;
+	node->identifier = id;
 	node->left = NULL;
 	node->right = NULL;
 	node->id = ID++;

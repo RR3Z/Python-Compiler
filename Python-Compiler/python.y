@@ -19,7 +19,7 @@
     float floatVal;
     string* stringVal;
 
-    string* identifier;
+    string* name;
 
     struct ExprNode* expression;
 }
@@ -27,7 +27,15 @@
 %token <intVal>INT_C
 %token <stringVal>STRING_C
 %token <floatVal>FLOAT_C
-%token <identifier>ID
+%token <name>ID
+%token <name>INT_TYPE
+%token <name>FLOAT_TYPE
+%token <name>LIST_TYPE
+%token <name>RANGE_TYPE
+%token <name>BOOL_TYPE
+%token <name>STR_TYPE
+
+%type <name>identifier
 
 %type <expression>expr
 
@@ -42,7 +50,7 @@ FOR WHILE IN
 TRY FINALLY EXCEPT AS
 DEF CLASS SELF SUPER
 RETURN LAMBDA
-INT_TYPE FLOAT_TYPE LIST_TYPE RANGE_TYPE BOOL_TYPE STR_TYPE
+     
 
 %right ASSIGN_OP '=' PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
 %nonassoc LAMBDA
@@ -257,14 +265,14 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
     | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
     | expr '.' identifier { cout << "P: expr '.' identifier -> expr | ATTRIBUTE REF" << endl; }
-    | INT_C { $$ = createIntConstExprNode($1); cout << "P: INT_C -> expr" << endl; }
-    | FLOAT_C { $$ = createFloatConstExprNode($1); cout << "P: FLOAT_C -> expr" << endl;}
-    | STRING_C { $$ = createStringConstExprNode($1); cout << "P: STRING_C -> expr" << endl;}
-    | identifier { cout << "P: identifier -> expr" << endl; }
-    | TRUE { $$ = createTrueConstExprNode(); cout << "P: TRUE -> expr" << endl;}
-    | FALSE { $$ = createFalseConstExprNode(); cout << "P: FALSE -> expr" << endl;}
-    | SELF { $$ = createSelfExprNode(); cout << "P: SELF -> expr" << endl; }
-    | SUPER { $$ = createSuperExprNode(); cout << "P: SUPER -> expr" << endl; }
+    | INT_C { $$ = createIntConstExprNode($1); exprTest = $$; cout << "P: INT_C -> expr" << endl; }
+    | FLOAT_C { $$ = createFloatConstExprNode($1); exprTest = $$; cout << "P: FLOAT_C -> expr" << endl;}
+    | STRING_C { $$ = createStringConstExprNode($1); exprTest = $$; cout << "P: STRING_C -> expr" << endl;}
+    | identifier { $$ = createIdExprNode($1); exprTest = $$; cout << "P: identifier -> expr" << endl; }
+    | TRUE { $$ = createTrueConstExprNode(); exprTest = $$; cout << "P: TRUE -> expr" << endl;}
+    | FALSE { $$ = createFalseConstExprNode(); exprTest = $$; cout << "P: FALSE -> expr" << endl;}
+    | SELF { $$ = createSelfExprNode(); exprTest = $$; cout << "P: SELF -> expr" << endl; }
+    | SUPER { $$ = createSuperExprNode(); exprTest = $$; cout << "P: SUPER -> expr" << endl; }
     ;
 
 exprE: expr
@@ -280,13 +288,13 @@ exprListE: exprList
          | /* empty */
          ;
 
-identifier: ID { cout << "P: ID -> identifier" << endl; }
-          | INT_TYPE { cout << "P: INT_TYPE -> identifier" << endl; }
-          | FLOAT_TYPE { cout << "P: FLOAT_TYPE -> identifier" << endl; }
-          | LIST_TYPE { cout << "P: LIST_TYPE -> identifier" << endl; }
-          | RANGE_TYPE { cout << "P: RANGE_TYPE -> identifier" << endl; }
-          | BOOL_TYPE { cout << "P: BOOL_TYPE -> identifier" << endl; }
-          | STR_TYPE { cout << "P: STR_TYPE -> identifier" << endl; }
+identifier: ID { $$ = $1; cout << "P: ID -> identifier" << endl; }
+          | INT_TYPE { $$ = $1; cout << "P: INT_TYPE -> identifier" << endl; }
+          | FLOAT_TYPE { $$ = $1; cout << "P: FLOAT_TYPE -> identifier" << endl; }
+          | LIST_TYPE { $$ = $1; cout << "P: LIST_TYPE -> identifier" << endl; }
+          | RANGE_TYPE { $$ = $1; cout << "P: RANGE_TYPE -> identifier" << endl; }
+          | BOOL_TYPE { $$ = $1; cout << "P: BOOL_TYPE -> identifier" << endl; }
+          | STR_TYPE { $$ = $1; cout << "P: STR_TYPE -> identifier" << endl; }
           ;
 
 identifiers: identifier

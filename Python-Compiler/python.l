@@ -190,14 +190,14 @@
         curlyBracketsCounter--;
    }
 
-int { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; return INT_TYPE; }
-float { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; return FLOAT_TYPE; }
+int { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; yylval.name = new string(yytext); return INT_TYPE; }
+float { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; yylval.name = new string(yytext); return FLOAT_TYPE; }
 complex { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
-bool { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; return BOOL_TYPE; }
-list { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; return LIST_TYPE; }
+bool { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; yylval.name = new string(yytext); return BOOL_TYPE; }
+list { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; yylval.name = new string(yytext); return LIST_TYPE; }
 tuple { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
-range { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; return RANGE_TYPE; }
-str { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; return STR_TYPE; }
+range { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; yylval.name = new string(yytext); return RANGE_TYPE; }
+str { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; yylval.name = new string(yytext); return STR_TYPE; }
 bytes { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
 bytearray { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
 memoryview { cout << "Line: " << yylineno << ". Found data type: " << yytext << endl; }
@@ -448,8 +448,7 @@ super { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; r
 [A-Za-z_][A-Za-z0-9_]*  { 
     cout << "Line: " << yylineno << ". Found identifier: " << yytext << endl;
 
-    string text = yytext; 
-    yylval.identifier = &text;
+    yylval.name = new string(yytext);
     return ID; 
 }
 

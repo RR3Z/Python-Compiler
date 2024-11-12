@@ -9,7 +9,7 @@ string generateDotFromExprNode(struct ExprNode* node) {
 	switch (node->type)
 	{
 	case _IDENTIFIER:
-		dot += dotLabel(node->id, node->identifier);
+		dot += dotLabel(node->id, *(node->identifier));
 		break;
 	case _INT_CONST:
 		dot += dotLabel(node->id, to_string(node->intVal));

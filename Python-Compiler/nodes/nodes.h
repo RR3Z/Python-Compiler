@@ -50,7 +50,7 @@ struct ExprNode {
 	enum ExprType type;
 
 	// Идентификатор (переменная, функция, методы, аттрибуты, класс)
-	string identifier;
+	string* identifier;
 
 	// Для хранения значений констант
 	int boolVal;
