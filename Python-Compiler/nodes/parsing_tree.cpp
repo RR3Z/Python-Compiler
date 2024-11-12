@@ -235,7 +235,7 @@ struct ExprNode* createUnaryPlusExprNode(struct ExprNode* value) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
 	node->type = _U_PLUS,
-	node->left = value;
+	node->left = NULL;
 	node->right = value;
 	node->id = ID++;
 
@@ -246,7 +246,7 @@ struct ExprNode* createUnaryMinusExprNode(struct ExprNode* value) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
 	node->type = _U_MINUS,
-	node->left = value;
+	node->left = NULL;
 	node->right = value;
 	node->id = ID++;
 
