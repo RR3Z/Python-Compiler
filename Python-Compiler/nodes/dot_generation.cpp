@@ -4,6 +4,8 @@
 string generateDotFromExprNode(struct ExprNode* node) {
 	string dot = "";
 
+	if (node == NULL) { return dot; }
+
 	switch (node->type)
 	{
 	case _IDENTIFIER:
