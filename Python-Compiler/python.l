@@ -449,7 +449,7 @@ super { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; r
     cout << "Line: " << yylineno << ". Found identifier: " << yytext << endl;
 
     string text = yytext; 
-    yylval.stringVal = &text;
+    yylval.identifier = &text;
     return ID; 
 }
 
