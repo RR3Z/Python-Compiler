@@ -125,7 +125,7 @@ struct ExprNode* createDivExprNode(struct ExprNode* leftOperand, struct ExprNode
 struct ExprNode* createAndLogicExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
-	node->type = _AND_LOGIC,
+	node->type = _AND_LOGIC;
 	node->left = leftOperand;
 	node->right = rightOperand;
 	node->id = ID++;
@@ -136,7 +136,7 @@ struct ExprNode* createAndLogicExprNode(struct ExprNode* leftOperand, struct Exp
 struct ExprNode* createAndBitwiseExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
-	node->type = _AND_BITWISE,
+	node->type = _AND_BITWISE;
 	node->left = leftOperand;
 	node->right = rightOperand;
 	node->id = ID++;
@@ -147,7 +147,7 @@ struct ExprNode* createAndBitwiseExprNode(struct ExprNode* leftOperand, struct E
 struct ExprNode* createOrLogicExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
-	node->type = _OR_LOGIC,
+	node->type = _OR_LOGIC;
 		node->left = leftOperand;
 	node->right = rightOperand;
 	node->id = ID++;
@@ -159,7 +159,7 @@ struct ExprNode* createOrLogicExprNode(struct ExprNode* leftOperand, struct Expr
 struct ExprNode* createOrBitwiseExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
-	node->type = _OR_BITWISE,
+	node->type = _OR_BITWISE;
 	node->left = leftOperand;
 	node->right = rightOperand;
 	node->id = ID++;
@@ -170,7 +170,7 @@ struct ExprNode* createOrBitwiseExprNode(struct ExprNode* leftOperand, struct Ex
 struct ExprNode* createGreatExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
-	node->type = _GREAT,
+	node->type = _GREAT;
 	node->left = leftOperand;
 	node->right = rightOperand;
 	node->id = ID++;
@@ -181,7 +181,7 @@ struct ExprNode* createGreatExprNode(struct ExprNode* leftOperand, struct ExprNo
 struct ExprNode* createGreateEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
-	node->type = _GREAT_EQUAL,
+	node->type = _GREAT_EQUAL;
 	node->left = leftOperand;
 	node->right = rightOperand;
 	node->id = ID++;
@@ -192,7 +192,7 @@ struct ExprNode* createGreateEqualExprNode(struct ExprNode* leftOperand, struct 
 struct ExprNode* createLessExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
-	node->type = _LESS,
+	node->type = _LESS;
 	node->left = leftOperand;
 	node->right = rightOperand;
 	node->id = ID++;
@@ -203,7 +203,7 @@ struct ExprNode* createLessExprNode(struct ExprNode* leftOperand, struct ExprNod
 struct ExprNode* createLessEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
-	node->type = _LESS_EQUAL,
+	node->type = _LESS_EQUAL;
 	node->left = leftOperand;
 	node->right = rightOperand;
 	node->id = ID++;
@@ -214,7 +214,7 @@ struct ExprNode* createLessEqualExprNode(struct ExprNode* leftOperand, struct Ex
 struct ExprNode* createEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
-	node->type = _EQUAL,
+	node->type = _EQUAL;
 	node->left = leftOperand;
 	node->right = rightOperand;
 	node->id = ID++;
@@ -225,7 +225,7 @@ struct ExprNode* createEqualExprNode(struct ExprNode* leftOperand, struct ExprNo
 struct ExprNode* createNotEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
-	node->type = _NOT_EQUAL,
+	node->type = _NOT_EQUAL;
 	node->left = leftOperand;
 	node->right = rightOperand;
 	node->id = ID++;
@@ -236,7 +236,7 @@ struct ExprNode* createNotEqualExprNode(struct ExprNode* leftOperand, struct Exp
 struct ExprNode* createUnaryPlusExprNode(struct ExprNode* value) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
-	node->type = _U_PLUS,
+	node->type = _U_PLUS;
 	node->left = NULL;
 	node->right = value;
 	node->id = ID++;
@@ -247,7 +247,7 @@ struct ExprNode* createUnaryPlusExprNode(struct ExprNode* value) {
 struct ExprNode* createUnaryMinusExprNode(struct ExprNode* value) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
-	node->type = _U_MINUS,
+	node->type = _U_MINUS;
 	node->left = NULL;
 	node->right = value;
 	node->id = ID++;
