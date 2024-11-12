@@ -243,7 +243,7 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | expr LT expr { $$ = createLessExprNode($1, $3); exprTest = $$; cout << "P: expr LT expr -> expr" << endl;}
     | expr LE expr { $$ = createLessEqualExprNode($1, $3); exprTest = $$; cout << "P: expr LE expr -> expr" << endl;}
     | expr EQ expr { $$ = createEqualExprNode($1, $3); exprTest = $$; cout << "P: expr EQ expr -> expr" << endl;}
-    | expr NE expr  $$ = createNotEqualExprNode($1, $3); exprTest = $$; {cout << "P: expr NE expr -> expr" << endl;}
+    | expr NE expr { $$ = createNotEqualExprNode($1, $3); exprTest = $$; cout << "P: expr NE expr -> expr" << endl; }
     | '+' expr %prec UPLUS { $$ = createUnaryPlusExprNode($2); exprTest = $$; cout << "P: '+' expr -> expr" << endl;}
     | '-' expr %prec UMINUS { $$ = createUnaryMinusExprNode($2); exprTest = $$; cout << "P: '-' expr -> expr" << endl;}
     | LAMBDA paramsListE ':' expr %prec LAMBDA { cout << "P: lambdaExpr -> expr" << endl; }
@@ -260,7 +260,7 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | FLOAT_C { $$ = createFloatConstExprNode($1); cout << "P: FLOAT_C -> expr" << endl;}
     | STRING_C { $$ = createStringConstExprNode($1); cout << "P: STRING_C -> expr" << endl;}
     | TRUE { $$ = createTrueConstExprNode(); cout << "P: TRUE -> expr" << endl;}
-    | FALSE {  $$ = createFalseConstExprNode($1); cout << "P: FALSE -> expr" << endl;}
+    | FALSE { $$ = createFalseConstExprNode(); cout << "P: FALSE -> expr" << endl;}
     | type { cout << "P: type -> expr" << endl; }
     | SELF { cout << "P: SELF -> expr" << endl; }
     | SUPER { cout << "P: SUPER -> expr" << endl; }

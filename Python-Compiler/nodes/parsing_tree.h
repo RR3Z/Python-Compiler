@@ -9,7 +9,7 @@ struct ExprNode* createIntConstExprNode(int value);
 
 struct ExprNode* createFloatConstExprNode(float value);
 
-struct ExprNode* createStringConstExprNode(string text);
+struct ExprNode* createStringConstExprNode(string* text);
 
 struct ExprNode* createTrueConstExprNode();
 

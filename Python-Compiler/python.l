@@ -127,7 +127,7 @@
 
 \<\< { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; }
 \>\> { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; }
-\& { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; return '%'; }
+\& { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; return '&'; }
 \| { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; return '|'; }
 \^ { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; }
 \~ { cout << "Line: " << yylineno << ". Found bitwise operator: " << yytext << endl; }

@@ -40,11 +40,11 @@ struct ExprNode* createFloatConstExprNode(float value) {
 	return node;
 }
 
-struct ExprNode* createStringConstExprNode(string text) {
+struct ExprNode* createStringConstExprNode(string* text) {
 	struct ExprNode* node = (struct ExprNode*)malloc(sizeof(struct ExprNode));
 
 	node->type = _STRING_CONST;
-	node->stringVal = text;
+	node->stringVal = *text;
 	node->left = NULL;
 	node->right = NULL;
 	node->id = ID++;
