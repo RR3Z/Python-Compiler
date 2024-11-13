@@ -36,4 +36,9 @@ int main(int argc, const char* argv[])
 	fopen_s(&dotFile, "diagram.dot", "w");
 	fprintf(dotFile, parseRes.c_str());
 	fclose(dotFile);
+
+	// Auto generate image from Dot Code
+	system("cd");
+	system("Graphviz\\bin\\dot.exe -Tpng -O diagram.dot");
+	system("diagram.dot.png");
 }
