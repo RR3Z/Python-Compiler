@@ -155,8 +155,7 @@ copy /b main.cpp +,,</Command>
     <CustomBuildStep />
     <CustomBuildStep />
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy /b main.cpp +,,</Command>
     </PostBuildEvent>
     <Bison>
       <Verbose>true</Verbose>
