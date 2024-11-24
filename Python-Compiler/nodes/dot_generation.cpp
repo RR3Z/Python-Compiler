@@ -4,7 +4,7 @@
 string generateDotFromExprNode(struct ExprNode* node) {
 	string dot = "";
 
-	if (node == NULL) { return dot; }
+	if (node == nullptr) { return dot; }
 
 	switch (node->exprType)
 	{
@@ -133,6 +133,12 @@ string generateDotFromExprNode(struct ExprNode* node) {
 		dot += generateDotFromExprNode(node->right);
 		dot += dotLabel(node->id, "Unary minus");
 		dot += dotConnection(node->id, node->right->id);
+		break;
+	case _SELF:
+		dot += dotLabel(node->id, "self");
+		break;
+	case _SUPER:
+		dot += dotLabel(node->id, "super");
 		break;
 	case _UNKNOWN:
 		break;
