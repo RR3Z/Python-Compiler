@@ -39,6 +39,7 @@
     </Bison>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ExprType.h" />
     <ClInclude Include="nodes\DotHelpers.h" />
     <ClInclude Include="nodes\dot_generation.h" />
     <ClInclude Include="nodes\nodes.h" />

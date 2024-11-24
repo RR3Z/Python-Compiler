@@ -6,10 +6,10 @@ string generateDotFromExprNode(struct ExprNode* node) {
 
 	if (node == NULL) { return dot; }
 
-	switch (node->type)
+	switch (node->exprType)
 	{
 	case _IDENTIFIER:
-		dot += dotLabel(node->id, *(node->identifier));
+		dot += dotLabel(node->id, node->identifier);
 		break;
 	case _INT_CONST:
 		dot += dotLabel(node->id, to_string(node->intVal));
@@ -134,6 +134,11 @@ string generateDotFromExprNode(struct ExprNode* node) {
 		dot += dotLabel(node->id, "Unary\nminus");
 		dot += dotConnection(node->id, node->right->id);
 		break;
+	case _UNKNOWN:
+		break;
+	default:
+		break;
 	}
+	
 	return dot;
 }
