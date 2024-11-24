@@ -5,6 +5,7 @@ using namespace std;
 
 struct ExprListNode;
 struct SlicingNode;
+struct IdentifierListNode;
 
 /* ========== EXPRESSION ========== */
 
@@ -35,6 +36,9 @@ struct ExprNode {
 
 	// Используяется для: указания значений для arraySlice
 	SlicingNode* slicing = nullptr;
+
+	// Используется для: списка элементов list (при его создании)
+	IdentifierListNode* listId = nullptr;
 };
 
 /* ========== EXPRESSION LIST ========== */
@@ -61,4 +65,16 @@ struct SlicingNode {
 	ExprNode* end = nullptr;
 	// Шаг, с которым выбираются элементы
 	ExprNode* step = nullptr;
+};
+
+/* ========== IDENTIFIERS ========== */
+
+struct IdentifierListNode {
+	// Индекс узла
+	int id = -1;
+
+	// Первый элемент списка
+	ExprNode* firstId = nullptr;
+	// Последний элемент списка
+	ExprNode* lastId = nullptr;
 };

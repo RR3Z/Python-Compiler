@@ -22,6 +22,7 @@
     struct ExprNode* expression;
     struct ExprListNode* expressionList;
     struct SlicingNode* slicingNode;
+    struct IdentifierListNode* identifierList;
 }
 
 %token <intVal>INT_C
@@ -42,6 +43,7 @@
 %type <expressionList>exprList
 %type <expressionList>exprListE
 %type <slicingNode>slicing
+%type <identifierList>identifiers
 
 %token TRUE FALSE
 NEWLINE INDENT DEDENT
@@ -302,8 +304,8 @@ identifier: ID { $$ = $1; cout << "P: ID -> identifier" << endl; }
           | STR_TYPE { $$ = $1; cout << "P: STR_TYPE -> identifier" << endl; }
           ;
 
-identifiers: identifier
-           | identifiers ',' identifier
+identifiers: identifier { $$ = createIdentifierListNode(createIdExprNode($1)); cout << "P: identifier -> identifierList" << endl; }
+           | identifiers ',' identifier  { $$ = addIdentifierToIdentifierList($1, createIdExprNode($3));}
            ;
 
 identifiersE: identifiers

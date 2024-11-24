@@ -72,3 +72,9 @@ ExprListNode* addExprToExprList(ExprListNode* list, ExprNode* newElement);
 /* ========== ARRAY SLICE ========== */
 
 SlicingNode* createSlicingNode(ExprNode* start, ExprNode* end, ExprNode* step);
+
+/* ========== IDENTIFIERS ========== */
+
+IdentifierListNode* createIdentifierListNode(ExprNode* firstIdentifier);
+
+IdentifierListNode* addIdentifierToIdentifierList(IdentifierListNode* listId, ExprNode* newElement);
