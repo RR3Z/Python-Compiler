@@ -12,7 +12,7 @@ struct ExprNode {
 	// Тип узла
 	ExprType exprType = _UNKNOWN;
 
-	// Идентификатор (переменная, функция, методы, аттрибуты, класс)
+	// Идентификатор - название переменной, функции, метода, аттрибута, класса и т.д.
 	string identifier = "";
 
 	// Для хранения значений констант
@@ -22,6 +22,21 @@ struct ExprNode {
 	string stringVal = "";
 
 	// Для бинарного expr
-	struct ExprNode* left = nullptr;
-	struct ExprNode* right = nullptr;
+	ExprNode* left = nullptr;
+	ExprNode* right = nullptr;
+
+	// Следующий expr в списке exprList (используется только при работе с exprList)
+	ExprNode* next = nullptr;
+};
+
+/* ========== EXPRESSION LIST ========== */
+
+struct ExprListNode {
+	// Индекс узла
+	int id = -1;
+
+	// Первый элемент списка
+	ExprNode* first = nullptr;
+	// Последний элемент списка
+	ExprNode* last = nullptr;
 };

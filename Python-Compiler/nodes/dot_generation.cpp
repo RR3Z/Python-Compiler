@@ -1,5 +1,7 @@
 #include "dot_generation.h"
 #include "DotHelpers.h"
+#include <iostream>
+using namespace std;
 
 string generateDotFromExprNode(struct ExprNode* node) {
 	string dot = "";
@@ -50,7 +52,7 @@ string generateDotFromExprNode(struct ExprNode* node) {
 	case _DIV:
 		dot += generateDotFromExprNode(node->left);
 		dot += generateDotFromExprNode(node->right);
-		dot += dotLabel(node->id, "*");
+		dot += dotLabel(node->id, "/");
 		dot += dotConnection(node->id, node->left->id);
 		dot += dotConnection(node->id, node->right->id);
 		break;
@@ -139,6 +141,25 @@ string generateDotFromExprNode(struct ExprNode* node) {
 		break;
 	case _SUPER:
 		dot += dotLabel(node->id, "super");
+		break;
+	case _ASSIGN:
+		dot += generateDotFromExprNode(node->left);
+		dot += generateDotFromExprNode(node->right);
+		dot += dotLabel(node->id, ":=");
+		dot += dotConnection(node->id, node->left->id);
+		dot += dotConnection(node->id, node->right->id);
+		break;
+	case _BRACKETS:
+		dot += generateDotFromExprNode(node->left);
+		dot += dotLabel(node->id, "In Parantheses Brackets");
+		dot += dotConnection(node->id, node->left->id);
+		break;
+	case _ATTRIBUTE_REF:
+		dot += generateDotFromExprNode(node->left);
+		dot += generateDotFromExprNode(node->right);
+		dot += dotLabel(node->id, ". (attribute ref)");
+		dot += dotConnection(node->id, node->left->id);
+		dot += dotConnection(node->id, node->right->id);
 		break;
 	case _UNKNOWN:
 		break;

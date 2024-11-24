@@ -3,51 +3,62 @@
 
 /* ========== EXPRESSION ========== */
 
-struct ExprNode* createIdExprNode(string* identifier);
+ExprNode* createIdExprNode(string* identifier);
 
-struct ExprNode* createIntConstExprNode(int value);
+ExprNode* createIntConstExprNode(int value);
 
-struct ExprNode* createFloatConstExprNode(float value);
+ExprNode* createFloatConstExprNode(float value);
 
-struct ExprNode* createStringConstExprNode(string* text);
+ExprNode* createStringConstExprNode(string* text);
 
-struct ExprNode* createTrueConstExprNode();
+ExprNode* createTrueConstExprNode();
 
-struct ExprNode* createFalseConstExprNode();
+ExprNode* createFalseConstExprNode();
 
-struct ExprNode* createSelfExprNode();
+ExprNode* createSelfExprNode();
 
-struct ExprNode* createSuperExprNode();
+ExprNode* createSuperExprNode();
 
-struct ExprNode* createPlusExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createPlusExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-struct ExprNode* createUnaryPlusExprNode(struct ExprNode* value);
+ExprNode* createUnaryPlusExprNode(ExprNode* value);
 
-struct ExprNode* createMinusExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createMinusExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-struct ExprNode* createUnaryMinusExprNode(struct ExprNode* value);
+ExprNode* createUnaryMinusExprNode(ExprNode* value);
 
-struct ExprNode* createMulExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createMulExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-struct ExprNode* createDivExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createDivExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-struct ExprNode* createGreatExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createGreatExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-struct ExprNode* createGreatEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createGreatEqualExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-struct ExprNode* createLessExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createLessExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-struct ExprNode* createLessEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createLessEqualExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-struct ExprNode* createEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createEqualExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-struct ExprNode* createNotEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createNotEqualExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-// my part
-struct ExprNode* createAndLogicExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createAndLogicExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-struct ExprNode* createAndBitwiseExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createAndBitwiseExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-struct ExprNode* createOrLogicExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createOrLogicExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-struct ExprNode* createOrBitwiseExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+ExprNode* createOrBitwiseExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
+
+ExprNode* createAssignExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
+
+ExprNode* createExprInParenthesesBracketsNode(ExprNode* expression);
+
+ExprNode* createAttributeRefExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
+
+/* ========== EXPRESSION LIST ========== */
+
+ExprListNode* createExprListNode(ExprNode* firstElement);
+
+ExprListNode* addExprToExprList(ExprNode* newElement);
