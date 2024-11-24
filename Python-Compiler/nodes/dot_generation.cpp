@@ -189,11 +189,38 @@ string generateDotFromExprNode(struct ExprNode* node) {
 			dot += dotLabel(node->id, "[]");
 		}
 		break;
+	case _SLICING:
+		dot += generateDotFromSlicingNode(node->slicing);
+		break;
 	case _UNKNOWN:
 		break;
 	default:
 		break;
 	}
 	
+	return dot;
+}
+
+string generateDotFromSlicingNode(SlicingNode* node) {
+	string dot = "";
+
+	if (node == nullptr) { return dot; }
+
+	dot += dotLabel(node->id, "slicing\n(start:end:step)");
+	if (node->start != nullptr) {
+		dot += generateDotFromExprNode(node->start);
+		dot += dotConnectionWithLabel(node->id, node->start->id, "start");
+	}
+
+	if (node->end != nullptr) {
+		dot += generateDotFromExprNode(node->end);
+		dot += dotConnectionWithLabel(node->id, node->end->id, "end");
+	}
+
+	if (node->step != nullptr) {
+		dot += generateDotFromExprNode(node->step);
+		dot += dotConnectionWithLabel(node->id, node->step->id, "step");
+	}
+
 	return dot;
 }
