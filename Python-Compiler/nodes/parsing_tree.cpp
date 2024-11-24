@@ -357,11 +357,11 @@ ExprNode* createListCreationExprNode(ExprListNode* elements) {
 	return node;
 }
 
-ExprNode* createExprWithSliceNode(ExprNode* name, SlicingNode* slicing) {
+ExprNode* createExprWithSlicingNode(ExprNode* var, SlicingNode* slicing) {
 	ExprNode* node = new ExprNode();
 
-	node->exprType = _SLICING;
-	node->identifier = name->identifier;
+	node->exprType = _SLICING_ACCESS;
+	node->left = var;
 	node->slicing = slicing;
 	node->id = ID++;
 

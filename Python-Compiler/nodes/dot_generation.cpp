@@ -189,8 +189,13 @@ string generateDotFromExprNode(struct ExprNode* node) {
 			dot += dotLabel(node->id, "[]");
 		}
 		break;
-	case _SLICING:
+	case _SLICING_ACCESS:
+		dot += generateDotFromExprNode(node->left);
 		dot += generateDotFromSlicingNode(node->slicing);
+		dot += dotLabel(node->id, "id[start:end:step]");
+		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
+		dot += dotConnectionWithLabel(node->id, node->slicing->id, "index");
+
 		break;
 	case _UNKNOWN:
 		break;
@@ -207,6 +212,7 @@ string generateDotFromSlicingNode(SlicingNode* node) {
 	if (node == nullptr) { return dot; }
 
 	dot += dotLabel(node->id, "slicing\n(start:end:step)");
+
 	if (node->start != nullptr) {
 		dot += generateDotFromExprNode(node->start);
 		dot += dotConnectionWithLabel(node->id, node->start->id, "start");
