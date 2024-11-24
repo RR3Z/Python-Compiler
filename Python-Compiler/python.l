@@ -398,7 +398,7 @@ super { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; r
     isString = false;
     BEGIN(INITIAL);
     
-    yylval.stringVal = &str;
+    yylval.stringVal = new string(str);
     return STRING_C; 
 }
 <SHORT_DOUBLE_STRING>\" {
@@ -406,7 +406,7 @@ super { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; r
     isString = false;
     BEGIN(INITIAL); 
 
-    yylval.stringVal = &str;
+    yylval.stringVal = new string(str);
     return STRING_C; 
 }
 <LONG_SINGLE_STRING>\'{3} {
@@ -414,7 +414,7 @@ super { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; r
     isString = false;
     BEGIN(INITIAL); 
 
-    yylval.stringVal = &str;
+    yylval.stringVal = new string(str);
     return STRING_C; 
 }
 <LONG_DOUBLE_STRING>\"{3} {
@@ -422,7 +422,7 @@ super { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; r
     isString = false;
     BEGIN(INITIAL); 
 
-    yylval.stringVal = &str;
+    yylval.stringVal = new string(str);
     return STRING_C; 
 }
 
