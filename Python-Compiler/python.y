@@ -54,8 +54,11 @@
 %type <targetListNode>targetList
 %type <paramListNode>paramsList
 %type <paramListNode>paramsListE
+
 %type <stmtNode>stmt
+%type <stmtNode>ifStmt
 %type <stmtsListNode>stmtsList
+%type <stmtsListNode>elifStmtList
 %type <stmtsListNode>suite
 
 %token TRUE FALSE
@@ -134,10 +137,10 @@ classSuite: NEWLINE INDENT classElementsList DEDENT { cout << "P: NEWLINE INDENT
 
 // IF STATEMENT
 
-ifStmt: IF expr ':' suite { cout << "P: IF expr ':' suite -> ifStmt" << endl; }
-      | IF expr ':' suite ELSE ':' suite { cout << "P: IF expr ':' suite ELSE ':' suite -> ifStmt" << endl; }
-      | IF expr ':' suite elifStmtList { cout << "P: IF expr ':' suite elifStmtList -> ifStmt" << endl; }
-      | IF expr ':' suite elifStmtList ELSE ':' suite { cout << "P: IF expr ':' suite elifStmtList ELSE ':' suite -> ifStmt" << endl; }
+ifStmt: IF expr ':' suite { $$ = createIfStmtNode($2, $4); cout << "P: IF expr ':' suite -> ifStmt" << endl; }
+      | IF expr ':' suite ELSE ':' suite { $$ = createCompoundIfStmtNode(createIfStmtNode($2, $4), createElseStmtNode($7), nullptr); cout << "P: IF expr ':' suite ELSE ':' suite -> ifStmt" << endl; }
+      | IF expr ':' suite elifStmtList { $$ = createCompoundIfStmtNode(createIfStmtNode($2, $4), nullptr, $5); cout << "P: IF expr ':' suite elifStmtList -> ifStmt" << endl; }
+      | IF expr ':' suite elifStmtList ELSE ':' suite { $$ = createCompoundIfStmtNode(createIfStmtNode($2, $4), createElseStmtNode($8), $5); cout << "P: IF expr ':' suite elifStmtList ELSE ':' suite -> ifStmt" << endl; }
       ;
 
 ifHeader: IF expr { $$ = $2; cout << "P: IF expr -> ifHeader" << endl; }
@@ -151,8 +154,8 @@ ifHeaderListE: ifHeaderList { cout << "P: ifHeaderList -> ifHeaderListE" << endl
              | /* empty */ { cout << "P: /* empty */ -> ifHeaderListE" << endl; }
              ;
 
-elifStmtList: ELIF expr ':' suite { cout << "P: ELIF expr ':' suite -> elifStmtList" << endl; }
-            | elifStmtList ELIF expr ':' suite { cout << "P: elifStmtList ELIF expr ':' suite -> elifStmtList" << endl; }
+elifStmtList: ELIF expr ':' suite { $$ = createStmtsListNode(createElifStmtNode($2, $4)); cout << "P: ELIF expr ':' suite -> elifStmtList" << endl; }
+            | elifStmtList ELIF expr ':' suite { $$ = addElementToStmtsList($1, createElifStmtNode($3, $5)); cout << "P: elifStmtList ELIF expr ':' suite -> elifStmtList" << endl; }
             ;
 
 // FOR STATEMENT

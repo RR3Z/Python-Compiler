@@ -100,7 +100,9 @@ StmtNode* createCompoundIfStmtNode(StmtNode* ifStmt, StmtNode* elseStmt, StmtsLi
 
 StmtNode* createIfStmtNode(ExprNode* expr, StmtsListNode* suite);
 
-StmtNode* createElseStmtNode(ExprNode* expr, StmtsListNode* suite);
+StmtNode* createElseStmtNode(StmtsListNode* suite);
+
+StmtNode* createElifStmtNode(ExprNode* expr, StmtsListNode* suite);
 
 /* ========== STATEMENTS LIST ========== */
 

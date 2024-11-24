@@ -490,10 +490,20 @@ StmtNode* createIfStmtNode(ExprNode* expr, StmtsListNode* suite) {
 	return node;
 }
 
-StmtNode* createElseStmtNode(ExprNode* expr, StmtsListNode* suite) {
+StmtNode* createElseStmtNode(StmtsListNode* suite) {
 	StmtNode* node = new StmtNode();
 
 	node->stmtType = _ELSE;
+	node->suite = suite;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createElifStmtNode(ExprNode* expr, StmtsListNode* suite) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _ELIF;
 	node->expr = expr;
 	node->suite = suite;
 	node->id = ID++;

@@ -132,6 +132,7 @@ struct StmtNode {
 struct StmtsListNode {
 	// Индекс узла
 	int id = -1;
+
     // Первый элемент списка
 	StmtNode* first = nullptr;
 	// Последний элемент списка
