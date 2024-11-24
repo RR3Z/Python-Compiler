@@ -22,7 +22,7 @@
     struct ExprNode* expressionNode;
     struct ExprListNode* expressionListNode;
     struct SlicingNode* slicingNode;
-    struct IdentifierListNode* identifierList;
+    struct IdentifierListNode* identifierListNode;
     struct TargetNode* targetNode;
 }
 
@@ -43,7 +43,8 @@
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
 %type <slicingNode>slicing
-%type <identifierList>identifiers
+%type <identifierListNode>identifiers
+%type <identifierListNode>identifiersE
 %type <targetNode>target
 
 %token TRUE FALSE
@@ -309,9 +310,9 @@ identifiers: identifier { $$ = createIdentifierListNode(createIdExprNode($1)); c
            | identifiers ',' identifier  { $$ = addIdentifierToIdentifierList($1, createIdExprNode($3));}
            ;
 
-identifiersE: identifiers
-            | identifiers ','
-            | /* empty */
+identifiersE: identifiers { $$ = $1; }
+            | identifiers ',' { $$ = $1; }
+            | /* empty */ { $$ = nullptr; }
             ;
 
 target: identifier { $$ = createIdTargetNode($1); cout << "P: identifier -> target" << endl; }

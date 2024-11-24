@@ -71,7 +71,7 @@
     <ClInclude Include="nodes\dot_generation.h">
       <Filter>Файлы заголовков\nodes</Filter>
     </ClInclude>
-    <ClInclude Include="NodeType.h">
+    <ClInclude Include="nodes\NodeType.h">
       <Filter>Файлы заголовков\nodes</Filter>
     </ClInclude>
   </ItemGroup>
