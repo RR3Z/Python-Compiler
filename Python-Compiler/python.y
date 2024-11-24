@@ -23,6 +23,7 @@
     struct ExprListNode* expressionListNode;
     struct SlicingNode* slicingNode;
     struct IdentifierListNode* identifierListNode;
+    struct TargetListNode* targetListNode;
 }
 
 %token <intVal>INT_C
@@ -45,6 +46,7 @@
 %type <slicingNode>slicing
 %type <identifierListNode>identifiers
 %type <identifierListNode>identifiersE
+%type <targetListNode>targetList
 
 %token TRUE FALSE
 NEWLINE INDENT DEDENT
@@ -288,7 +290,7 @@ exprE: expr { $$ = $1; }
      ;
 
 exprList: expr { $$ = createExprListNode($1); cout << "P: expr -> exprList" << endl; }
-        | exprList ',' expr { $$ = addExprToExprList($1, $3); cout << "P: exprList ',' expr -> exprList" << endl; }
+        | exprList ',' expr { $$ = addElementToExprList($1, $3); cout << "P: exprList ',' expr -> exprList" << endl; }
         ;
 
 exprListE: exprList { $$ = $1; }
@@ -306,7 +308,7 @@ identifier: ID { $$ = $1; cout << "P: ID -> identifier" << endl; }
           ;
 
 identifiers: identifier { $$ = createIdentifierListNode(createIdExprNode($1)); cout << "P: identifier -> identifierList" << endl; }
-           | identifiers ',' identifier  { $$ = addIdentifierToIdentifierList($1, createIdExprNode($3));}
+           | identifiers ',' identifier  { $$ = addElementToIdentifierList($1, createIdExprNode($3)); }
            ;
 
 identifiersE: identifiers { $$ = $1; }
@@ -320,8 +322,8 @@ target: identifier { $$ = createIdExprNode($1); cout << "P: identifier -> target
       | expr '.' identifier { $$ = createAttributeRefExprNode($1, createIdExprNode($3)); cout << "P: expr '.' identifier -> target" << endl; }
       ;
 
-targetList: target { cout << "P: target -> targetList" << endl; }
-          | targetList ',' target { cout << "P: targetList , target -> targetList" << endl; }
+targetList: target {  $$ = createTargetListNode($1); cout << "P: target -> targetList" << endl; }
+          | targetList ',' target { $$ = addElementToTargetList($1, $3); cout << "P: targetList , target -> targetList" << endl; }
           ;
 
 slicing: exprE ':' exprE { $$ = createSlicingNode($1, $3, nullptr); cout << "P: exprE ':' exprE -> slicing" << endl; }

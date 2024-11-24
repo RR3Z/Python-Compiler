@@ -67,7 +67,7 @@ ExprNode* createListAccessWithSlicingExprNode(ExprNode* var, SlicingNode* slicin
 
 ExprListNode* createExprListNode(ExprNode* firstElement);
 
-ExprListNode* addExprToExprList(ExprListNode* list, ExprNode* newElement);
+ExprListNode* addElementToExprList(ExprListNode* list, ExprNode* newElement);
 
 /* ========== SLICING ========== */
 
@@ -75,6 +75,12 @@ SlicingNode* createSlicingNode(ExprNode* start, ExprNode* end, ExprNode* step);
 
 /* ========== IDENTIFIERS ========== */
 
-IdentifierListNode* createIdentifierListNode(ExprNode* firstIdentifier);
+IdentifierListNode* createIdentifierListNode(ExprNode* firstElement);
 
-IdentifierListNode* addIdentifierToIdentifierList(IdentifierListNode* listId, ExprNode* newElement);
+IdentifierListNode* addElementToIdentifierList(IdentifierListNode* listId, ExprNode* newElement);
+
+/* ========== TARGET LIST ========== */
+
+TargetListNode* createTargetListNode(ExprNode* firstElement);
+
+TargetListNode* addElementToTargetList(TargetListNode* list, ExprNode* newElement);

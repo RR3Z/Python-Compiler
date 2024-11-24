@@ -376,7 +376,7 @@ ExprListNode* createExprListNode(ExprNode* firstElement) {
 	return list;
 }
 
-ExprListNode* addExprToExprList(ExprListNode* list, ExprNode* newElement) {
+ExprListNode* addElementToExprList(ExprListNode* list, ExprNode* newElement) {
 	list->last->next = newElement;
 	list->last = newElement;
 
@@ -407,9 +407,28 @@ IdentifierListNode* createIdentifierListNode(ExprNode* firstIdentifier) {
 	return listId;
 }
 
-IdentifierListNode* addIdentifierToIdentifierList(IdentifierListNode* listId, ExprNode* newElement) {
+IdentifierListNode* addElementToIdentifierList(IdentifierListNode* listId, ExprNode* newElement) {
 	listId->last->next = newElement;
 	listId->last = newElement;
 
 	return listId;
+}
+
+/* ========== TARGET LIST ========== */
+
+TargetListNode* createTargetListNode(ExprNode* firstElement) {
+	TargetListNode* list = new TargetListNode();
+
+	list->first = firstElement;
+	list->last = firstElement;
+	list->id = ID++;
+
+	return list;
+}
+
+TargetListNode* addElementToTargetList(TargetListNode* list, ExprNode* newElement) {
+	list->last->next = newElement;
+	list->last = newElement;
+
+	return list;
 }

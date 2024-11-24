@@ -75,3 +75,15 @@ struct IdentifierListNode {
 	// Последний элемент списка
 	ExprNode* last = nullptr;
 };
+
+/* ========== TARGET LIST ========== */
+
+struct TargetListNode {
+	// Индекс узла
+	int id = -1;
+
+	// Первый элемент списка
+	ExprNode* first = nullptr;
+	// Последний элемент списка
+	ExprNode* last = nullptr;
+};
