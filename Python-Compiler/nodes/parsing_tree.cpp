@@ -11,9 +11,6 @@ ExprNode* createIdExprNode(string *identifier) {
 
 	node->exprType = _IDENTIFIER;
 	node->identifier = *identifier;
-	node->left = nullptr;
-	node->right = nullptr;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -330,7 +327,6 @@ ExprNode* createAttributeRefExprNode(ExprNode* leftOperand, ExprNode* rightOpera
 	node->exprType = _ATTRIBUTE_REF;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -357,10 +353,10 @@ ExprNode* createListCreationExprNode(ExprListNode* elements) {
 	return node;
 }
 
-ExprNode* createExprWithSlicingNode(ExprNode* var, SlicingNode* slicing) {
+ExprNode* createListAccessWithSlicingExprNode(ExprNode* var, SlicingNode* slicing) {
 	ExprNode* node = new ExprNode();
 
-	node->exprType = _SLICING_ACCESS;
+	node->exprType = _SLICING_LIST_ACCESS;
 	node->left = var;
 	node->slicing = slicing;
 	node->id = ID++;
@@ -416,4 +412,47 @@ IdentifierListNode* addIdentifierToIdentifierList(IdentifierListNode* listId, Ex
 	listId->lastId = newElement;
 
 	return listId;
+/* ========== TARGET ========== */
+
+TargetNode* createIdTargetNode(string* identifier) {
+	TargetNode* node = new TargetNode();
+
+	node->targetType = _IDENTIFIER;
+	node->identifier = *identifier;
+	node->id = ID++;
+
+	return node;
+}
+
+TargetNode* createListAccessTargetNode(ExprNode* var, ExprNode* index) {
+	TargetNode* node = new TargetNode();
+
+	node->targetType = _LIST_ACCESS;
+	node->left = var;
+	node->right_expr = index;
+	node->id = ID++;
+
+	return node;
+}
+
+TargetNode* createListAccessWithSlicingTargetNode(ExprNode* var, SlicingNode* slicing) {
+	TargetNode* node = new TargetNode();
+
+	node->targetType = _SLICING_LIST_ACCESS;
+	node->left = var;
+	node->slicing = slicing;
+	node->id = ID++;
+
+	return node;
+}
+
+TargetNode* createAttributeRefTargetNode(ExprNode* leftOperand, TargetNode* rightOperand) {
+	TargetNode* node = new TargetNode();
+
+	node->targetType = _ATTRIBUTE_REF;
+	node->left = leftOperand;
+	node->right_target = rightOperand;
+	node->id = ID++;
+
+	return node;
 }

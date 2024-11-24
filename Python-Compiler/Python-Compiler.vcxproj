@@ -39,11 +39,11 @@
     </Bison>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ExprType.h" />
     <ClInclude Include="nodes\DotHelpers.h" />
     <ClInclude Include="nodes\dot_generation.h" />
     <ClInclude Include="nodes\nodes.h" />
     <ClInclude Include="nodes\parsing_tree.h" />
+    <ClInclude Include="NodeType.h" />
     <ClInclude Include="python.tab.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

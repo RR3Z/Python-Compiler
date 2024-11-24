@@ -1,9 +1,10 @@
+#pragma once
 #include "dot_generation.h"
 #include "DotHelpers.h"
 #include <iostream>
 using namespace std;
 
-string generateDotFromExprNode(struct ExprNode* node) {
+string generateDotFromExprNode(ExprNode* node) {
 	string dot = "";
 
 	if (node == nullptr) { return dot; }
@@ -151,51 +152,38 @@ string generateDotFromExprNode(struct ExprNode* node) {
 		break;
 	case _BRACKETS:
 		dot += generateDotFromExprNode(node->left);
-		dot += dotLabel(node->id, "In Parantheses Brackets\n( (expr) )");
+		dot += dotLabel(node->id, "(expr)");
 		dot += dotConnection(node->id, node->left->id);
 		break;
 	case _ATTRIBUTE_REF:
 		dot += generateDotFromExprNode(node->left);
 		dot += generateDotFromExprNode(node->right);
-		dot += dotLabel(node->id, "Attribute ref\n(expr.identifier)");
+		dot += dotLabel(node->id, "expr.identifier");
 		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
 		dot += dotConnectionWithLabel(node->id, node->right->id, "attribute");
 		break;
 	case _LIST_ACCESS:
 		dot += generateDotFromExprNode(node->left);
 		dot += generateDotFromExprNode(node->right);
-		dot += dotLabel(node->id, "List Access\n(expr[expr])");
+		dot += dotLabel(node->id, "expr[expr]");
 		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
 		dot += dotConnectionWithLabel(node->id, node->right->id, "index");
 		break;
 	case _LIST_CREATION:
 		if (node->list != nullptr) {
 			dot += dotLabel(node->id, "[exprList]");
-
-			if (node->list->first != nullptr) {
-				ExprNode* expr = node->list->first;
-
-				dot += generateDotFromExprNode(expr);
-				dot += dotConnection(node->id, expr->id);
-
-				while (expr->next != nullptr) {
-					dot += generateDotFromExprNode(expr->next);
-					dot += dotConnection(node->id, expr->next->id);
-					expr = expr->next;
-				}
-			}
+			dot += generateDotFromExprListNode(node->list);
 		}
 		else {
 			dot += dotLabel(node->id, "[]");
 		}
 		break;
-	case _SLICING_ACCESS:
+	case _SLICING_LIST_ACCESS:
 		dot += generateDotFromExprNode(node->left);
 		dot += generateDotFromSlicingNode(node->slicing);
 		dot += dotLabel(node->id, "id[start:end:step]");
 		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
 		dot += dotConnectionWithLabel(node->id, node->slicing->id, "index");
-
 		break;
 	case _UNKNOWN:
 		break;
@@ -203,6 +191,27 @@ string generateDotFromExprNode(struct ExprNode* node) {
 		break;
 	}
 	
+	return dot;
+}
+
+string generateDotFromExprListNode(ExprListNode* node) {
+	string dot = "";
+
+	if (node == nullptr) { return dot; }
+
+	if (node->first != nullptr) {
+		ExprNode* expr = node->first;
+
+		dot += generateDotFromExprNode(expr);
+		dot += dotConnection(node->id, expr->id);
+
+		while (expr->next != nullptr) {
+			dot += generateDotFromExprNode(expr->next);
+			dot += dotConnection(node->id, expr->next->id);
+			expr = expr->next;
+		}
+	}
+
 	return dot;
 }
 
@@ -226,6 +235,47 @@ string generateDotFromSlicingNode(SlicingNode* node) {
 	if (node->step != nullptr) {
 		dot += generateDotFromExprNode(node->step);
 		dot += dotConnectionWithLabel(node->id, node->step->id, "step");
+	}
+
+	return dot;
+}
+
+string generateDotFromTargetNode(TargetNode* node) {
+
+	string dot = "";
+
+	if (node == nullptr) { return dot; }
+
+	switch (node->targetType)
+	{
+	case _IDENTIFIER:
+		dot += dotLabel(node->id, node->identifier);
+		break;
+	case _ATTRIBUTE_REF:
+		dot += generateDotFromExprNode(node->left);
+		dot += generateDotFromTargetNode(node->right_target);
+		dot += dotLabel(node->id, "expr.identifier");
+		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
+		dot += dotConnectionWithLabel(node->id, node->right_target->id, "attribute");
+		break;
+	case _LIST_ACCESS:
+		dot += generateDotFromExprNode(node->left);
+		dot += generateDotFromExprNode(node->right_expr);
+		dot += dotLabel(node->id, "expr[expr]");
+		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
+		dot += dotConnectionWithLabel(node->id, node->right_expr->id, "index");
+		break;
+	case _SLICING_LIST_ACCESS:
+		dot += generateDotFromExprNode(node->left);
+		dot += generateDotFromSlicingNode(node->slicing);
+		dot += dotLabel(node->id, "id[start:end:step]");
+		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
+		dot += dotConnectionWithLabel(node->id, node->slicing->id, "index");
+		break;
+	case _UNKNOWN:
+		break;
+	default:
+		break;
 	}
 
 	return dot;
