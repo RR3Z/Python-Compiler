@@ -24,6 +24,8 @@
     struct SlicingNode* slicingNode;
     struct IdentifierListNode* identifierListNode;
     struct TargetListNode* targetListNode;
+    struct StmtNode* stmtNode;
+    struct StmtsListNode* stmtsListNode;
 }
 
 %token <intVal>INT_C
@@ -48,6 +50,9 @@
 %type <identifierListNode>identifiers
 %type <identifierListNode>identifiersE
 %type <targetListNode>targetList
+%type <stmtNode>stmt
+%type <stmtsListNode>stmtsList
+%type <stmtsListNode>suite
 
 %token TRUE FALSE
 NEWLINE INDENT DEDENT
@@ -105,8 +110,8 @@ stmt: assignStmt { cout << "P: assignStmt -> stmt" << endl; }
     | stmt NEWLINE { cout << "P: stmt NEWLINE -> stmt" << endl; }
     ;
 
-stmtsList: stmt { cout << "P: stmt -> stmtsList" << endl; }
-         | stmtsList stmt { cout << "P: stmtsList stmt -> stmtsList" << endl; }
+stmtsList: stmt { $$ = createStmtsListNode($1); cout << "P: stmt -> stmtsList" << endl; }
+         | stmtsList stmt { $$ = addElementToStmtsList($1, $2); cout << "P: stmtsList stmt -> stmtsList" << endl; }
          ;
                   
 classElement: funcDef { cout << "P: funcDef -> classElement" << endl; }
@@ -117,7 +122,7 @@ classElementsList: classElement { cout << "P: classElement -> classElementsList"
                  | classElementsList classElement { cout << "P: classElementsList classElement -> classElementsList" << endl; }
                  ;
 
-suite: NEWLINE INDENT stmtsList DEDENT { cout << "P: NEWLINE INDENT stmtsList DEDENT -> suite" << endl; }
+suite: NEWLINE INDENT stmtsList DEDENT { $$ = $3; cout << "P: NEWLINE INDENT stmtsList DEDENT -> suite" << endl; }
      ;
 
 classSuite: NEWLINE INDENT classElementsList DEDENT { cout << "P: NEWLINE INDENT classElementsList DEDENT -> classSuite" << endl; }
@@ -125,10 +130,10 @@ classSuite: NEWLINE INDENT classElementsList DEDENT { cout << "P: NEWLINE INDENT
 
 // IF STATEMENT
 
-ifStmt: IF expr ':' suite { cout << "P: ifHeader ':' suite -> ifStmt" << endl; }
-      | IF expr ':' suite ELSE ':' suite { cout << "P: ifHeader ':' suite ELSE ':' suite -> ifStmt" << endl; }
-      | IF expr ':' suite elifStmtList { cout << "P: ifHeader ':' suite elifStmtList -> ifStmt" << endl; }
-      | IF expr ':' suite elifStmtList ELSE ':' suite { cout << "P: ifHeader ':' suite elifStmtList ELSE ':' suite -> ifStmt" << endl; }
+ifStmt: IF expr ':' suite { cout << "P: IF expr ':' suite -> ifStmt" << endl; }
+      | IF expr ':' suite ELSE ':' suite { cout << "P: IF expr ':' suite ELSE ':' suite -> ifStmt" << endl; }
+      | IF expr ':' suite elifStmtList { cout << "P: IF expr ':' suite elifStmtList -> ifStmt" << endl; }
+      | IF expr ':' suite elifStmtList ELSE ':' suite { cout << "P: IF expr ':' suite elifStmtList ELSE ':' suite -> ifStmt" << endl; }
       ;
 
 ifHeader: IF expr { $$ = $2; cout << "P: IF expr -> ifHeader" << endl; }
@@ -148,8 +153,8 @@ elifStmtList: ELIF expr ':' suite { cout << "P: ELIF expr ':' suite -> elifStmtL
 
 // FOR STATEMENT
 
-forStmt: FOR targetList IN expr ':' suite { cout << "P: forHeader ':' suite -> forStmt" << endl; }
-       | FOR targetList IN expr ':' suite ELSE ':' suite { cout << "P: forHeader ':' suite ELSE ':' suite -> forStmt" << endl; }
+forStmt: FOR targetList IN expr ':' suite { cout << "P: FOR targetList IN expr ':' suite -> forStmt" << endl; }
+       | FOR targetList IN expr ':' suite ELSE ':' suite { cout << "P: FOR targetList IN expr ':' suite ELSE ':' suite -> forStmt" << endl; }
        ;
 
 forHeader: FOR targetList IN expr { cout << "P: forHeader" << endl; }
