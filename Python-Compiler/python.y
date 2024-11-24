@@ -41,6 +41,7 @@
 %type <expressionNode>expr
 %type <expressionNode>exprE
 %type <expressionNode>target
+%type <expressionNode>ifHeader
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
 %type <slicingNode>slicing
@@ -139,7 +140,7 @@ ifStmt: ifHeader ':' suite { cout << "P: ifHeader ':' suite -> ifStmt" << endl; 
       | ifHeader ':' suite elifStmtList ELSE ':' suite { cout << "P: ifHeader ':' suite elifStmtList ELSE ':' suite -> ifStmt" << endl; }
       ;
 
-ifHeader: IF expr { cout << "P: IF expr -> ifHeader" << endl; }
+ifHeader: IF expr { $$ = $2; cout << "P: IF expr -> ifHeader" << endl; }
         ;
 
 ifHeaderList: ifHeader { cout << "P: ifHeader -> ifHeaderList" << endl; }
