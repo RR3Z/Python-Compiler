@@ -139,7 +139,7 @@
 \=\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; return EQ; }
 \!\= { cout << "Line: " << yylineno << ". Found comparison operator: " << yytext << endl; return NE; }
 
-\:\= { cout << "Line: " << yylineno << ". Found assignment operator: " << yytext << endl; }
+\:\= { cout << "Line: " << yylineno << ". Found assignment operator: " << yytext << endl; return ASSIGN_OP; }
 \= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; return '='; }
 \+\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; return PLUS_ASSIGN; }
 \-\= { cout << "Line: " << yylineno << ". Found symbol of assignment statement: " << yytext << endl; return MINUS_ASSIGN; }
