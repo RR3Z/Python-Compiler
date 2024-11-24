@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "nodes/dot_generation.h"
+using namespace std;
 
 extern int yyparse();
 extern FILE* yyin;
@@ -13,7 +14,7 @@ int main(int argc, const char* argv[])
 #else
 	if (argc != 2)
 	{
-		std::cout << "Incorrect amount of args! The only argument is the file name" << std::endl;
+		cout << "Incorrect amount of args! The only argument is the file name" << endl;
 		return 1;
 	}
 
@@ -23,15 +24,15 @@ int main(int argc, const char* argv[])
 	
 	if (!yyin)
 	{
-		std::cout << "Couldn't open file! Check the path!" << std::endl;
+		cout << "Couldn't open file! Check the path!" << endl;
 		return 1;
 	}
 
 	yyparse();
 	fclose(yyin);
 
-	std::string parseRes = "digraph G {\n" + generateDotFromExprNode(exprTest) + "}";
-	std::cout << parseRes << std::endl;
+	string parseRes = "digraph G {\n" + generateDotFromExprNode(exprTest) + "}";
+	//cout << parseRes << endl;
 	FILE* dotFile;
 	fopen_s(&dotFile, "diagram.dot", "w");
 	fprintf(dotFile, parseRes.c_str());
