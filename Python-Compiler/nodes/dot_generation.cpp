@@ -126,12 +126,12 @@ string generateDotFromExprNode(struct ExprNode* node) {
 		break;
 	case _U_PLUS:
 		dot += generateDotFromExprNode(node->right);
-		dot += dotLabel(node->id, "Unary\nplus");
+		dot += dotLabel(node->id, "Unary plus");
 		dot += dotConnection(node->id, node->right->id);
 		break; 
 	case _U_MINUS:
 		dot += generateDotFromExprNode(node->right);
-		dot += dotLabel(node->id, "Unary\nminus");
+		dot += dotLabel(node->id, "Unary minus");
 		dot += dotConnection(node->id, node->right->id);
 		break;
 	case _UNKNOWN:
