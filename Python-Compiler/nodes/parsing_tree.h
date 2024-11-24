@@ -57,7 +57,7 @@ ExprNode* createExprInParenthesesBracketsNode(ExprNode* expression);
 
 ExprNode* createAttributeRefExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-ExprNode* createListAccessExprNode(ExprNode* name, ExprNode* element);
+ExprNode* createListAccessExprNode(ExprNode* var, ExprNode* index);
 
 ExprNode* createListCreationExprNode(ExprListNode* elements);
 
