@@ -33,7 +33,7 @@ struct ExprNode* createDivExprNode(struct ExprNode* leftOperand, struct ExprNode
 
 struct ExprNode* createGreatExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
 
-struct ExprNode* createGreateEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
+struct ExprNode* createGreatEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
 
 struct ExprNode* createLessExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand);
 

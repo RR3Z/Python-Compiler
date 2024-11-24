@@ -155,7 +155,6 @@ struct ExprNode* createOrLogicExprNode(struct ExprNode* leftOperand, struct Expr
 	return node;
 }
 
-
 struct ExprNode* createOrBitwiseExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
 	ExprNode* node = new ExprNode();
 
@@ -178,7 +177,7 @@ struct ExprNode* createGreatExprNode(struct ExprNode* leftOperand, struct ExprNo
 	return node;
 }
 
-struct ExprNode* createGreateEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
+struct ExprNode* createGreatEqualExprNode(struct ExprNode* leftOperand, struct ExprNode* rightOperand) {
 	ExprNode* node = new ExprNode();
 
 	node->exprType = _GREAT_EQUAL;

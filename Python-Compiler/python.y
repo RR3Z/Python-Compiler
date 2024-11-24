@@ -247,7 +247,7 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | expr OR expr { $$ = createOrLogicExprNode($1, $3); exprTest = $$;  cout << "P: expr OR expr -> expr" << endl;}
     | expr '|' expr { $$ = createOrBitwiseExprNode($1, $3); exprTest = $$; cout << "P: expr '|' expr -> expr" << endl;}
     | expr GT expr { $$ = createGreatExprNode($1, $3); exprTest = $$; cout << "P: expr GT expr -> expr" << endl;}
-    | expr GE expr { $$ = createGreateEqualExprNode($1, $3); exprTest = $$; cout << "P: expr GE expr -> expr" << endl;}
+    | expr GE expr { $$ = createGreatEqualExprNode($1, $3); exprTest = $$; cout << "P: expr GE expr -> expr" << endl;}
     | expr LT expr { $$ = createLessExprNode($1, $3); exprTest = $$; cout << "P: expr LT expr -> expr" << endl;}
     | expr LE expr { $$ = createLessEqualExprNode($1, $3); exprTest = $$; cout << "P: expr LE expr -> expr" << endl;}
     | expr EQ expr { $$ = createEqualExprNode($1, $3); exprTest = $$; cout << "P: expr EQ expr -> expr" << endl;}
