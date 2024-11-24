@@ -1,6 +1,4 @@
 %{
-  #include <stdio.h>
-  #include <stdlib.h>
   #include <iostream>
   #include <string>
   using namespace std;
@@ -11,7 +9,7 @@
   int yyerror(const char *s);
 
   bool isFunc = false;
-  struct ExprNode* exprTest;
+  struct ExprNode* exprTest; // TEMP
 %}
 
 %union {
