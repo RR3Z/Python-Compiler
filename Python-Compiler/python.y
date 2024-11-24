@@ -19,9 +19,10 @@
 
     string* name;
 
-    struct ExprNode* expression;
-    struct ExprListNode* expressionList;
+    struct ExprNode* expressionNode;
+    struct ExprListNode* expressionListNode;
     struct SlicingNode* slicingNode;
+    struct TargetNode* targetNode;
 }
 
 %token <intVal>INT_C
@@ -36,12 +37,12 @@
 %token <name>STR_TYPE
 
 %type <name>identifier
-
-%type <expression>expr
-%type <expression>exprE
-%type <expressionList>exprList
-%type <expressionList>exprListE
+%type <expressionNode>expr
+%type <expressionNode>exprE
+%type <expressionListNode>exprList
+%type <expressionListNode>exprListE
 %type <slicingNode>slicing
+%type <targetNode>target
 
 %token TRUE FALSE
 NEWLINE INDENT DEDENT
@@ -262,7 +263,7 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | '(' expr ')' { $$ = createExprInParenthesesBracketsNode($2); exprTest = $$; cout << "P: '(' expr ')' -> expr" << endl; }
     | expr '[' expr ']' { $$ = createListAccessExprNode($1, $3); exprTest = $$; cout << "P: expr '[' expr ']' -> expr" << endl; }
     | '[' exprListE ']' { $$ = createListCreationExprNode($2); exprTest = $$; cout << "P: '[' exprListE ']' -> expr" << endl; }
-    | expr '[' slicing ']' { $$ = createExprWithSlicingNode($1, $3); exprTest = $$; cout << "P: expr '[' slicing ']' -> expr" << endl; }
+    | expr '[' slicing ']' { $$ = createListAccessWithSlicingExprNode($1, $3); exprTest = $$; cout << "P: expr '[' slicing ']' -> expr" << endl; }
 
     | LAMBDA paramsListE ':' expr %prec LAMBDA { cout << "P: lambdaExpr -> expr" << endl; }
     | '[' exprList forHeaderList ifHeaderListE ']' { cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
@@ -311,10 +312,10 @@ identifiersE: identifiers
             | /* empty */
             ;
 
-target: identifier { cout << "P: identifier -> target" << endl; }
-      | expr '[' expr ']' { cout << "P: expr '[' expr ']' -> target" << endl; }
-      | expr '[' slicing ']' { cout << "P: expr '[' slicing ']' -> target" << endl; }
-      | expr '.' identifier { cout << "P: expr '.' identifier -> target" << endl; }
+target: identifier { $$ = createIdTargetNode($1); cout << "P: identifier -> target" << endl; }
+      | expr '[' expr ']' { $$ = createListAccessTargetNode($1, $3); cout << "P: expr '[' expr ']' -> target" << endl; }
+      | expr '[' slicing ']' { $$ = createListAccessWithSlicingTargetNode($1, $3); cout << "P: expr '[' slicing ']' -> target" << endl; }
+      | expr '.' identifier { $$ = createAttributeRefTargetNode($1, createIdTargetNode($3)); cout << "P: expr '.' identifier -> target" << endl; }
       ;
 
 targetList: target { cout << "P: target -> targetList" << endl; }

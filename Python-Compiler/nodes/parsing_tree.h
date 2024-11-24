@@ -61,7 +61,7 @@ ExprNode* createListAccessExprNode(ExprNode* var, ExprNode* index);
 
 ExprNode* createListCreationExprNode(ExprListNode* elements);
 
-ExprNode* createExprWithSlicingNode(ExprNode* var, SlicingNode* slicing);
+ExprNode* createListAccessWithSlicingExprNode(ExprNode* var, SlicingNode* slicing);
 
 /* ========== EXPRESSION LIST ========== */
 
@@ -69,6 +69,16 @@ ExprListNode* createExprListNode(ExprNode* firstElement);
 
 ExprListNode* addExprToExprList(ExprListNode* list, ExprNode* newElement);
 
-/* ========== ARRAY SLICE ========== */
+/* ========== SLICING ========== */
 
 SlicingNode* createSlicingNode(ExprNode* start, ExprNode* end, ExprNode* step);
+
+/* ========== TARGET ========== */
+
+TargetNode* createIdTargetNode(string* identifier);
+
+TargetNode* createListAccessTargetNode(ExprNode* var, ExprNode* index);
+
+TargetNode* createListAccessWithSlicingTargetNode(ExprNode* var, SlicingNode* slicing);
+
+TargetNode* createAttributeRefTargetNode(ExprNode* leftOperand, TargetNode* rightOperand);

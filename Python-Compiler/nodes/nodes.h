@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "../ExprType.h"
+#include "NodeType.h"
 using namespace std;
 
 struct ExprListNode;
@@ -12,9 +12,9 @@ struct ExprNode {
 	// Индекс узла
 	int id = -1;
 	// Тип узла
-	ExprType exprType = _UNKNOWN;
+	NodeType exprType = _UNKNOWN;
 
-	// Идентификатор - название переменной, функции, метода, аттрибута, класса и т.д.
+	// Идентификатор - название переменной, функции, метода и т.д.
 	string identifier = "";
 
 	// Для хранения значений констант
@@ -33,7 +33,7 @@ struct ExprNode {
 	// Используется для: списка элементов list (при его создании)
 	ExprListNode* list = nullptr;
 
-	// Используяется для: указания значений для arraySlice
+	// Используяется для: указания значений для slicing
 	SlicingNode* slicing = nullptr;
 };
 
@@ -49,7 +49,7 @@ struct ExprListNode {
 	ExprNode* last = nullptr;
 };
 
-/* ========== ARRAY SLICE ========== */
+/* ========== SLICING ========== */
 
 struct SlicingNode {
 	// Индекс узла
@@ -62,3 +62,24 @@ struct SlicingNode {
 	// Шаг, с которым выбираются элементы
 	ExprNode* step = nullptr;
 };
+
+/* ========== TARGET ========== */
+
+struct TargetNode {
+	// Индекс узла
+	int id = -1;
+	// Тип узла
+	NodeType targetType = _UNKNOWN;
+
+	// Идентификатор - название переменной, функции, метода, аттрибута, класса и т.д.
+	string identifier = "";
+
+	// Для бинарного target
+	ExprNode* left = nullptr;
+	ExprNode* right_expr = nullptr;
+	TargetNode* right_target = nullptr;
+
+	// Используяется для: указания значений для slicing
+	SlicingNode* slicing = nullptr;
+};
+
