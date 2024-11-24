@@ -125,19 +125,10 @@ classSuite: NEWLINE INDENT classElementsList DEDENT { cout << "P: NEWLINE INDENT
 
 // IF STATEMENT
 
-/*
-    IF ... : ...
-    IF ... : ... ELSE : ...
-    IF ... : ... ELIF ... : ...
-    IF ... : ... ELIF ... : ... ELSE : ...
-
-    In this case, there may be several elif blocks, or there may not be
-*/
-
-ifStmt: ifHeader ':' suite { cout << "P: ifHeader ':' suite -> ifStmt" << endl; }
-      | ifHeader ':' suite ELSE ':' suite { cout << "P: ifHeader ':' suite ELSE ':' suite -> ifStmt" << endl; }
-      | ifHeader ':' suite elifStmtList { cout << "P: ifHeader ':' suite elifStmtList -> ifStmt" << endl; }
-      | ifHeader ':' suite elifStmtList ELSE ':' suite { cout << "P: ifHeader ':' suite elifStmtList ELSE ':' suite -> ifStmt" << endl; }
+ifStmt: IF expr ':' suite { cout << "P: ifHeader ':' suite -> ifStmt" << endl; }
+      | IF expr ':' suite ELSE ':' suite { cout << "P: ifHeader ':' suite ELSE ':' suite -> ifStmt" << endl; }
+      | IF expr ':' suite elifStmtList { cout << "P: ifHeader ':' suite elifStmtList -> ifStmt" << endl; }
+      | IF expr ':' suite elifStmtList ELSE ':' suite { cout << "P: ifHeader ':' suite elifStmtList ELSE ':' suite -> ifStmt" << endl; }
       ;
 
 ifHeader: IF expr { $$ = $2; cout << "P: IF expr -> ifHeader" << endl; }
@@ -157,8 +148,8 @@ elifStmtList: ELIF expr ':' suite { cout << "P: ELIF expr ':' suite -> elifStmtL
 
 // FOR STATEMENT
 
-forStmt: forHeader ':' suite { cout << "P: forHeader ':' suite -> forStmt" << endl; }
-       | forHeader ':' suite ELSE ':' suite { cout << "P: forHeader ':' suite ELSE ':' suite -> forStmt" << endl; }
+forStmt: FOR targetList IN expr ':' suite { cout << "P: forHeader ':' suite -> forStmt" << endl; }
+       | FOR targetList IN expr ':' suite ELSE ':' suite { cout << "P: forHeader ':' suite ELSE ':' suite -> forStmt" << endl; }
        ;
 
 forHeader: FOR targetList IN expr { cout << "P: forHeader" << endl; }

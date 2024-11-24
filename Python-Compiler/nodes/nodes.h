@@ -5,7 +5,6 @@ using namespace std;
 
 struct ExprListNode;
 struct SlicingNode;
-struct IdentifierListNode;
 
 /* ========== EXPRESSION ========== */
 
