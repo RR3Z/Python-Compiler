@@ -160,6 +160,12 @@ string generateDotFromExprNode(struct ExprNode* node) {
 		dot += dotLabel(node->id, ". (attribute ref)");
 		dot += dotConnection(node->id, node->left->id);
 		dot += dotConnection(node->id, node->right->id);
+	case _LIST_ACCESS:
+		dot += generateDotFromExprNode(node->left);
+		dot += generateDotFromExprNode(node->right);
+		dot += dotLabel(node->id, "List Access\n(expr[expr])");
+		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
+		dot += dotConnectionWithLabel(node->id, node->right->id, "index");
 		break;
 	case _UNKNOWN:
 		break;

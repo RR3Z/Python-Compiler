@@ -20,7 +20,7 @@
     string* name;
 
     struct ExprNode* expression;
-    struct ExprList* expressionList;
+    struct ExprListNode* expressionList;
 }
 
 %token <intVal>INT_C
@@ -256,9 +256,9 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | '-' expr %prec UMINUS { $$ = createUnaryMinusExprNode($2); exprTest = $$; cout << "P: '-' expr -> expr" << endl; }
     | identifier ASSIGN_OP expr { $$ = createAssignExprNode(createIdExprNode($1), $3); exprTest = $$; cout << "P: identifier ASSIGN_OP expr -> expr" << endl; }
     | '(' expr ')' { $$ = createExprInParenthesesBracketsNode($2); exprTest = $$; cout << "P: '(' expr ')' -> expr" << endl; }
+    | expr '[' expr ']' { $$ = createListAccessExprNode($1, $3); exprTest = $$; cout << "P: expr '[' expr ']' -> expr" << endl; }
 
     | LAMBDA paramsListE ':' expr %prec LAMBDA { cout << "P: lambdaExpr -> expr" << endl; }
-    | expr '[' expr ']' { cout << "P: expr '[' expr ']' -> expr" << endl; }
     | expr '[' arraySlice ']' { cout << "P: expr '[' arraySlice ']' -> expr" << endl; }
     | '[' exprListE ']' { cout << "P: '[' exprListE ']' -> expr" << endl; }
     | '[' exprList forHeaderList ifHeaderListE ']' { cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
@@ -280,8 +280,8 @@ exprE: expr
      | /* empty */
      ;
 
-exprList: expr { cout << "P: expr -> exprList" << endl; }
-        | exprList ',' expr { cout << "P: exprList ',' expr -> exprList" << endl; }
+exprList: expr { $$ = createExprListNode($1); cout << "P: expr -> exprList" << endl; }
+        | exprList ',' expr { $$ = addExprToExprList($1, $3); cout << "P: exprList ',' expr -> exprList" << endl; }
         ;
 
 exprListE: exprList

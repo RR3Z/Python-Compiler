@@ -57,8 +57,10 @@ ExprNode* createExprInParenthesesBracketsNode(ExprNode* expression);
 
 ExprNode* createAttributeRefExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
+ExprNode* createListAccessExprNode(ExprNode* name, ExprNode* element);
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement);
 
-ExprListNode* addExprToExprList(ExprNode* newElement);
+ExprListNode* addExprToExprList(ExprListNode* list, ExprNode* newElement);

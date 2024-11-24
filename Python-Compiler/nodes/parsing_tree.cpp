@@ -336,6 +336,18 @@ ExprNode* createAttributeRefExprNode(ExprNode* leftOperand, ExprNode* rightOpera
 	return node;
 }
 
+ExprNode* createListAccessExprNode(ExprNode* name, ExprNode* element) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _LIST_ACCESS;
+	node->left = name;
+	node->right = element;
+	node->next = nullptr;
+	node->id = ID++;
+
+	return node;
+}
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement) {
@@ -354,4 +366,3 @@ ExprListNode* addExprToExprList(ExprListNode* list, ExprNode* newElement) {
 
 	return list;
 }
-
