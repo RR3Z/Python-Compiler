@@ -23,7 +23,6 @@
     struct ExprListNode* expressionListNode;
     struct SlicingNode* slicingNode;
     struct IdentifierListNode* identifierListNode;
-    struct TargetNode* targetNode;
 }
 
 %token <intVal>INT_C
@@ -40,12 +39,12 @@
 %type <name>identifier
 %type <expressionNode>expr
 %type <expressionNode>exprE
+%type <expressionNode>target
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
 %type <slicingNode>slicing
 %type <identifierListNode>identifiers
 %type <identifierListNode>identifiersE
-%type <targetNode>target
 
 %token TRUE FALSE
 NEWLINE INDENT DEDENT
@@ -315,10 +314,10 @@ identifiersE: identifiers { $$ = $1; }
             | /* empty */ { $$ = nullptr; }
             ;
 
-target: identifier { $$ = createIdTargetNode($1); cout << "P: identifier -> target" << endl; }
-      | expr '[' expr ']' { $$ = createListAccessTargetNode($1, $3); cout << "P: expr '[' expr ']' -> target" << endl; }
-      | expr '[' slicing ']' { $$ = createListAccessWithSlicingTargetNode($1, $3); cout << "P: expr '[' slicing ']' -> target" << endl; }
-      | expr '.' identifier { $$ = createAttributeRefTargetNode($1, createIdTargetNode($3)); cout << "P: expr '.' identifier -> target" << endl; }
+target: identifier { $$ = createIdExprNode($1); cout << "P: identifier -> target" << endl; }
+      | expr '[' expr ']' { $$ = createListAccessExprNode($1, $3); cout << "P: expr '[' expr ']' -> target" << endl; }
+      | expr '[' slicing ']' { $$ = createListAccessWithSlicingExprNode($1, $3); cout << "P: expr '[' slicing ']' -> target" << endl; }
+      | expr '.' identifier { $$ = createAttributeRefExprNode($1, createIdExprNode($3)); cout << "P: expr '.' identifier -> target" << endl; }
       ;
 
 targetList: target { cout << "P: target -> targetList" << endl; }

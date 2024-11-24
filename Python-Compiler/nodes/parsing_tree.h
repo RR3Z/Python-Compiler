@@ -78,12 +78,3 @@ SlicingNode* createSlicingNode(ExprNode* start, ExprNode* end, ExprNode* step);
 IdentifierListNode* createIdentifierListNode(ExprNode* firstIdentifier);
 
 IdentifierListNode* addIdentifierToIdentifierList(IdentifierListNode* listId, ExprNode* newElement);
-/* ========== TARGET ========== */
-
-TargetNode* createIdTargetNode(string* identifier);
-
-TargetNode* createListAccessTargetNode(ExprNode* var, ExprNode* index);
-
-TargetNode* createListAccessWithSlicingTargetNode(ExprNode* var, SlicingNode* slicing);
-
-TargetNode* createAttributeRefTargetNode(ExprNode* leftOperand, TargetNode* rightOperand);

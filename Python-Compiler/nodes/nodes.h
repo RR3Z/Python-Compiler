@@ -6,7 +6,6 @@ using namespace std;
 struct ExprListNode;
 struct SlicingNode;
 struct IdentifierListNode;
-struct TargetListNode;
 
 /* ========== EXPRESSION ========== */
 
@@ -75,42 +74,4 @@ struct IdentifierListNode {
 	ExprNode* first = nullptr;
 	// Последний элемент списка
 	ExprNode* last = nullptr;
-};
-
-/* ========== TARGET ========== */
-
-struct TargetNode {
-	// Индекс узла
-	int id = -1;
-	// Тип узла
-	NodeType targetType = _UNKNOWN;
-
-	// Идентификатор - название переменной, функции, метода, аттрибута, класса и т.д.
-	string identifier = "";
-
-	// Для бинарного target
-	ExprNode* left = nullptr;
-	ExprNode* right_expr = nullptr;
-	TargetNode* right_target = nullptr;
-
-	// Используяется для: указания значений для slicing
-	SlicingNode* slicing = nullptr;
-
-	// Следующий expr в списке targetList (используется только при работе с targetList)
-	TargetNode* next = nullptr;
-
-	// Используется для: списка элементов list (при его создании)
-	TargetListNode* list = nullptr;
-};
-
-/* ========== TARGET LIST ========== */
-
-struct TargetListNode {
-	// Индекс узла
-	int id = -1;
-
-	// Первый элемент списка
-	TargetNode* first = nullptr;
-	// Последний элемент списка
-	TargetNode* last = nullptr;
 };
