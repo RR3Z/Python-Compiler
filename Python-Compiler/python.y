@@ -21,6 +21,7 @@
 
     struct ExprNode* expression;
     struct ExprListNode* expressionList;
+    struct SlicingNode* slicingNode;
 }
 
 %token <intVal>INT_C
@@ -37,8 +38,10 @@
 %type <name>identifier
 
 %type <expression>expr
+%type <expression>exprE
 %type <expressionList>exprList
 %type <expressionList>exprListE
+%type <slicingNode>slicing
 
 %token TRUE FALSE
 NEWLINE INDENT DEDENT
@@ -261,7 +264,7 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | '[' exprListE ']' { $$ = createListCreationExprNode($2); exprTest = $$; cout << "P: '[' exprListE ']' -> expr" << endl; }
 
     | LAMBDA paramsListE ':' expr %prec LAMBDA { cout << "P: lambdaExpr -> expr" << endl; }
-    | expr '[' arraySlice ']' { cout << "P: expr '[' arraySlice ']' -> expr" << endl; }
+    | expr '[' slicing ']' { $$ = createExprWithSliceNode($1, $3); exprTest = $$; cout << "P: expr '[' slicing ']' -> expr" << endl; }
     | '[' exprList forHeaderList ifHeaderListE ']' { cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
     | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
     | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
@@ -277,8 +280,8 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | SUPER { $$ = createSuperExprNode(); exprTest = $$; cout << "P: SUPER -> expr" << endl; }
     ;
 
-exprE: expr
-     | /* empty */
+exprE: expr { $$ = $1; }
+     | /* empty */ { $$ = nullptr; }
      ;
 
 exprList: expr { $$ = createExprListNode($1); cout << "P: expr -> exprList" << endl; }
@@ -310,7 +313,7 @@ identifiersE: identifiers
 
 target: identifier { cout << "P: identifier -> target" << endl; }
       | expr '[' expr ']' { cout << "P: expr '[' expr ']' -> target" << endl; }
-      | expr '[' arraySlice ']' { cout << "P: expr '[' arraySlice ']' -> target" << endl; }
+      | expr '[' slicing ']' { cout << "P: expr '[' slicing ']' -> target" << endl; }
       | expr '.' identifier { cout << "P: expr '.' identifier -> target" << endl; }
       ;
 
@@ -318,9 +321,9 @@ targetList: target { cout << "P: target -> targetList" << endl; }
           | targetList ',' target { cout << "P: targetList , target -> targetList" << endl; }
           ;
 
-arraySlice: exprE ':' exprE { $$ = createArraySliceNode($1, $3, NULLPTR)}
-          | exprE ':' exprE ':' exprE { $$ = createArraySliceNode($1, $3, $5)}
-          ;
+slicing: exprE ':' exprE { $$ = createSlicingNode($1, $3, nullptr); cout << "P: exprE ':' exprE -> slicing" << endl; }
+       | exprE ':' exprE ':' exprE { $$ = createSlicingNode($1, $3, $5); cout << "P: exprE ':' exprE ':' exprE -> slicing" << endl; }
+       ;
 
 namedArgsList: identifier '=' expr 
              | namedArgsList ',' identifier '=' expr

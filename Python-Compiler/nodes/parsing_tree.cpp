@@ -361,6 +361,17 @@ ExprNode* createListCreationExprNode(ExprListNode* elements) {
 	return node;
 }
 
+ExprNode* createExprWithSliceNode(ExprNode* name, SlicingNode* slicing) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _SLICING;
+	node->identifier = name->identifier;
+	node->slicing = slicing;
+	node->id = ID++;
+
+	return node;
+}
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement) {
@@ -382,8 +393,8 @@ ExprListNode* addExprToExprList(ExprListNode* list, ExprNode* newElement) {
 
 /* ========== ARRAY SLICE ========== */
 
-ArraySliceNode* createArraySliceNode(ExprNode* start, ExprNode* end, ExprNode* step) {
-	ArraySliceNode* ArraySlice = new ArraySliceNode();
+SlicingNode* createSlicingNode(ExprNode* start, ExprNode* end, ExprNode* step) {
+	SlicingNode* ArraySlice = new SlicingNode();
 
 	ArraySlice->start = start;
 	ArraySlice->end = end;

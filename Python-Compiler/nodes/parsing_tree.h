@@ -61,6 +61,8 @@ ExprNode* createListAccessExprNode(ExprNode* name, ExprNode* element);
 
 ExprNode* createListCreationExprNode(ExprListNode* elements);
 
+ExprNode* createExprWithSliceNode(ExprNode* name, SlicingNode* slicing);
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement);
@@ -69,4 +71,4 @@ ExprListNode* addExprToExprList(ExprListNode* list, ExprNode* newElement);
 
 /* ========== ARRAY SLICE ========== */
 
-ArraySliceNode* createArraySliceNode(ExprNode* start, ExprNode* end, ExprNode* step);
+SlicingNode* createSlicingNode(ExprNode* start, ExprNode* end, ExprNode* step);

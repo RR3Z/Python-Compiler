@@ -1,11 +1,12 @@
 #pragma once
 #include <string>
 #include "../ExprType.h"
-
 using namespace std;
 
-/* ========== EXPRESSION ========== */
 struct ExprListNode;
+struct SlicingNode;
+
+/* ========== EXPRESSION ========== */
 
 struct ExprNode {
 	// »ндекс узла
@@ -31,6 +32,9 @@ struct ExprNode {
 
 	// »спользуетс€ дл€: списка элементов list (при его создании)
 	ExprListNode* list = nullptr;
+
+	// »спользу€етс€ дл€: указани€ значений дл€ arraySlice
+	SlicingNode* slicing = nullptr;
 };
 
 /* ========== EXPRESSION LIST ========== */
@@ -47,7 +51,7 @@ struct ExprListNode {
 
 /* ========== ARRAY SLICE ========== */
 
-struct ArraySliceNode {
+struct SlicingNode {
 	// »ндекс узла
 	int id = -1;
 
