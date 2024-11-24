@@ -170,7 +170,7 @@ string generateDotFromExprNode(struct ExprNode* node) {
 		break;
 	case _LIST_CREATION:
 		if (node->list != nullptr) {
-			dot += dotLabel(node->id, "[exprListE]");
+			dot += dotLabel(node->id, "[exprList]");
 
 			if (node->list->first != nullptr) {
 				ExprNode* expr = node->list->first;
