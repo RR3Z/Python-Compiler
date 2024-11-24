@@ -100,7 +100,7 @@ struct ParamListNode {
 	ExprNode* first = nullptr;
 	// Последний элемент списка
 	ExprNode* last = nullptr;
-}
+};
 
 /* ========== STATEMENT ========== */
 
