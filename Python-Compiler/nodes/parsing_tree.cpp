@@ -400,19 +400,20 @@ SlicingNode* createSlicingNode(ExprNode* start, ExprNode* end, ExprNode* step) {
 IdentifierListNode* createIdentifierListNode(ExprNode* firstIdentifier) {
 	IdentifierListNode* listId = new IdentifierListNode();
 
-	listId->firstId = firstIdentifier;
-	listId->lastId = firstIdentifier;
+	listId->first = firstIdentifier;
+	listId->last = firstIdentifier;
 	listId->id = ID++;
 
 	return listId;
 }
 
 IdentifierListNode* addIdentifierToIdentifierList(IdentifierListNode* listId, ExprNode* newElement) {
-	listId->lastId->next = newElement;
-	listId->lastId = newElement;
+	listId->last->next = newElement;
+	listId->last = newElement;
 
 	return listId;
 }
+
 /* ========== TARGET ========== */
 
 TargetNode* createIdTargetNode(string* identifier) {
