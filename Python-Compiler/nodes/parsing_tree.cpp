@@ -366,3 +366,15 @@ ExprListNode* addExprToExprList(ExprListNode* list, ExprNode* newElement) {
 
 	return list;
 }
+
+/* ========== ARRAY SLICE ========== */
+
+ArraySliceNode* createArraySliceNode(ExprNode* start, ExprNode* end, ExprNode* step) {
+	ArraySliceNode* ArraySlice = new ArraySliceNode();
+
+	ArraySlice->start = start;
+	ArraySlice->end = end;
+	ArraySlice->step = step;
+
+	return ArraySlice;
+}

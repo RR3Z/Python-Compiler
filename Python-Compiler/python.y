@@ -317,8 +317,8 @@ targetList: target { cout << "P: target -> targetList" << endl; }
           | targetList ',' target { cout << "P: targetList , target -> targetList" << endl; }
           ;
 
-arraySlice: exprE ':' exprE
-          | exprE ':' exprE ':' exprE
+arraySlice: exprE ':' exprE { $$ = createArraySliceNode($1, $3, NULLPTR)}
+          | exprE ':' exprE ':' exprE { $$ = createArraySliceNode($1, $3, $5)}
           ;
 
 namedArgsList: identifier '=' expr 
