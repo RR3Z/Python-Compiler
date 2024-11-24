@@ -146,20 +146,21 @@ string generateDotFromExprNode(struct ExprNode* node) {
 		dot += generateDotFromExprNode(node->left);
 		dot += generateDotFromExprNode(node->right);
 		dot += dotLabel(node->id, ":=");
-		dot += dotConnection(node->id, node->left->id);
-		dot += dotConnection(node->id, node->right->id);
+		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
+		dot += dotConnectionWithLabel(node->id, node->right->id, "value");
 		break;
 	case _BRACKETS:
 		dot += generateDotFromExprNode(node->left);
-		dot += dotLabel(node->id, "In Parantheses Brackets");
+		dot += dotLabel(node->id, "In Parantheses Brackets\n( (expr) )");
 		dot += dotConnection(node->id, node->left->id);
 		break;
 	case _ATTRIBUTE_REF:
 		dot += generateDotFromExprNode(node->left);
 		dot += generateDotFromExprNode(node->right);
-		dot += dotLabel(node->id, ". (attribute ref)");
-		dot += dotConnection(node->id, node->left->id);
-		dot += dotConnection(node->id, node->right->id);
+		dot += dotLabel(node->id, "Attribute ref\n(expr.identifier)");
+		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
+		dot += dotConnectionWithLabel(node->id, node->right->id, "attribute");
+		break;
 	case _LIST_ACCESS:
 		dot += generateDotFromExprNode(node->left);
 		dot += generateDotFromExprNode(node->right);
