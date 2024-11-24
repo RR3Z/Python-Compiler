@@ -348,6 +348,19 @@ ExprNode* createListAccessExprNode(ExprNode* name, ExprNode* element) {
 	return node;
 }
 
+ExprNode* createListCreationExprNode(ExprListNode* elements) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _LIST_CREATION;
+	node->left = nullptr;
+	node->right = nullptr;
+	node->next = nullptr;
+	node->list = elements;
+	node->id = ID++;
+
+	return node;
+}
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement) {

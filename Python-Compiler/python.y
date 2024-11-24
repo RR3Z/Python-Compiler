@@ -38,6 +38,7 @@
 
 %type <expression>expr
 %type <expressionList>exprList
+%type <expressionList>exprListE
 
 %token TRUE FALSE
 NEWLINE INDENT DEDENT
@@ -257,10 +258,10 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | identifier ASSIGN_OP expr { $$ = createAssignExprNode(createIdExprNode($1), $3); exprTest = $$; cout << "P: identifier ASSIGN_OP expr -> expr" << endl; }
     | '(' expr ')' { $$ = createExprInParenthesesBracketsNode($2); exprTest = $$; cout << "P: '(' expr ')' -> expr" << endl; }
     | expr '[' expr ']' { $$ = createListAccessExprNode($1, $3); exprTest = $$; cout << "P: expr '[' expr ']' -> expr" << endl; }
+    | '[' exprListE ']' { $$ = createListCreationExprNode($2); exprTest = $$; cout << "P: '[' exprListE ']' -> expr" << endl; }
 
     | LAMBDA paramsListE ':' expr %prec LAMBDA { cout << "P: lambdaExpr -> expr" << endl; }
     | expr '[' arraySlice ']' { cout << "P: expr '[' arraySlice ']' -> expr" << endl; }
-    | '[' exprListE ']' { cout << "P: '[' exprListE ']' -> expr" << endl; }
     | '[' exprList forHeaderList ifHeaderListE ']' { cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
     | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
     | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
@@ -284,9 +285,9 @@ exprList: expr { $$ = createExprListNode($1); cout << "P: expr -> exprList" << e
         | exprList ',' expr { $$ = addExprToExprList($1, $3); cout << "P: exprList ',' expr -> exprList" << endl; }
         ;
 
-exprListE: exprList
-         | exprList ','
-         | /* empty */
+exprListE: exprList { $$ = $1; }
+         | exprList ',' { $$ = $1; }
+         | /* empty */ { $$ = nullptr; }
          ;
 
 identifier: ID { $$ = $1; cout << "P: ID -> identifier" << endl; }

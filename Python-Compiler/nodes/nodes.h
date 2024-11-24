@@ -5,6 +5,7 @@
 using namespace std;
 
 /* ========== EXPRESSION ========== */
+struct ExprListNode;
 
 struct ExprNode {
 	// Индекс узла
@@ -27,6 +28,9 @@ struct ExprNode {
 
 	// Следующий expr в списке exprList (используется только при работе с exprList)
 	ExprNode* next = nullptr;
+
+	// Используется для: списка элементов list (при его создании)
+	ExprListNode* list = nullptr;
 };
 
 /* ========== EXPRESSION LIST ========== */

@@ -168,6 +168,27 @@ string generateDotFromExprNode(struct ExprNode* node) {
 		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
 		dot += dotConnectionWithLabel(node->id, node->right->id, "index");
 		break;
+	case _LIST_CREATION:
+		if (node->list != nullptr) {
+			dot += dotLabel(node->id, "[exprListE]");
+
+			if (node->list->first != nullptr) {
+				ExprNode* expr = node->list->first;
+
+				dot += generateDotFromExprNode(expr);
+				dot += dotConnection(node->id, expr->id);
+
+				while (expr->next != nullptr) {
+					dot += generateDotFromExprNode(expr->next);
+					dot += dotConnection(node->id, expr->next->id);
+					expr = expr->next;
+				}
+			}
+		}
+		else {
+			dot += dotLabel(node->id, "[]");
+		}
+		break;
 	case _UNKNOWN:
 		break;
 	default:

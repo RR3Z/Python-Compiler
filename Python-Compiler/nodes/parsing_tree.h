@@ -59,6 +59,8 @@ ExprNode* createAttributeRefExprNode(ExprNode* leftOperand, ExprNode* rightOpera
 
 ExprNode* createListAccessExprNode(ExprNode* name, ExprNode* element);
 
+ExprNode* createListCreationExprNode(ExprListNode* elements);
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement);
