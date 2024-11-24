@@ -74,5 +74,8 @@
     <ClInclude Include="nodes\NodeType.h">
       <Filter>Файлы заголовков\nodes</Filter>
     </ClInclude>
+    <ClInclude Include="nodes\StmtType.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

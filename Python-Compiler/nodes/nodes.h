@@ -1,10 +1,12 @@
 #pragma once
 #include <string>
 #include "NodeType.h"
+#include "StmtType.h"
 using namespace std;
 
 struct ExprListNode;
 struct SlicingNode;
+struct StmtsListNode;
 
 /* ========== EXPRESSION ========== */
 
@@ -85,4 +87,41 @@ struct TargetListNode {
 	ExprNode* first = nullptr;
 	// Последний элемент списка
 	ExprNode* last = nullptr;
+};
+
+/* ========== STATEMENT ========== */
+
+struct StmtNode {
+	// Индекс узла
+	int id = -1;
+	// Тип узла
+	StmtType stmtType = _UNDEFINED;
+
+	// Используется для компоновки нескольких StmtNode в один (например, ifStmt + elseStmt => compoundIf)
+	StmtNode* leftNode = nullptr;
+	StmtNode* rightNode = nullptr;
+
+	// Используется для: задания самого условия (if, else)
+	ExprNode* expr = nullptr;
+
+	// Используется для задания тела stmt
+	StmtsListNode* suite = nullptr;
+
+	// Используется, если для одного stmt можно задать несколько условий (например, elifStmtsList в ifStmt)
+	StmtsListNode* stmtsList = nullptr;
+
+	// ТОЛЬКО ДЛЯ STMTSLIST
+	StmtNode* next = nullptr;
+};
+
+/* ========== STATEMENTS LIST ========== */
+
+struct StmtsListNode {
+	// Индекс узла
+	int id = -1;
+
+	// Первый элемент списка
+	StmtNode* first = nullptr;
+	// Последний элемент списка
+	StmtNode* last = nullptr;
 };

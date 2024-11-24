@@ -1,3 +1,4 @@
+#pragma once
 #include "parsing_tree.h"
 
 #pragma warning(disable: 6011)
@@ -427,6 +428,61 @@ TargetListNode* createTargetListNode(ExprNode* firstElement) {
 }
 
 TargetListNode* addElementToTargetList(TargetListNode* list, ExprNode* newElement) {
+	list->last->next = newElement;
+	list->last = newElement;
+
+	return list;
+}
+
+/* ========== STATEMENT ========== */
+
+StmtNode* createCompoundIfStmtNode(StmtNode* ifStmt, StmtNode* elseStmt, StmtsListNode* elseStmtsList) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _COMPOUND_IF;
+	node->leftNode = ifStmt;
+	node->rightNode = elseStmt;
+	node->stmtsList = elseStmtsList;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createIfStmtNode(ExprNode* expr, StmtsListNode* suite) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _IF;
+	node->expr = expr;
+	node->suite = suite;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createElseStmtNode(ExprNode* expr, StmtsListNode* suite) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _ELSE;
+	node->expr = expr;
+	node->suite = suite;
+	node->id = ID++;
+
+	return node;
+}
+
+/* ========== STATEMENTS LIST ========== */
+
+StmtsListNode* createStmtsListNode(StmtNode* firstElement) {
+	StmtsListNode* list = new StmtsListNode();
+
+	list->first = firstElement;
+	list->last = firstElement;
+	list->id = ID++;
+
+	return list;
+}
+
+StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement) {
 	list->last->next = newElement;
 	list->last = newElement;
 

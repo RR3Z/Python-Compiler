@@ -84,3 +84,17 @@ IdentifierListNode* addElementToIdentifierList(IdentifierListNode* listId, ExprN
 TargetListNode* createTargetListNode(ExprNode* firstElement);
 
 TargetListNode* addElementToTargetList(TargetListNode* list, ExprNode* newElement);
+
+/* ========== STATEMENT ========== */
+
+StmtNode* createCompoundIfStmtNode(StmtNode* ifStmt, StmtNode* elseStmt, StmtsListNode* elseStmtsList);
+
+StmtNode* createIfStmtNode(ExprNode* expr, StmtsListNode* suite);
+
+StmtNode* createElseStmtNode(ExprNode* expr, StmtsListNode* suite);
+
+/* ========== STATEMENTS LIST ========== */
+
+StmtsListNode* createStmtsListNode(StmtNode* firstElement);
+
+StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement);
