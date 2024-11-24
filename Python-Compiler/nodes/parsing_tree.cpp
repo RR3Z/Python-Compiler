@@ -339,22 +339,19 @@ ExprNode* createAttributeRefExprNode(ExprNode* leftOperand, ExprNode* rightOpera
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement) {
-	ExprListNode* node = new ExprListNode();
+	ExprListNode* list = new ExprListNode();
 
-	node->first = firstElement;
-	node->last = nullptr;
-	node->id = ID++;
+	list->first = firstElement;
+	list->last = firstElement;
+	list->id = ID++;
 
-	return node;
+	return list;
 }
 
-ExprListNode* addExprToExprList(ExprNode* newElement) {
-	ExprListNode* node = new ExprListNode();
+ExprListNode* addExprToExprList(ExprListNode* list, ExprNode* newElement) {
+	list->last->next = newElement;
+	list->last = newElement;
 
-	node->first = firstElement;
-	node->last = nullptr;
-	node->id = ID++;
-
-	return node;
+	return list;
 }
 
