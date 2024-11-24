@@ -44,3 +44,17 @@ struct ExprListNode {
 	// Последний элемент списка
 	ExprNode* last = nullptr;
 };
+
+/* ========== ARRAY SLICE ========== */
+
+struct ArraySliceNode {
+	// Индекс узла
+	int id = -1;
+
+	// Первый элемент, который включается
+	ExprNode* start = nullptr;
+	// Элемент после которого заканчивается
+	ExprNode* end = nullptr;
+	// Шаг, с которым выбираются элементы
+	ExprNode* step = nullptr;
+};

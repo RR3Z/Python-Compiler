@@ -66,3 +66,7 @@ ExprNode* createListCreationExprNode(ExprListNode* elements);
 ExprListNode* createExprListNode(ExprNode* firstElement);
 
 ExprListNode* addExprToExprList(ExprListNode* list, ExprNode* newElement);
+
+/* ========== ARRAY SLICE ========== */
+
+ArraySliceNode* createArraySliceNode(ExprNode* start, ExprNode* end, ExprNode* step);
