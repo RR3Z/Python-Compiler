@@ -412,6 +412,7 @@ IdentifierListNode* addIdentifierToIdentifierList(IdentifierListNode* listId, Ex
 	listId->lastId = newElement;
 
 	return listId;
+}
 /* ========== TARGET ========== */
 
 TargetNode* createIdTargetNode(string* identifier) {
