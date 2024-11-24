@@ -297,6 +297,18 @@ ExprNode* createSuperExprNode() {
 	return node;
 }
 
+ExprNode* createAssignOpExprNode(ExprNode* leftOperand, ExprNode* rightOperand) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _ASSIGN_OP;
+	node->left = leftOperand;
+	node->right = rightOperand;
+	node->next = nullptr;
+	node->id = ID++;
+
+	return node;
+}
+
 ExprNode* createAssignExprNode(ExprNode* leftOperand, ExprNode* rightOperand) {
 	ExprNode* node = new ExprNode();
 
@@ -427,6 +439,26 @@ TargetListNode* createTargetListNode(ExprNode* firstElement) {
 }
 
 TargetListNode* addElementToTargetList(TargetListNode* list, ExprNode* newElement) {
+	list->last->next = newElement;
+	list->last = newElement;
+
+	return list;
+}
+
+
+/* ========== PARAM LIST ========== */
+
+ParamListNode* createParamListNode(ExprNode* firstIdentifier) {
+	ParamListNode* list = new ParamListNode();
+
+	list->first = firstIdentifier;
+	list->last = firstIdentifier;
+	list->id = ID++;
+
+	return list;
+}
+
+ParamListNode* addElementToParamList(ParamListNode* list, ExprNode* newElement) {
 	list->last->next = newElement;
 	list->last = newElement;
 

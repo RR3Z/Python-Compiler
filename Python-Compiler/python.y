@@ -24,6 +24,7 @@
     struct SlicingNode* slicingNode;
     struct IdentifierListNode* identifierListNode;
     struct TargetListNode* targetListNode;
+    struct ParamListNode* paramListNode;
 }
 
 %token <intVal>INT_C
@@ -41,6 +42,7 @@
 %type <expressionNode>expr
 %type <expressionNode>exprE
 %type <expressionNode>target
+%type <expressionNode>param
 %type <expressionNode>ifHeader
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
@@ -48,6 +50,8 @@
 %type <identifierListNode>identifiers
 %type <identifierListNode>identifiersE
 %type <targetListNode>targetList
+%type <paramListNode>paramsList
+%type <paramListNode>paramsListE
 
 %token TRUE FALSE
 NEWLINE INDENT DEDENT
@@ -206,17 +210,17 @@ funcHeader: DEF identifier '(' paramsListE ')' {
                                                }
           ;
 
-param: identifier { cout << "P: identifier -> param" << endl; }
-     | identifier '=' expr { cout << "P: identifier '=' expr -> param" << endl; }
+param: identifier {$$ = createIdExprNode($1);  cout << "P: identifier -> param" << endl; }
+     | identifier '=' expr { $$ = createAssignExprNode(createIdExprNode($1), $3); cout << "P: identifier '=' expr -> param" << endl; }
      ;
 
-paramsList: param { cout << "P: param -> paramsList" << endl; }
-          | paramsList ',' param { cout << "P: paramsList ',' param -> paramsList" << endl; }
+paramsList: param { $$ = createParamListNode($1); cout << "P: param -> paramsList" << endl; }
+          | paramsList ',' param {  $$ = addElementToParamList($1, $3); cout << "P: paramsList ',' param -> paramsList" << endl; }
           ;
 
-paramsListE: paramsList { cout << "P: paramsList -> paramsListE" << endl; }
-           | paramsList ',' { cout << "P: paramsList ',' -> paramsListE" << endl; }
-           | /* empty */ { cout << "P: /* empty */ -> paramsListE" << endl; }
+paramsListE: paramsList { $$ = $1; cout << "P: paramsList -> paramsListE" << endl; }
+           | paramsList ',' {  $$ = $1; cout << "P: paramsList ',' -> paramsListE" << endl; }
+           | /* empty */ { $$ = nullptr; cout << "P: /* empty */ -> paramsListE" << endl; }
            ;
 
 // CLASS DEFINITION
@@ -264,7 +268,7 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | expr NE expr { $$ = createNotEqualExprNode($1, $3); exprTest = $$; cout << "P: expr NE expr -> expr" << endl; }
     | '+' expr %prec UPLUS { $$ = createUnaryPlusExprNode($2); exprTest = $$; cout << "P: '+' expr -> expr" << endl;}
     | '-' expr %prec UMINUS { $$ = createUnaryMinusExprNode($2); exprTest = $$; cout << "P: '-' expr -> expr" << endl; }
-    | identifier ASSIGN_OP expr { $$ = createAssignExprNode(createIdExprNode($1), $3); exprTest = $$; cout << "P: identifier ASSIGN_OP expr -> expr" << endl; }
+    | identifier ASSIGN_OP expr { $$ = createAssignOpExprNode(createIdExprNode($1), $3); exprTest = $$; cout << "P: identifier ASSIGN_OP expr -> expr" << endl; }
     | '(' expr ')' { $$ = createExprInParenthesesBracketsNode($2); exprTest = $$; cout << "P: '(' expr ')' -> expr" << endl; }
     | expr '[' expr ']' { $$ = createListAccessExprNode($1, $3); exprTest = $$; cout << "P: expr '[' expr ']' -> expr" << endl; }
     | '[' exprListE ']' { $$ = createListCreationExprNode($2); exprTest = $$; cout << "P: '[' exprListE ']' -> expr" << endl; }

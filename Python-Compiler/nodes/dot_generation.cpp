@@ -143,10 +143,17 @@ string generateDotFromExprNode(ExprNode* node) {
 	case _SUPER:
 		dot += dotLabel(node->id, "super");
 		break;
-	case _ASSIGN:
+	case _ASSIGN_OP:
 		dot += generateDotFromExprNode(node->left);
 		dot += generateDotFromExprNode(node->right);
 		dot += dotLabel(node->id, ":=");
+		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
+		dot += dotConnectionWithLabel(node->id, node->right->id, "value");
+		break;
+	case _ASSIGN:
+		dot += generateDotFromExprNode(node->left);
+		dot += generateDotFromExprNode(node->right);
+		dot += dotLabel(node->id, "=");
 		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
 		dot += dotConnectionWithLabel(node->id, node->right->id, "value");
 		break;

@@ -51,6 +51,8 @@ ExprNode* createOrLogicExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
 ExprNode* createOrBitwiseExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
+ExprNode* createAssignOpExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
+
 ExprNode* createAssignExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
 ExprNode* createExprInParenthesesBracketsNode(ExprNode* expression);
@@ -62,6 +64,7 @@ ExprNode* createListAccessExprNode(ExprNode* var, ExprNode* index);
 ExprNode* createListCreationExprNode(ExprListNode* elements);
 
 ExprNode* createListAccessWithSlicingExprNode(ExprNode* var, SlicingNode* slicing);
+
 
 /* ========== EXPRESSION LIST ========== */
 
@@ -84,3 +87,9 @@ IdentifierListNode* addElementToIdentifierList(IdentifierListNode* listId, ExprN
 TargetListNode* createTargetListNode(ExprNode* firstElement);
 
 TargetListNode* addElementToTargetList(TargetListNode* list, ExprNode* newElement);
+
+/* ========== PARAM LIST ========== */
+
+ParamListNode* createParamListNode(ExprNode* firstElement);
+
+ParamListNode* addElementToParamList(ParamListNode* list, ExprNode* newElement);

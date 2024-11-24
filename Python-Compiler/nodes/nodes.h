@@ -87,3 +87,16 @@ struct TargetListNode {
 	// Последний элемент списка
 	ExprNode* last = nullptr;
 };
+
+
+/* ========== PARAM LIST ========== */
+
+struct ParamListNode {
+	// Индекс узла
+	int id = -1;
+
+	// Первый элемент списка
+	ExprNode* first = nullptr;
+	// Последний элемент списка
+	ExprNode* last = nullptr;
+};
