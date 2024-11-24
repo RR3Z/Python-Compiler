@@ -236,6 +236,27 @@ string generateDotFromIdentifierListNode(IdentifierListNode* node) {
 	return dot;
 }
 
+string generateDotFromTargetListNode(TargetListNode* node) {
+	string dot = "";
+
+	if (node == nullptr) { return dot; }
+
+	if (node->first != nullptr) {
+		ExprNode* expr = node->first;
+
+		dot += generateDotFromExprNode(expr);
+		dot += dotConnection(node->id, expr->id);
+
+		while (expr->next != nullptr) {
+			dot += generateDotFromExprNode(expr->next);
+			dot += dotConnection(node->id, expr->next->id);
+			expr = expr->next;
+		}
+	}
+
+	return dot;
+}
+
 string generateDotFromSlicingNode(SlicingNode* node) {
 	string dot = "";
 
