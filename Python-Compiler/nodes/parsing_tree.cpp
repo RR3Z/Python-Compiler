@@ -609,6 +609,18 @@ StmtNode* createCompoundForStmtNode(StmtNode* forStmt, StmtNode* elseStmt) {
 	return node;
 }
 
+StmtNode* createCompoundTryStmtNode(StmtsListNode* suite, StmtsListNode* exceptStmtsList, StmtNode* elseStmt, StmtNode* finallyStmt) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _COMPOUND_TRY;
+	node->leftNode = elseStmt;
+	node->rightNode = finallyStmt;
+	node->stmtsList = exceptStmtsList;
+	node->id = ID++;
+
+	return node;
+}
+
 /* ========== STATEMENTS LIST ========== */
 
 StmtsListNode* createStmtsListNode(StmtNode* firstElement) {

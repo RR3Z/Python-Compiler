@@ -55,6 +55,7 @@
 %type <stmtNode>forStmt
 %type <stmtNode>tryStmt
 
+
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
 %type <expressionListNode>ifHeaderList
@@ -190,11 +191,11 @@ whileStmt: WHILE expr ':' suite { $$ = createWhileStmtNode($2, $4); cout << "P: 
 
 // TRY STATEMENT
 
-tryStmt: TRY ':' suite exceptStmtList
-       | TRY ':' suite exceptStmtList ELSE ':' suite
-       | TRY ':' suite exceptStmtList FINALLY ':' suite
-       | TRY ':' suite exceptStmtList ELSE ':' suite FINALLY ':' suite
-       | TRY ':' suite FINALLY ':' suite
+tryStmt: TRY ':' suite exceptStmtList { $$ = createCompoundTryStmtNode($3, $4, nullptr, nullptr);}
+       | TRY ':' suite exceptStmtList ELSE ':' suite { $$ = createCompoundTryStmtNode($3, $4, createElseStmtNode($7), nullptr);}
+       | TRY ':' suite exceptStmtList FINALLY ':' suite { $$ = createCompoundTryStmtNode($3, $4, nullptr, createFinallyStmtNode($7));}
+       | TRY ':' suite exceptStmtList ELSE ':' suite FINALLY ':' suite  { $$ = createCompoundTryStmtNode($3, $4, createElseStmtNode($7), createFinallyStmtNode($10));}
+       | TRY ':' suite FINALLY ':' suite { $$ = createCompoundTryStmtNode($3, nullptr, nullptr, createFinallyStmtNode($6));}
        ;
 
 exceptStmt: EXCEPT ':' suite { $$ = createExceptStmtNode(nullptr, $3);}

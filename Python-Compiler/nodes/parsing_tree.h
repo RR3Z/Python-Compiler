@@ -115,6 +115,8 @@ StmtNode* createForStmtNode(ExprListNode* targetList, ExprNode* expr, StmtsListN
 
 StmtNode* createCompoundForStmtNode(StmtNode* forStmt, StmtNode* elseStmt);
 
+StmtNode* createCompoundTryStmtNode(StmtsListNode* suite, StmtsListNode* exceptStmtsList, StmtNode* elseStmt, StmtNode* finallyStmt);
+
 /* ========== STATEMENTS LIST ========== */
 
 StmtsListNode* createStmtsListNode(StmtNode* firstElement);

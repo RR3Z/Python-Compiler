@@ -12,4 +12,5 @@ enum StmtType {
 	_FOR = 11,
 	_COMPOUND_FOR = 12,
 	_FINALLY = 13,
+	_COMPOUND_TRY = 14,
 };
