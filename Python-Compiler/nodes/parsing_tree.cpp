@@ -409,6 +409,29 @@ ExprNode* createLambdaExprNode(FuncArgsListNode* funcArgsListNode, ExprNode* exp
 	return node;
 }
 
+ExprNode* createMethodCallExprNode(ExprNode* expr, string* identifier, FuncArgsListNode* funcArgs) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _METHOD_CALL;
+	node->identifier = *identifier;
+	node->left = expr;
+	node->funcArgs = funcArgs;
+	node->id = ID++;
+
+	return node;
+}
+
+ExprNode* createFunctionCallExprNode(ExprNode* expr, FuncArgsListNode* funcArgs) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _FUNCTION_CALL;
+	node->left = expr;
+	node->funcArgs = funcArgs;
+	node->id = ID++;
+
+	return node;
+}
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement) {
@@ -547,6 +570,29 @@ StmtNode* createExceptIdentifierStmtNode(ExprNode* expr, ExprNode* identifier, S
 	node->expr = expr;
 	node->identifier = identifier;
 	node->suite = suite;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createForStmtNode(ExprListNode* targetList, ExprNode* expr, StmtsListNode* suite) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _FOR;
+	node->exprList = targetList;
+	node->expr = expr;
+	node->stmtsList = suite;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createCompoundForStmtNode(StmtNode* forStmt, StmtNode* elseStmt) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _COMPOUND_FOR;
+	node->leftNode = forStmt;
+	node->rightNode = elseStmt;
 	node->id = ID++;
 
 	return node;

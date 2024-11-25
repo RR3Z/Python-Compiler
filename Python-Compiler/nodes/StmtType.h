@@ -9,4 +9,6 @@ enum StmtType {
 	_RETURN = 8,
 	_EXCEPT = 9,
 	_IDENTIFIER_EXCEPT = 10,
+	_FOR = 11,
+	_COMPOUND_FOR = 12,
 };

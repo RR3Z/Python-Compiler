@@ -52,6 +52,7 @@
 %type <stmtNode>whileStmt
 %type <stmtNode>returnStmt
 %type <stmtNode>exceptStmt
+%type <stmtNode>forStmt
 
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
@@ -168,8 +169,8 @@ elifStmtList: ELIF expr ':' suite { $$ = createStmtsListNode(createElifStmtNode(
 
 // FOR STATEMENT
 
-forStmt: FOR targetList IN expr ':' suite { cout << "P: FOR targetList IN expr ':' suite -> forStmt" << endl; }
-       | FOR targetList IN expr ':' suite ELSE ':' suite { cout << "P: FOR targetList IN expr ':' suite ELSE ':' suite -> forStmt" << endl; }
+forStmt: FOR targetList IN expr ':' suite { $$ = createForStmtNode($2, $4, $6); cout << "P: FOR targetList IN expr ':' suite -> forStmt" << endl; }
+       | FOR targetList IN expr ':' suite ELSE ':' suite { $$ = createCompoundForStmtNode(createForStmtNode($2, $4, $6), createElseStmtNode($9)); cout << "P: FOR targetList IN expr ':' suite ELSE ':' suite -> forStmt" << endl; }
        ;
 
 forHeader: FOR targetList IN expr { $$ = createForHeaderExprNode($2, $4); cout << "P: forHeader" << endl; }
@@ -284,11 +285,9 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | '[' exprListE ']' { $$ = createListCreationExprNode($2); exprTest = $$; cout << "P: '[' exprListE ']' -> expr" << endl; }
     | expr '[' slicing ']' { $$ = createListAccessWithSlicingExprNode($1, $3); exprTest = $$; cout << "P: expr '[' slicing ']' -> expr" << endl; }
     | '[' expr forHeaderList ifHeaderListE ']' { $$ = createListComprehensionExprNode($2, $3, $4); exprTest = $$; cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
-
-    | LAMBDA paramsListE ':' expr %prec LAMBDA { $$ = createLambdaExprNode($2, $4); cout << "P: lambdaExpr -> expr" << endl; }
-    | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
-    | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
-
+    | LAMBDA paramsListE ':' expr %prec LAMBDA { $$ = createLambdaExprNode($2, $4); exprTest = $$; cout << "P: lambdaExpr -> expr" << endl; }
+    | expr '(' funcArgs ')' { $$ = createFunctionCallExprNode($1, $3); exprTest = $$; cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
+    | expr '.' identifier '(' funcArgs ')' { $$ = createMethodCallExprNode($1, $3, $5); exprTest = $$; cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
     | expr '.' identifier { $$ = createAttributeRefExprNode($1, createIdExprNode($3)); exprTest = $$; cout << "P: expr '.' identifier -> expr | ATTRIBUTE REF" << endl; }
     | INT_C { $$ = createIntConstExprNode($1); exprTest = $$; cout << "P: INT_C -> expr" << endl; }
     | FLOAT_C { $$ = createFloatConstExprNode($1); exprTest = $$; cout << "P: FLOAT_C -> expr" << endl; }
