@@ -282,7 +282,7 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | expr '[' slicing ']' { $$ = createListAccessWithSlicingExprNode($1, $3); exprTest = $$; cout << "P: expr '[' slicing ']' -> expr" << endl; }
     | '[' expr forHeaderList ifHeaderListE ']' { $$ = createListComprehensionExprNode($2, $3, $4); exprTest = $$; cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
 
-    | LAMBDA paramsListE ':' expr %prec LAMBDA { cout << "P: lambdaExpr -> expr" << endl; }
+    | LAMBDA paramsListE ':' expr %prec LAMBDA { $$ = createLambdaExprNode($2, $4); cout << "P: lambdaExpr -> expr" << endl; }
     | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
     | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
 
