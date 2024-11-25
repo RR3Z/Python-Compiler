@@ -65,7 +65,7 @@ ExprNode* createListAccessWithSlicingExprNode(ExprNode* var, SlicingNode* slicin
 
 ExprNode* createIfHeaderExprNode(ExprNode* expr);
 
-ExprNode* createForHeaderExprNode(TargetListNode* targetList, ExprNode* expr);
+ExprNode* createForHeaderExprNode(ExprListNode* targetList, ExprNode* expr);
 
 ExprNode* createListComprehensionExprNode(ExprNode* expr, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE);
 
@@ -79,24 +79,6 @@ ExprListNode* addElementToExprList(ExprListNode* list, ExprNode* newElement);
 
 SlicingNode* createSlicingNode(ExprNode* start, ExprNode* end, ExprNode* step);
 
-/* ========== IDENTIFIERS ========== */
-
-IdentifierListNode* createIdentifierListNode(ExprNode* firstElement);
-
-IdentifierListNode* addElementToIdentifierList(IdentifierListNode* listId, ExprNode* newElement);
-
-/* ========== TARGET LIST ========== */
-
-TargetListNode* createTargetListNode(ExprNode* firstElement);
-
-TargetListNode* addElementToTargetList(TargetListNode* list, ExprNode* newElement);
-
-/* ========== PARAM LIST ========== */
-
-ParamListNode* createParamListNode(ExprNode* firstElement);
-
-ParamListNode* addElementToParamList(ParamListNode* list, ExprNode* newElement);
-
 /* ========== STATEMENT ========== */
 
 StmtNode* createCompoundIfStmtNode(StmtNode* ifStmt, StmtNode* elseStmt, StmtsListNode* elseStmtsList);
@@ -107,8 +89,22 @@ StmtNode* createElseStmtNode(StmtsListNode* suite);
 
 StmtNode* createElifStmtNode(ExprNode* expr, StmtsListNode* suite);
 
+StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr);
+
 /* ========== STATEMENTS LIST ========== */
 
 StmtsListNode* createStmtsListNode(StmtNode* firstElement);
 
 StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement);
+
+/* ========== FUNC ARG ========== */
+
+FuncArgNode* createUnnamedFuncArgNode(string* identifier);
+
+FuncArgNode* createNamedFuncArgNode(StmtNode* assignStmt);
+
+/* ========== FUNC ARGS LIST ========== */
+
+FuncArgsListNode* createParamsListNode(FuncArgNode* firstElement);
+
+FuncArgsListNode* addElementToParamsList(FuncArgsListNode* list, FuncArgNode* newElement);

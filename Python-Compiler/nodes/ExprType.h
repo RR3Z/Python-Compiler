@@ -1,5 +1,4 @@
-enum NodeType {
-	_UNKNOWN = 0,					// +
+enum ExprType {
 	_PLUS = 1,						// +
 	_MINUS = 2,						// +
 	_MUL = 3,						// +

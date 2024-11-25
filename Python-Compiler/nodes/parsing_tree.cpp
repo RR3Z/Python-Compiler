@@ -375,12 +375,12 @@ ExprNode* createIfHeaderExprNode(ExprNode* expr) {
 	return node;
 }
 
-ExprNode* createForHeaderExprNode(TargetListNode* targetList, ExprNode* expr) {
+ExprNode* createForHeaderExprNode(ExprListNode* targetList, ExprNode* expr) {
 	ExprNode* node = new ExprNode();
 
 	node->exprType = _FOR_HEADER;
 	node->left = expr;
-	node->targetList = targetList;
+	node->list = targetList;
 	node->id = ID++;
 
 	return node;
@@ -429,63 +429,6 @@ SlicingNode* createSlicingNode(ExprNode* start, ExprNode* end, ExprNode* step) {
 	return ArraySlice;
 }
 
-/* ========== IDENTIFIERS ========== */
-
-IdentifierListNode* createIdentifierListNode(ExprNode* firstIdentifier) {
-	IdentifierListNode* listId = new IdentifierListNode();
-
-	listId->first = firstIdentifier;
-	listId->last = firstIdentifier;
-	listId->id = ID++;
-
-	return listId;
-}
-
-IdentifierListNode* addElementToIdentifierList(IdentifierListNode* listId, ExprNode* newElement) {
-	listId->last->next = newElement;
-	listId->last = newElement;
-
-	return listId;
-}
-
-/* ========== TARGET LIST ========== */
-
-TargetListNode* createTargetListNode(ExprNode* firstElement) {
-	TargetListNode* list = new TargetListNode();
-
-	list->first = firstElement;
-	list->last = firstElement;
-	list->id = ID++;
-
-	return list;
-}
-
-TargetListNode* addElementToTargetList(TargetListNode* list, ExprNode* newElement) {
-	list->last->next = newElement;
-	list->last = newElement;
-
-	return list;
-}
-
-/* ========== PARAM LIST ========== */
-
-ParamListNode* createParamListNode(ExprNode* firstIdentifier) {
-	ParamListNode* list = new ParamListNode();
-
-	list->first = firstIdentifier;
-	list->last = firstIdentifier;
-	list->id = ID++;
-
-	return list;
-}
-
-ParamListNode* addElementToParamList(ParamListNode* list, ExprNode* newElement) {
-	list->last->next = newElement;
-	list->last = newElement;
-
-	return list;
-}
-
 /* ========== STATEMENT ========== */
 
 StmtNode* createCompoundIfStmtNode(StmtNode* ifStmt, StmtNode* elseStmt, StmtsListNode* elseStmtsList) {
@@ -532,6 +475,18 @@ StmtNode* createElifStmtNode(ExprNode* expr, StmtsListNode* suite) {
 	return node;
 }
 
+StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _ASSIGN;
+	node->leftExpr = identifier;
+	node->rightExpr = expr;
+	node->id = ID++;
+
+	return node;
+}
+
+
 /* ========== STATEMENTS LIST ========== */
 
 StmtsListNode* createStmtsListNode(StmtNode* firstElement) {
@@ -545,6 +500,47 @@ StmtsListNode* createStmtsListNode(StmtNode* firstElement) {
 }
 
 StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement) {
+	list->last->next = newElement;
+	list->last = newElement;
+
+	return list;
+}
+
+/* ========== FUNC ARG ========== */
+
+FuncArgNode* createUnnamedFuncArgNode(string* identifier) {
+	FuncArgNode* node = new FuncArgNode();
+
+	node->funcArgType = _UNNAMED;
+	node->identifier = *identifier;
+	node->id = ID++;
+
+	return node;
+}
+
+FuncArgNode* createNamedFuncArgNode(StmtNode* assignStmt) {
+	FuncArgNode* node = new FuncArgNode();
+
+	node->funcArgType = _NAMED;
+	node->assignStmt = assignStmt;
+	node->id = ID++;
+
+	return node;
+}
+
+/* ========== FUNC ARGS LIST ========== */
+
+FuncArgsListNode* createParamsListNode(FuncArgNode* firstElement) {
+	FuncArgsListNode* list = new FuncArgsListNode();
+
+	list->first = firstElement;
+	list->last = firstElement;
+	list->id = ID++;
+
+	return list;
+}
+
+FuncArgsListNode* addElementToParamsList(FuncArgsListNode* list, FuncArgNode* newElement) {
 	list->last->next = newElement;
 	list->last = newElement;
 

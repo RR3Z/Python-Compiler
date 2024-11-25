@@ -22,11 +22,10 @@
     struct ExprNode* expressionNode;
     struct ExprListNode* expressionListNode;
     struct SlicingNode* slicingNode;
-    struct IdentifierListNode* identifierListNode;
-    struct TargetListNode* targetListNode;
-    struct ParamListNode* paramListNode;
     struct StmtNode* stmtNode;
     struct StmtsListNode* stmtsListNode;
+    struct FuncArgNode* funcArgNode;
+    struct FuncArgsListNode* funcArgsListNode;
 }
 
 %token <intVal>INT_C
@@ -44,22 +43,21 @@
 %type <expressionNode>expr
 %type <expressionNode>exprE
 %type <expressionNode>target
-%type <expressionNode>param                     // UPDATE LATER (must be param node?)
 %type <expressionNode>ifHeader
 %type <expressionNode>forHeader
 %type <slicingNode>slicing
+%type <funcArgNode>param
 
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
 %type <expressionListNode>ifHeaderList
 %type <expressionListNode>ifHeaderListE
 %type <expressionListNode>forHeaderList
-
-%type <identifierListNode>identifiers
-%type <identifierListNode>identifiersE
-%type <targetListNode>targetList
-%type <paramListNode>paramsList                 // UPDATE LATER (must be param list node?)
-%type <paramListNode>paramsListE                // UPDATE LATER (must be param list node?)
+%type <expressionListNode>targetList
+%type <expressionListNode>identifiers
+%type <expressionListNode>identifiersE
+%type <funcArgsListNode>paramsList
+%type <funcArgsListNode>paramsListE
 
 %type <stmtNode>stmt
 %type <stmtNode>ifStmt
@@ -215,12 +213,12 @@ funcHeader: DEF identifier '(' paramsListE ')' {
                                                }
           ;
 
-param: identifier { cout << "P: identifier -> param" << endl; }
-     | identifier '=' expr { cout << "P: identifier '=' expr -> param" << endl; }
+param: identifier { $$ = createUnnamedFuncArgNode($1); cout << "P: identifier -> param" << endl; }
+     | identifier '=' expr { $$ = createNamedFuncArgNode(createAssignStmtNode(createIdExprNode($1), $3)); cout << "P: identifier '=' expr -> param" << endl; }
      ;
 
-paramsList: param { $$ = createParamListNode($1); cout << "P: param -> paramsList" << endl; }
-          | paramsList ',' param {  $$ = addElementToParamList($1, $3); cout << "P: paramsList ',' param -> paramsList" << endl; }
+paramsList: param { $$ = createParamsListNode($1); cout << "P: param -> paramsList" << endl; }
+          | paramsList ',' param { $$ = addElementToParamsList($1, $3); cout << "P: paramsList ',' param -> paramsList" << endl; }
           ;
 
 paramsListE: paramsList { $$ = $1; cout << "P: paramsList -> paramsListE" << endl; }
@@ -319,8 +317,8 @@ identifier: ID { $$ = $1; cout << "P: ID -> identifier" << endl; }
           | STR_TYPE { $$ = $1; cout << "P: STR_TYPE -> identifier" << endl; }
           ;
 
-identifiers: identifier { $$ = createIdentifierListNode(createIdExprNode($1)); cout << "P: identifier -> identifierList" << endl; }
-           | identifiers ',' identifier  { $$ = addElementToIdentifierList($1, createIdExprNode($3)); }
+identifiers: identifier { $$ = createExprListNode(createIdExprNode($1)); cout << "P: identifier -> identifierList" << endl; }
+           | identifiers ',' identifier  { $$ = addElementToExprList($1, createIdExprNode($3)); }
            ;
 
 identifiersE: identifiers { $$ = $1; }
@@ -334,15 +332,15 @@ target: identifier { $$ = createIdExprNode($1); cout << "P: identifier -> target
       | expr '.' identifier { $$ = createAttributeRefExprNode($1, createIdExprNode($3)); cout << "P: expr '.' identifier -> target" << endl; }
       ;
 
-targetList: target {  $$ = createTargetListNode($1); cout << "P: target -> targetList" << endl; }
-          | targetList ',' target { $$ = addElementToTargetList($1, $3); cout << "P: targetList , target -> targetList" << endl; }
+targetList: target {  $$ = createExprListNode($1); cout << "P: target -> targetList" << endl; }
+          | targetList ',' target { $$ = addElementToExprList($1, $3); cout << "P: targetList , target -> targetList" << endl; }
           ;
 
 slicing: exprE ':' exprE { $$ = createSlicingNode($1, $3, nullptr); cout << "P: exprE ':' exprE -> slicing" << endl; }
        | exprE ':' exprE ':' exprE { $$ = createSlicingNode($1, $3, $5); cout << "P: exprE ':' exprE ':' exprE -> slicing" << endl; }
        ;
 
-namedArgsList: identifier '=' expr 
+namedArgsList: identifier '=' expr
              | namedArgsList ',' identifier '=' expr
              ;
 

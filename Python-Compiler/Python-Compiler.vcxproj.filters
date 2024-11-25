@@ -71,10 +71,13 @@
     <ClInclude Include="nodes\dot_generation.h">
       <Filter>Файлы заголовков\nodes</Filter>
     </ClInclude>
-    <ClInclude Include="nodes\NodeType.h">
+    <ClInclude Include="nodes\ExprType.h">
       <Filter>Файлы заголовков\nodes</Filter>
     </ClInclude>
     <ClInclude Include="nodes\StmtType.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\FuncArgType.h">
       <Filter>Файлы заголовков\nodes</Filter>
     </ClInclude>
   </ItemGroup>

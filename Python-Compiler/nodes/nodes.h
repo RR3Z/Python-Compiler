@@ -1,13 +1,13 @@
 #pragma once
 #include <string>
-#include "NodeType.h"
+#include "ExprType.h"
 #include "StmtType.h"
+#include "FuncArgType.h"
 using namespace std;
 
 struct ExprListNode;
 struct SlicingNode;
 struct StmtsListNode;
-struct TargetListNode;
 
 /* ========== EXPRESSION ========== */
 
@@ -15,7 +15,7 @@ struct ExprNode {
 	// Индекс узла
 	int id = -1;
 	// Тип узла
-	NodeType exprType = _UNKNOWN;
+	ExprType exprType;
 
 	// Название переменной
 	string identifier = "";
@@ -42,9 +42,6 @@ struct ExprNode {
 
 	// ТОЛЬКО ДЛЯ ЗАДАНИЯ LIST СО SLICING
 	SlicingNode* slicing = nullptr;
-
-	// ТОЛЬКО ДЛЯ ЗАДАНИЯ FORHEADER
-	TargetListNode* targetList = nullptr;
 };
 
 /* ========== EXPRESSION LIST ========== */
@@ -73,54 +70,21 @@ struct SlicingNode {
 	ExprNode* step = nullptr;
 };
 
-/* ========== IDENTIFIERS ========== */
-
-struct IdentifierListNode {
-	// Индекс узла
-	int id = -1;
-
-	// Первый элемент списка
-	ExprNode* first = nullptr;
-	// Последний элемент списка
-	ExprNode* last = nullptr;
-};
-
-/* ========== TARGET LIST ========== */
-
-struct TargetListNode {
-	// Индекс узла
-	int id = -1;
-
-	// Первый элемент списка
-	ExprNode* first = nullptr;
-	// Последний элемент списка
-	ExprNode* last = nullptr;
-};
-
-
-/* ========== PARAM LIST ========== */
-
-struct ParamListNode {
-	// Индекс узла
-	int id = -1;
-
-	// Первый элемент списка
-	ExprNode* first = nullptr;
-	// Последний элемент списка
-	ExprNode* last = nullptr;
-};
-
 /* ========== STATEMENT ========== */
 
 struct StmtNode {
 	// Индекс узла
 	int id = -1;
 	// Тип узла
-	StmtType stmtType = _UNDEFINED;
+	StmtType stmtType;
 
 	// Используется для компоновки нескольких StmtNode в один (например, ifStmt + elseStmt => compoundIf)
 	StmtNode* leftNode = nullptr;
 	StmtNode* rightNode = nullptr;
+
+	// Используется для: assignStmt
+	ExprNode* leftExpr = nullptr;
+	ExprNode* rightExpr = nullptr;
 
 	// Используется для: задания самого условия (if, else)
 	ExprNode* expr = nullptr;
@@ -145,4 +109,34 @@ struct StmtsListNode {
 	StmtNode* first = nullptr;
 	// Последний элемент списка
 	StmtNode* last = nullptr;
+};
+
+/* ========== FUNC ARG ========== */
+
+struct FuncArgNode {
+	// Индекс узла
+	int id = -1;
+	// Тип узла
+	FuncArgType funcArgType;
+
+	// Для именованного аргумента
+	StmtNode* assignStmt = nullptr;
+
+	// Имя (id) аргумента
+	string identifier = "";
+
+	// Следующий узел в FuncArgsListNode
+	FuncArgNode* next = nullptr;
+};
+
+/* ========== FUNC ARGS LIST ========== */
+
+struct FuncArgsListNode {
+	// Индекс узла
+	int id = -1;
+
+	// Первый элемент списка
+	FuncArgNode* first = nullptr;
+	// Последний элемент списка
+	FuncArgNode* last = nullptr;
 };

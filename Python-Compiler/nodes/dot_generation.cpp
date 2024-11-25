@@ -193,9 +193,9 @@ string generateDotFromExprNode(ExprNode* node) {
 		break;
 	case _FOR_HEADER:
 		dot += generateDotFromExprNode(node->left);
-		dot += generateDotFromTargetListNode(node->targetList);
+		dot += generateDotFromExprListNode(node->list);
 		dot += dotLabel(node->id, "for targetList in expr");
-		dot += dotConnectionWithLabel(node->id, node->targetList->id, "targetList");
+		dot += dotConnectionWithLabel(node->id, node->list->id, "targetList");
 		dot += dotConnectionWithLabel(node->id, node->left->id, "expr");
 		break;
 	case _LIST_COMPREHENSION:
@@ -208,8 +208,6 @@ string generateDotFromExprNode(ExprNode* node) {
 			dot += generateDotFromExprListNode(node->ifHeaderList);
 			dot += dotConnectionWithLabel(node->id, node->ifHeaderList->id, "ifHeaderListE");
 		}
-		break;
-	case _UNKNOWN:
 		break;
 	default:
 		break;
@@ -227,50 +225,6 @@ string generateDotFromExprListNode(ExprListNode* node) {
 		ExprNode* expr = node->first;
 
 		dot += dotLabel(node->id, "exprList");
-		dot += generateDotFromExprNode(expr);
-		dot += dotConnection(node->id, expr->id);
-
-		while (expr->next != nullptr) {
-			dot += generateDotFromExprNode(expr->next);
-			dot += dotConnection(node->id, expr->next->id);
-			expr = expr->next;
-		}
-	}
-
-	return dot;
-}
-
-string generateDotFromIdentifierListNode(IdentifierListNode* node) {
-	string dot = "";
-
-	if (node == nullptr) { return dot; }
-
-	if (node->first != nullptr) {
-		ExprNode* expr = node->first;
-
-		dot += dotLabel(node->id, "identifiersList");
-		dot += generateDotFromExprNode(expr);
-		dot += dotConnection(node->id, expr->id);
-
-		while (expr->next != nullptr) {
-			dot += generateDotFromExprNode(expr->next);
-			dot += dotConnection(node->id, expr->next->id);
-			expr = expr->next;
-		}
-	}
-
-	return dot;
-}
-
-string generateDotFromTargetListNode(TargetListNode* node) {
-	string dot = "";
-
-	if (node == nullptr) { return dot; }
-
-	if (node->first != nullptr) {
-		ExprNode* expr = node->first;
-
-		dot += dotLabel(node->id, "targetList");
 		dot += generateDotFromExprNode(expr);
 		dot += dotConnection(node->id, expr->id);
 
