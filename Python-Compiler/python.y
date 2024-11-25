@@ -39,25 +39,27 @@
 %token <name>RANGE_TYPE
 %token <name>BOOL_TYPE
 %token <name>STR_TYPE
-
 %type <name>identifier
+
 %type <expressionNode>expr
 %type <expressionNode>exprE
 %type <expressionNode>target
 %type <expressionNode>param                     // UPDATE LATER (must be param node?)
 %type <expressionNode>ifHeader
 %type <expressionNode>forHeader
+%type <slicingNode>slicing
+
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
 %type <expressionListNode>ifHeaderList
 %type <expressionListNode>ifHeaderListE
 %type <expressionListNode>forHeaderList
-%type <slicingNode>slicing
+
 %type <identifierListNode>identifiers
 %type <identifierListNode>identifiersE
 %type <targetListNode>targetList
-%type <paramListNode>paramsList
-%type <paramListNode>paramsListE
+%type <paramListNode>paramsList                 // UPDATE LATER (must be param list node?)
+%type <paramListNode>paramsListE                // UPDATE LATER (must be param list node?)
 
 %type <stmtNode>stmt
 %type <stmtNode>ifStmt
@@ -254,6 +256,8 @@ returnStmt: RETURN exprListE NEWLINE {
                                         cout << "P: RETURN exprListE NEWLINE -> returnStmt" << endl; 
                                      }
           ;
+
+// EXPRESSIONS
 
 expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P: expr '+' expr -> expr" << endl; }
     | expr '-' expr { $$ = createMinusExprNode($1, $3); exprTest = $$; cout << "P: expr '-' expr -> expr" << endl;}
