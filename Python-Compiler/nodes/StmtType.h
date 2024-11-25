@@ -13,4 +13,5 @@ enum StmtType {
 	_COMPOUND_FOR = 12,
 	_FINALLY = 13,
 	_COMPOUND_TRY = 14,
+	_EXPR_STMT = 15,
 };

@@ -632,6 +632,16 @@ StmtNode* createCompoundTryStmtNode(StmtsListNode* suite, StmtsListNode* exceptS
 	return node;
 }
 
+StmtNode* createStmtNodeFromExprNode(ExprNode* expr) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _EXPR_STMT;
+	node->expr = expr;
+	node->id = ID++;
+
+	return node;
+}
+
 /* ========== STATEMENTS LIST ========== */
 
 StmtsListNode* createStmtsListNode(StmtNode* firstElement) {

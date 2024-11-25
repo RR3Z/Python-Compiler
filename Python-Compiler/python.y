@@ -127,14 +127,14 @@ topLevelStmt: funcDef { $$ = createFuncDefFileElementNode($1); cout << "P: funcD
             | classDef { $$ = createClassDefFileElementNode($1); cout << "P: classDef -> topLevelStmt" << endl; }
             ;
 
-stmt: assignStmt { cout << "P: assignStmt -> stmt" << endl; }
-    | returnStmt { cout << "P: returnStmt -> stmt" << endl; }
-    | ifStmt { cout << "P: ifStmt -> stmt" << endl; }
-    | forStmt { cout << "P: forStmt -> stmt" << endl; }
-    | whileStmt { cout << "P: whileStmt -> stmt" << endl; }
-    | tryStmt { cout << "P: tryStmt -> stmt" << endl; }
-    | expr NEWLINE { cout << "P: expr NEWLINE -> stmt" << endl; }
-    | stmt NEWLINE { cout << "P: stmt NEWLINE -> stmt" << endl; }
+stmt: assignStmt { $$ = $1; cout << "P: assignStmt -> stmt" << endl; }
+    | returnStmt { $$ = $1; cout << "P: returnStmt -> stmt" << endl; }
+    | ifStmt { $$ = $1; cout << "P: ifStmt -> stmt" << endl; }
+    | forStmt { $$ = $1; cout << "P: forStmt -> stmt" << endl; }
+    | whileStmt { $$ = $1; cout << "P: whileStmt -> stmt" << endl; }
+    | tryStmt { $$ = $1; cout << "P: tryStmt -> stmt" << endl; }
+    | expr NEWLINE { $$ = createStmtNodeFromExprNode($1); cout << "P: expr NEWLINE -> stmt" << endl; }
+    | stmt NEWLINE { $$ = $1; cout << "P: stmt NEWLINE -> stmt" << endl; }
     ;
 
 stmtsList: stmt { $$ = createStmtsListNode($1); cout << "P: stmt -> stmtsList" << endl; }
@@ -267,8 +267,8 @@ assignStmtTargetAssignList: targetList { cout << "P: targetList -> assignStmtTar
 // RETURN STATEMENT
 
 returnStmt: RETURN exprListE NEWLINE { 
-                                        $$ = createReturnStmtNode($2);
                                         if(!isFunc) { yyerror("syntax error (\'return\' outside function)"); }
+                                        $$ = createReturnStmtNode($2);
                                         cout << "P: RETURN exprListE NEWLINE -> returnStmt" << endl; 
                                      }
           ;
