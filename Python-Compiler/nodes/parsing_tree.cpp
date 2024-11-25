@@ -784,3 +784,65 @@ FuncArgsListNode* addElementToParamsList(FuncArgsListNode* list, FuncArgNode* ne
 
 	return list;
 }
+
+/* ========== FILE ========== */
+
+FileNode* createFileNode(FileElementsListNode* elementsList) {
+	FileNode* node = new FileNode();
+
+	node->elementsList = elementsList;
+	node->id = ID++;
+
+	return node;
+}
+
+/* ========== FILE ELEMENT ========== */
+
+FileElementNode* createFuncDefFileElementNode(FuncNode* funcDef) {
+	FileElementNode* node = new FileElementNode();
+
+	node->elementType = _FUNC_DEF;
+	node->funcDef = funcDef;
+	node->id = ID++;
+
+	return node;
+}
+
+FileElementNode* createClassDefFileElementNode(ClassNode* classDef) {
+	FileElementNode* node = new FileElementNode();
+
+	node->elementType = _CLASS_DEF;
+	node->classDef = classDef;
+	node->id = ID++;
+
+	return node;
+}
+
+FileElementNode* createStmtFileElementNode(StmtNode* stmt) {
+	FileElementNode* node = new FileElementNode();
+
+	node->elementType = _STMT;
+	node->stmt = stmt;
+	node->id = ID++;
+
+	return node;
+}
+
+/* ========== FILE ELEMENTS LIST ========== */
+
+FileElementsListNode* createFileElementsListNode(FileElementNode* fileElement) {
+	FileElementsListNode* list = new FileElementsListNode();
+
+	list->first = fileElement;
+	list->last = fileElement;
+	list->id = ID++;
+
+	return list;
+}
+
+FileElementsListNode* addElementToFileElementsList(FileElementsListNode* list, FileElementNode* newElement) {
+	list->last->next = newElement;
+	list->last = newElement;
+
+	return list;
+}

@@ -1,9 +1,8 @@
 %{
-  #include <iostream>
-  #include <string>
-  using namespace std;
-
   #include "nodes/parsing_tree.h"
+  #include <string>
+  #include <iostream>
+  using namespace std;
 
   int yylex(void);
   int yyerror(const char *s);
@@ -26,6 +25,11 @@
     struct StmtsListNode* stmtsListNode;
     struct FuncArgNode* funcArgNode;
     struct FuncArgsListNode* funcArgsListNode;
+    struct FuncNode* funcNode;
+    struct ClassNode* classNode;
+    struct FileNode* fileNode;
+    struct FileElementNode* fileElementNode;
+    struct FileElementsListNode* fileElementsListNode;
 }
 
 %token <intVal>INT_C
@@ -56,6 +60,10 @@
 %type <stmtNode>forStmt
 %type <stmtNode>tryStmt 
 %type <stmtNode>assignStmt
+%type <funcNode>funcDef
+%type <classNode>classDef
+%type <fileElementNode>topLevelStmt
+%type <fileNode>program
 
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
@@ -71,8 +79,9 @@
 %type <funcArgsListNode>funcArgs
 %type <stmtsListNode>stmtsList
 %type <stmtsListNode>elifStmtList
+%type <stmtsListNode>exceptStmtList
 %type <stmtsListNode>suite
-%type <stmtsListNode>exceptStmtList 
+%type <fileElementsListNode>programStmtsList
 %type <stmtsListNode>assignStmtTargetAssignList 
 
 %token TRUE FALSE
@@ -86,7 +95,6 @@ FOR WHILE IN
 TRY FINALLY EXCEPT AS
 DEF CLASS SELF SUPER
 RETURN LAMBDA
-     
 
 %right ASSIGN_OP '=' PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
 %nonassoc LAMBDA
@@ -107,18 +115,18 @@ RETURN LAMBDA
 
 %%
 
-program: programStmtsList { cout << "P: programStmtsList -> program" << endl; }
-       | NEWLINE { cout << "P: newLineList -> program" << endl; }
+program: programStmtsList { $$ = createFileNode($1); cout << "P: programStmtsList -> program" << endl; }
+       | NEWLINE { $$ = nullptr; cout << "P: newLineList -> program" << endl; }
        ;
 
-programStmtsList: topLevelStmt { cout << "P: topLevelStmt -> programStmtsList" << endl; }
-                | stmt { cout << "P: stmt -> programStmtsList" << endl; }
-                | programStmtsList topLevelStmt { cout << "P: programStmtsList topLevelStmt -> programStmtsList" << endl; }
-                | programStmtsList stmt { cout << "P: programStmtsList stmt -> programStmtsList" << endl; }
+programStmtsList: topLevelStmt { $$ = createFileElementsListNode($1); cout << "P: topLevelStmt -> programStmtsList" << endl; }
+                | stmt { $$ = createFileElementsListNode(createStmtFileElementNode($1)); cout << "P: stmt -> programStmtsList" << endl; }
+                | programStmtsList topLevelStmt { $$ = addElementToFileElementsList($1, $2); cout << "P: programStmtsList topLevelStmt -> programStmtsList" << endl; }
+                | programStmtsList stmt { $$ = addElementToFileElementsList($1, createStmtFileElementNode($2)); cout << "P: programStmtsList stmt -> programStmtsList" << endl; }
                 ;
 
-topLevelStmt: funcDef { cout << "P: funcDef -> topLevelStmt" << endl; }
-            | classDef { cout << "P: classDef -> topLevelStmt" << endl; }
+topLevelStmt: funcDef { $$ = createFuncDefFileElementNode($1); cout << "P: funcDef -> topLevelStmt" << endl; }
+            | classDef { $$ = createClassDefFileElementNode($1); cout << "P: classDef -> topLevelStmt" << endl; }
             ;
 
 stmt: assignStmt { cout << "P: assignStmt -> stmt" << endl; }

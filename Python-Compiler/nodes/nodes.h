@@ -3,6 +3,7 @@
 #include "ExprType.h"
 #include "StmtType.h"
 #include "FuncArgType.h"
+#include "FileElementType.h"
 using namespace std;
 
 struct ExprListNode;
@@ -154,3 +155,59 @@ struct FuncArgsListNode {
 	FuncArgsListNode* namedArgsList = nullptr;
 	ExprListNode* exprList = nullptr;
 };
+
+/* ========== CLASS ========== */
+
+struct ClassNode {
+
+};
+
+/* ========== FUNC ========== */
+
+struct FuncNode {
+
+};
+
+/* ========== FILE ========== */
+
+struct FileElementNode {
+	// Индекс узла
+	int id = -1;
+	// Тип узла
+	FileElementType elementType;
+
+	// Следующий элемент в FileElementsListNode
+	FileElementNode* next = nullptr; 
+	
+	// ТОЛЬКО ДЛЯ TOPLEVELSTMT
+	FileElementNode* element = nullptr;
+
+	// ТОЛЬКО ДЛЯ STMT
+	StmtNode* stmt = nullptr;
+
+	// ТОЛЬКО ДЛЯ FUNCDEF
+	FuncNode* funcDef = nullptr;
+
+	// ТОЛЬКО ДЛЯ CLASSDEF
+	ClassNode* classDef = nullptr;
+};
+
+struct FileElementsListNode {
+	// Индекс узла
+	int id = -1;
+
+	// Первый элемент списка
+	FileElementNode* first = nullptr;
+	// Последний элемент списка
+	FileElementNode* last = nullptr;
+};
+
+struct FileNode {
+	// Индекс узла
+	int id = -1;
+
+	// Для хранения элементов, из которых состои файл
+	FileElementsListNode* elementsList = nullptr;
+};
+
+
