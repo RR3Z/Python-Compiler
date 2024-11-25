@@ -398,6 +398,17 @@ ExprNode* createListComprehensionExprNode(ExprNode* expr, ExprListNode* forHeade
 	return node;
 }
 
+ExprNode* createLambdaExprNode(FuncArgsListNode* funcArgsListNode, ExprNode* expr) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _LAMBDA;
+	node->left = expr;
+	node->funcArgs = funcArgsListNode;
+	node->id = ID++;
+
+	return node;
+}
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement) {

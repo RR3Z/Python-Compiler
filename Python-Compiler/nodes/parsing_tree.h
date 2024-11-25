@@ -69,6 +69,8 @@ ExprNode* createForHeaderExprNode(ExprListNode* targetList, ExprNode* expr);
 
 ExprNode* createListComprehensionExprNode(ExprNode* expr, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE);
 
+ExprNode* createLambdaExprNode(FuncArgsListNode* funcArgsListNode, ExprNode* expr);
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement);

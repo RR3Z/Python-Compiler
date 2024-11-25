@@ -8,6 +8,7 @@ using namespace std;
 struct ExprListNode;
 struct SlicingNode;
 struct StmtsListNode;
+struct FuncArgsListNode;
 
 /* ========== EXPRESSION ========== */
 
@@ -42,6 +43,9 @@ struct ExprNode {
 
 	// ТОЛЬКО ДЛЯ ЗАДАНИЯ LIST СО SLICING
 	SlicingNode* slicing = nullptr;
+
+	// ТОЛЬКО ДЛЯ LAMBDA
+	FuncArgsListNode* funcArgs = nullptr;
 };
 
 /* ========== EXPRESSION LIST ========== */
