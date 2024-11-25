@@ -54,8 +54,8 @@
 %type <stmtNode>returnStmt
 %type <stmtNode>exceptStmt
 %type <stmtNode>forStmt
-%type <stmtNode>tryStmt
-
+%type <stmtNode>tryStmt 
+%type <stmtNode>assignStmt
 
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
@@ -72,7 +72,8 @@
 %type <stmtsListNode>stmtsList
 %type <stmtsListNode>elifStmtList
 %type <stmtsListNode>suite
-%type <stmtsListNode>exceptStmtList
+%type <stmtsListNode>exceptStmtList 
+%type <stmtsListNode>assignStmtTargetAssignList 
 
 %token TRUE FALSE
 NEWLINE INDENT DEDENT
@@ -244,17 +245,17 @@ classDef: CLASS identifier ':' classSuite  { cout << "P: CLASS identifier ':' cl
 
 // ASSIGNMENT STATEMENT
 
-assignStmt: assignStmtTargetAssignList '=' expr { cout << "P: assignStmtTargetAssignList '=' expr -> assignStmt" << endl; }
-          | identifier PLUS_ASSIGN expr { cout << "P: identifier PLUS_ASSIGN expr -> assignStmt" << endl; }
-          | identifier MINUS_ASSIGN expr { cout << "P: identifier MINUS_ASSIGN expr -> assignStmt" << endl; }
-          | identifier MUL_ASSIGN expr { cout << "P: identifier MUL_ASSIGN expr -> assignStmt" << endl; }
-          | identifier DIV_ASSIGN expr { cout << "P: identifier DIV_ASSIGN expr -> assignStmt" << endl; }
+assignStmt: assignStmtTargetAssignList '=' expr { $$ = createCompoundAssignStmtNode($1, $3); cout << "P: assignStmtTargetAssignList '=' expr -> assignStmt" << endl; }
+          | identifier PLUS_ASSIGN expr { $$ = createPlusAssignStmtNode(createIdExprNode($1), $3); cout << "P: identifier PLUS_ASSIGN expr -> assignStmt" << endl; }
+          | identifier MINUS_ASSIGN expr { $$ = createMinusAssignStmtNode(createIdExprNode($1), $3); cout << "P: identifier MINUS_ASSIGN expr -> assignStmt" << endl; }
+          | identifier MUL_ASSIGN expr { $$ = createMulAssignStmtNode(createIdExprNode($1), $3); cout << "P: identifier MUL_ASSIGN expr -> assignStmt" << endl; }
+          | identifier DIV_ASSIGN expr { $$ = createDivAssignStmtNode(createIdExprNode($1), $3); cout << "P: identifier DIV_ASSIGN expr -> assignStmt" << endl; }
           ;
 
-assignStmtTargetAssignList: targetList { cout << "P: targetList -> assignStmtTargetAssignList" << endl; }
-                          | targetList ',' { cout << "P: targetList ',' -> assignStmtTargetAssignList" << endl; }
-                          | assignStmtTargetAssignList '=' targetList { cout << "P: assignStmtTargetAssignList '=' targetList -> assignStmtTargetAssignList" << endl; }
-                          | assignStmtTargetAssignList '=' targetList ',' { cout << "P: assignStmtTargetAssignList '=' targetList ',' -> assignStmtTargetAssignList" << endl; }
+assignStmtTargetAssignList: targetList { $$ = createStmtsListNode(createStmtNodeFromExprListNode($1)); cout << "P: targetList -> assignStmtTargetAssignList" << endl; }
+                          | targetList ',' { $$ = createStmtsListNode(createStmtNodeFromExprListNode($1));  cout << "P: targetList ',' -> assignStmtTargetAssignList" << endl; }
+                          | assignStmtTargetAssignList '=' targetList { $$ = addElementToStmtsList($1, createStmtNodeFromExprListNode($3)); cout << "P: assignStmtTargetAssignList '=' targetList -> assignStmtTargetAssignList" << endl; }
+                          | assignStmtTargetAssignList '=' targetList ',' {  $$ = addElementToStmtsList($1, createStmtNodeFromExprListNode($3)); cout << "P: assignStmtTargetAssignList '=' targetList ',' -> assignStmtTargetAssignList" << endl; }
                           ;
 
 // RETURN STATEMENT

@@ -101,6 +101,16 @@ StmtNode* createFinallyStmtNode(StmtsListNode* suite);
 
 StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr);
 
+StmtNode* createCompoundAssignStmtNode(StmtsListNode* targetList, ExprNode* expr);
+
+StmtNode* createPlusAssignStmtNode(ExprNode* identifier, ExprNode* expr); /////////////
+
+StmtNode* createMinusAssignStmtNode(ExprNode* identifier, ExprNode* expr); //////////////
+
+StmtNode* createMulAssignStmtNode(ExprNode* identifier, ExprNode* expr); /////////////////
+
+StmtNode* createDivAssignStmtNode(ExprNode* identifier, ExprNode* expr); ///////////////////
+
 StmtNode* createWhileStmtNode(ExprNode* expr, StmtsListNode* suite);
 
 StmtNode* createCompoundWhileStmtNode(StmtNode* whileStmt, StmtNode* elseStmt);
@@ -118,6 +128,8 @@ StmtNode* createForStmtNode(ExprListNode* targetList, ExprNode* expr, StmtsListN
 StmtNode* createCompoundForStmtNode(StmtNode* forStmt, StmtNode* elseStmt);
 
 StmtNode* createCompoundTryStmtNode(StmtsListNode* suite, StmtsListNode* exceptStmtsList, StmtNode* elseStmt, StmtNode* finallyStmt);
+
+StmtNode* createStmtNodeFromExprListNode(ExprListNode* list);
 
 /* ========== STATEMENTS LIST ========== */
 
