@@ -409,6 +409,29 @@ ExprNode* createLambdaExprNode(FuncArgsListNode* funcArgsListNode, ExprNode* exp
 	return node;
 }
 
+ExprNode* createMethodCallExprNode(ExprNode* expr, string* identifier, FuncArgsListNode* funcArgs) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _METHOD_CALL;
+	node->identifier = *identifier;
+	node->left = expr;
+	node->funcArgs = funcArgs;
+	node->id = ID++;
+
+	return node;
+}
+
+ExprNode* createFunctionCallExprNode(ExprNode* expr, FuncArgsListNode* funcArgs) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _FUNCTION_CALL;
+	node->left = expr;
+	node->funcArgs = funcArgs;
+	node->id = ID++;
+
+	return node;
+}
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement) {

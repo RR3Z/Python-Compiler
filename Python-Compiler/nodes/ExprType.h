@@ -15,7 +15,7 @@ enum ExprType {
 	_NOT_EQUAL = 14,				// +
 	_U_PLUS = 15,					// +
 	_U_MINUS = 16,					// +
-	_LAMBDA = 17,
+	_LAMBDA = 17,					// +
 	_ASSIGN_OP = 18,				// +
 	_SUPER = 19,					// +
 	_SELF = 20,						// +
@@ -25,11 +25,11 @@ enum ExprType {
 	_FLOAT_CONST = 24,				// +
 	_INT_CONST = 25,				// +
 	_ATTRIBUTE_REF = 26,			// +
-	_METHOD_CALL = 27,
-	_FUNCTION_CALL = 28,
+	_METHOD_CALL = 27,				// +
+	_FUNCTION_CALL = 28,			// +
 	_SLICING_LIST_ACCESS = 29,		// +
 	_LIST_ACCESS = 30,				// +
-	_LIST_COMPREHENSION = 31,
+	_LIST_COMPREHENSION = 31,		// +
 	_LIST_CREATION = 32,			// +
 	_BRACKETS = 33, // '(' expr ')'	// +
 	_IDENTIFIER = 34,				// +

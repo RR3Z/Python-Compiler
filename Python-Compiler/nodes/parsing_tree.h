@@ -71,6 +71,10 @@ ExprNode* createListComprehensionExprNode(ExprNode* expr, ExprListNode* forHeade
 
 ExprNode* createLambdaExprNode(FuncArgsListNode* funcArgsListNode, ExprNode* expr);
 
+ExprNode* createMethodCallExprNode(ExprNode* expr, string* identifier, FuncArgsListNode* funcArgs);
+
+ExprNode* createFunctionCallExprNode(ExprNode* expr, FuncArgsListNode* funcArgs);
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement);
