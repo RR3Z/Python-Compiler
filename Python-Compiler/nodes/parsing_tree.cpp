@@ -486,7 +486,6 @@ StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr) {
 	return node;
 }
 
-
 /* ========== STATEMENTS LIST ========== */
 
 StmtsListNode* createStmtsListNode(StmtNode* firstElement) {
@@ -540,10 +539,37 @@ FuncArgsListNode* createParamsListNode(FuncArgNode* firstElement) {
 	return list;
 }
 
+FuncArgsListNode* createFuncArgsListNodeFromExprList(ExprListNode* exprList) {
+	FuncArgsListNode* list = new FuncArgsListNode();
+
+	list->exprList = exprList;
+	list->id = ID++;
+
+	return list;
+}
+
+FuncArgsListNode* createFuncArgsListNodeFromFuncArgsList(FuncArgsListNode* namedArgsList) {
+	FuncArgsListNode* list = new FuncArgsListNode();
+
+	list->namedArgsList = namedArgsList;
+	list->id = ID++;
+
+	return list;
+}
+
+FuncArgsListNode* createFuncArgsListNodeFromDifferentLists(ExprListNode* exprList, FuncArgsListNode* namedArgsList) {
+	FuncArgsListNode* list = new FuncArgsListNode();
+
+	list->exprList = exprList;
+	list->namedArgsList = namedArgsList;
+	list->id = ID++;
+
+	return list;
+}
+
 FuncArgsListNode* addElementToParamsList(FuncArgsListNode* list, FuncArgNode* newElement) {
 	list->last->next = newElement;
 	list->last = newElement;
 
 	return list;
 }
-

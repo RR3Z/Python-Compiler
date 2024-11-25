@@ -47,6 +47,8 @@
 %type <expressionNode>forHeader
 %type <slicingNode>slicing
 %type <funcArgNode>param
+%type <stmtNode>stmt
+%type <stmtNode>ifStmt
 
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
@@ -59,9 +61,7 @@
 %type <funcArgsListNode>paramsList
 %type <funcArgsListNode>paramsListE
 %type <funcArgsListNode>namedArgsList
-
-%type <stmtNode>stmt
-%type <stmtNode>ifStmt
+%type <funcArgsListNode>funcArgs
 %type <stmtsListNode>stmtsList
 %type <stmtsListNode>elifStmtList
 %type <stmtsListNode>suite
@@ -345,13 +345,13 @@ namedArgsList: identifier '=' expr { $$ = createParamsListNode(createNamedFuncAr
              | namedArgsList ',' identifier '=' expr { $$ = addElementToParamsList($1, createNamedFuncArgNode(createAssignStmtNode(createIdExprNode($3), $5))); }
              ;
 
-funcArgs: exprList
-        | namedArgsList
-        | exprList ','
-        | namedArgsList ','
-        | exprList ',' namedArgsList
-        | exprList ',' namedArgsList ','
-        | /* empty */
+funcArgs: exprList { $$ = createFuncArgsListNodeFromExprList($1); }
+        | namedArgsList { $$ = createFuncArgsListNodeFromFuncArgsList($1); }
+        | exprList ',' { $$ = createFuncArgsListNodeFromExprList($1); }
+        | namedArgsList ',' { $$ = createFuncArgsListNodeFromFuncArgsList($1); }
+        | exprList ',' namedArgsList { $$ = createFuncArgsListNodeFromDifferentLists($1, $3); }
+        | exprList ',' namedArgsList ',' { $$ = createFuncArgsListNodeFromDifferentLists($1, $3); }
+        | /* empty */ { $$ = nullptr; }
         ;
 
 %%

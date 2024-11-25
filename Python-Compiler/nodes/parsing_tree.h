@@ -107,4 +107,10 @@ FuncArgNode* createNamedFuncArgNode(StmtNode* assignStmt);
 
 FuncArgsListNode* createParamsListNode(FuncArgNode* firstElement);
 
+FuncArgsListNode* createFuncArgsListNodeFromExprList(ExprListNode* exprList);
+
+FuncArgsListNode* createFuncArgsListNodeFromFuncArgsList(FuncArgsListNode* namedArgsList);
+
+FuncArgsListNode* createFuncArgsListNodeFromDifferentLists(ExprListNode* exprList, FuncArgsListNode* namedArgsList);
+
 FuncArgsListNode* addElementToParamsList(FuncArgsListNode* list, FuncArgNode* newElement);

@@ -139,4 +139,8 @@ struct FuncArgsListNode {
 	FuncArgNode* first = nullptr;
 	// Последний элемент списка
 	FuncArgNode* last = nullptr;
+
+	// ИСПОЛЬЗУЕТСЯ ТОЛЬКО ДЛЯ ЗАДАНИЯ FUNCARGS
+	FuncArgsListNode* namedArgsList = nullptr;
+	ExprListNode* exprList = nullptr;
 };
