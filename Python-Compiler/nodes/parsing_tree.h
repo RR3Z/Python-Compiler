@@ -136,3 +136,21 @@ FuncArgsListNode* createFuncArgsListNodeFromFuncArgsList(FuncArgsListNode* named
 FuncArgsListNode* createFuncArgsListNodeFromDifferentLists(ExprListNode* exprList, FuncArgsListNode* namedArgsList);
 
 FuncArgsListNode* addElementToParamsList(FuncArgsListNode* list, FuncArgNode* newElement);
+
+/* ========== FILE ========== */
+
+FileNode* createFileNode(FileElementsListNode* elementsList);
+
+/* ========== FILE ELEMENT ========== */
+
+FileElementNode* createFuncDefFileElementNode(FuncNode* funcDef);
+
+FileElementNode* createClassDefFileElementNode(ClassNode* classDef);
+
+FileElementNode* createStmtFileElementNode(StmtNode* stmt);
+
+/* ========== FILE ELEMENTS LIST ========== */
+
+FileElementsListNode* createFileElementsListNode(FileElementNode* fileElement);
+
+FileElementsListNode* addElementToFileElementsList(FileElementsListNode* list, FileElementNode* newElement);

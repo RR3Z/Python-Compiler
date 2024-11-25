@@ -41,6 +41,7 @@
   <ItemGroup>
     <ClInclude Include="nodes\DotHelpers.h" />
     <ClInclude Include="nodes\dot_generation.h" />
+    <ClInclude Include="nodes\FileElementType.h" />
     <ClInclude Include="nodes\FuncArgType.h" />
     <ClInclude Include="nodes\nodes.h" />
     <ClInclude Include="nodes\ExprType.h" />

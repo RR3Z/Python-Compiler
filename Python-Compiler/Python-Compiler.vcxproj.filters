@@ -80,5 +80,8 @@
     <ClInclude Include="nodes\FuncArgType.h">
       <Filter>Файлы заголовков\nodes</Filter>
     </ClInclude>
+    <ClInclude Include="nodes\FileElementType.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
