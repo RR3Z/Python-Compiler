@@ -35,4 +35,5 @@ enum NodeType {
 	_BRACKETS = 33, // '(' expr ')'	// +
 	_IDENTIFIER = 34,				// +
 	_IF_HEADER = 35,				// +
+	_FOR_HEADER = 36				// +
 };

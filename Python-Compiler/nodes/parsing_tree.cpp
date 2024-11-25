@@ -375,6 +375,29 @@ ExprNode* createIfHeaderExprNode(ExprNode* expr) {
 	return node;
 }
 
+ExprNode* createForHeaderExprNode(TargetListNode* targetList, ExprNode* expr) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _FOR_HEADER;
+	node->left = expr;
+	node->targetList = targetList;
+	node->id = ID++;
+
+	return node;
+}
+
+ExprNode* createListComprehensionExprNode(ExprListNode* exprList, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _LIST_COMPREHENSION;
+	node->list = exprList;
+	node->forHeaderList = forHeaderList;
+	node->ifHeaderList = ifHeaderListE;
+	node->id = ID++;
+
+	return node;
+}
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement) {

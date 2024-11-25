@@ -44,12 +44,14 @@
 %type <expressionNode>expr
 %type <expressionNode>exprE
 %type <expressionNode>target
-%type <expressionNode>param                     // UPDATE LATER
+%type <expressionNode>param                     // UPDATE LATER (must be param node?)
 %type <expressionNode>ifHeader
+%type <expressionNode>forHeader
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
 %type <expressionListNode>ifHeaderList
 %type <expressionListNode>ifHeaderListE
+%type <expressionListNode>forHeaderList
 %type <slicingNode>slicing
 %type <identifierListNode>identifiers
 %type <identifierListNode>identifiersE
@@ -166,11 +168,11 @@ forStmt: FOR targetList IN expr ':' suite { cout << "P: FOR targetList IN expr '
        | FOR targetList IN expr ':' suite ELSE ':' suite { cout << "P: FOR targetList IN expr ':' suite ELSE ':' suite -> forStmt" << endl; }
        ;
 
-forHeader: FOR targetList IN expr { cout << "P: forHeader" << endl; }
+forHeader: FOR targetList IN expr { $$ = createForHeaderExprNode($2, $4); cout << "P: forHeader" << endl; }
          ;
 
-forHeaderList: forHeader { cout << "P: forHeader -> forHeaderList" << endl; }
-             | forHeaderList forHeader { cout << "P: forHeaderList forHeader -> forHeaderList" << endl; }
+forHeaderList: forHeader { $$ = createExprListNode($1); cout << "P: forHeader -> forHeaderList" << endl; }
+             | forHeaderList forHeader { $$ = addElementToExprList($1, $2); cout << "P: forHeaderList forHeader -> forHeaderList" << endl; }
              ;
 
 // WHILE STATEMENT
@@ -274,9 +276,9 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P
     | expr '[' expr ']' { $$ = createListAccessExprNode($1, $3); exprTest = $$; cout << "P: expr '[' expr ']' -> expr" << endl; }
     | '[' exprListE ']' { $$ = createListCreationExprNode($2); exprTest = $$; cout << "P: '[' exprListE ']' -> expr" << endl; }
     | expr '[' slicing ']' { $$ = createListAccessWithSlicingExprNode($1, $3); exprTest = $$; cout << "P: expr '[' slicing ']' -> expr" << endl; }
+    | '[' exprList forHeaderList ifHeaderListE ']' { $$ = createListComprehensionExprNode($2, $3, $4); exprTest = $$; cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
 
     | LAMBDA paramsListE ':' expr %prec LAMBDA { cout << "P: lambdaExpr -> expr" << endl; }
-    | '[' exprList forHeaderList ifHeaderListE ']' { cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
     | expr '(' funcArgs ')' { cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
     | expr '.' identifier '(' funcArgs ')' { cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
 

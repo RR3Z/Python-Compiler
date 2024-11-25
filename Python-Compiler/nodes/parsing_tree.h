@@ -65,6 +65,10 @@ ExprNode* createListAccessWithSlicingExprNode(ExprNode* var, SlicingNode* slicin
 
 ExprNode* createIfHeaderExprNode(ExprNode* expr);
 
+ExprNode* createForHeaderExprNode(TargetListNode* targetList, ExprNode* expr);
+
+ExprNode* createListComprehensionExprNode(ExprListNode* exprList, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE);
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement);

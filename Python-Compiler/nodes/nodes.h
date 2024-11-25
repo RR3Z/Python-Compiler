@@ -7,6 +7,7 @@ using namespace std;
 struct ExprListNode;
 struct SlicingNode;
 struct StmtsListNode;
+struct TargetListNode;
 
 /* ========== EXPRESSION ========== */
 
@@ -32,11 +33,18 @@ struct ExprNode {
 	// ТОЛЬКО ДЛЯ EXPRLIST
 	ExprNode* next = nullptr;
 
-	// ТОЛЬКО ДЛЯ ЗАДАНИЯ LIST - [1,2,3]
+	// ТОЛЬКО ДЛЯ ХРАНЕНИЯ EXPRLIST (при задании LIST; если надо сохранить exprList)
 	ExprListNode* list = nullptr;
+
+	// ТОЛЬКО ДЛЯ СОЗДАНИЯ LIST С ПОМОЩЬЮ COMPREHENSION
+	ExprListNode* forHeaderList = nullptr;
+	ExprListNode* ifHeaderList = nullptr;
 
 	// ТОЛЬКО ДЛЯ ЗАДАНИЯ LIST СО SLICING
 	SlicingNode* slicing = nullptr;
+
+	// ТОЛЬКО ДЛЯ ЗАДАНИЯ FORHEADER
+	TargetListNode* targetList = nullptr;
 };
 
 /* ========== EXPRESSION LIST ========== */
