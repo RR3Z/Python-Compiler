@@ -44,7 +44,7 @@
 %type <expressionNode>expr
 %type <expressionNode>exprE
 %type <expressionNode>target
-%type <expressionNode>param
+%type <expressionNode>param                     // UPDATE LATER
 %type <expressionNode>ifHeader
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
@@ -211,8 +211,8 @@ funcHeader: DEF identifier '(' paramsListE ')' {
                                                }
           ;
 
-param: identifier {$$ = createIdExprNode($1);  cout << "P: identifier -> param" << endl; }
-     | identifier '=' expr { $$ = createAssignExprNode(createIdExprNode($1), $3); cout << "P: identifier '=' expr -> param" << endl; }
+param: identifier { cout << "P: identifier -> param" << endl; }
+     | identifier '=' expr { cout << "P: identifier '=' expr -> param" << endl; }
      ;
 
 paramsList: param { $$ = createParamListNode($1); cout << "P: param -> paramsList" << endl; }

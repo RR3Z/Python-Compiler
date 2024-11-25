@@ -310,18 +310,6 @@ ExprNode* createAssignOpExprNode(ExprNode* leftOperand, ExprNode* rightOperand) 
 	return node;
 }
 
-ExprNode* createAssignExprNode(ExprNode* leftOperand, ExprNode* rightOperand) {
-	ExprNode* node = new ExprNode();
-
-	node->exprType = _ASSIGN;
-	node->left = leftOperand;
-	node->right = rightOperand;
-	node->next = nullptr;
-	node->id = ID++;
-
-	return node;
-}
-
 ExprNode* createExprInParenthesesBracketsNode(ExprNode* expression) {
 	ExprNode* node = new ExprNode();
 

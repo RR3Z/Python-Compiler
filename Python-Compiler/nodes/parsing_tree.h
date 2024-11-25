@@ -53,8 +53,6 @@ ExprNode* createOrBitwiseExprNode(ExprNode* leftOperand, ExprNode* rightOperand)
 
 ExprNode* createAssignOpExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-ExprNode* createAssignExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
-
 ExprNode* createExprInParenthesesBracketsNode(ExprNode* expression);
 
 ExprNode* createAttributeRefExprNode(ExprNode* leftOperand, ExprNode* rightOperand);

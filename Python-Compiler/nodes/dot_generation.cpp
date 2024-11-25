@@ -150,13 +150,6 @@ string generateDotFromExprNode(ExprNode* node) {
 		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
 		dot += dotConnectionWithLabel(node->id, node->right->id, "value");
 		break;
-	case _ASSIGN:
-		dot += generateDotFromExprNode(node->left);
-		dot += generateDotFromExprNode(node->right);
-		dot += dotLabel(node->id, "=");
-		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
-		dot += dotConnectionWithLabel(node->id, node->right->id, "value");
-		break;
 	case _BRACKETS:
 		dot += generateDotFromExprNode(node->left);
 		dot += dotLabel(node->id, "(expr)");
