@@ -7,4 +7,6 @@ enum StmtType {
 	_WHILE = 6,
 	_COMPOUND_WHILE = 7,
 	_RETURN = 8,
+	_FOR = 9,
+	_COMPOUND_FOR = 10
 };

@@ -105,6 +105,10 @@ StmtNode* createWhileStmtNode(ExprNode* expr, StmtsListNode* suite);
 
 StmtNode* createReturnStmtNode(ExprListNode* list);
 
+StmtNode* createForStmtNode(ExprListNode* targetList, ExprNode* expr, StmtsListNode* suite);
+
+StmtNode* createCompoundForStmtNode(StmtNode* forStmt, StmtNode* elseStmt);
+
 /* ========== STATEMENTS LIST ========== */
 
 StmtsListNode* createStmtsListNode(StmtNode* firstElement);

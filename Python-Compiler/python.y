@@ -51,6 +51,7 @@
 %type <stmtNode>ifStmt
 %type <stmtNode>whileStmt
 %type <stmtNode>returnStmt
+%type <stmtNode>forStmt
 
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
@@ -167,8 +168,8 @@ elifStmtList: ELIF expr ':' suite { $$ = createStmtsListNode(createElifStmtNode(
 
 // FOR STATEMENT
 
-forStmt: FOR targetList IN expr ':' suite { cout << "P: FOR targetList IN expr ':' suite -> forStmt" << endl; }
-       | FOR targetList IN expr ':' suite ELSE ':' suite { cout << "P: FOR targetList IN expr ':' suite ELSE ':' suite -> forStmt" << endl; }
+forStmt: FOR targetList IN expr ':' suite { $$ = createForStmtNode($2, $4, $6); cout << "P: FOR targetList IN expr ':' suite -> forStmt" << endl; }
+       | FOR targetList IN expr ':' suite ELSE ':' suite { $$ = createCompoundForStmtNode(createForStmtNode($2, $4, $6), createElseStmtNode($9)); cout << "P: FOR targetList IN expr ':' suite ELSE ':' suite -> forStmt" << endl; }
        ;
 
 forHeader: FOR targetList IN expr { $$ = createForHeaderExprNode($2, $4); cout << "P: forHeader" << endl; }

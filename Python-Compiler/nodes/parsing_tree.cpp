@@ -552,6 +552,28 @@ StmtNode* createReturnStmtNode(ExprListNode* list) {
 	return node;
 }
 
+StmtNode* createForStmtNode(ExprListNode* targetList, ExprNode* expr, StmtsListNode* suite) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _FOR;
+	node->exprList = targetList;
+	node->expr = expr;
+	node->stmtsList = suite;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createCompoundForStmtNode(StmtNode* forStmt, StmtNode* elseStmt) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _COMPOUND_FOR;
+	node->leftNode = forStmt;
+	node->rightNode = elseStmt;
+	node->id = ID++;
+
+	return node;
+}
 
 /* ========== STATEMENTS LIST ========== */
 
