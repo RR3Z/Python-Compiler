@@ -49,6 +49,7 @@
 %type <funcArgNode>param
 %type <stmtNode>stmt
 %type <stmtNode>ifStmt
+%type <stmtNode>whileStmt
 
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
@@ -178,8 +179,8 @@ forHeaderList: forHeader { $$ = createExprListNode($1); cout << "P: forHeader ->
 
 // WHILE STATEMENT
 
-whileStmt: WHILE expr ':' suite { cout << "P: WHILE expr ':' suite -> whileStmt" << endl; }
-         | WHILE expr ':' suite ELSE ':' suite { cout << "P: WHILE expr ':' suite ELSE ':' suite  -> whileStmt" << endl; }
+whileStmt: WHILE expr ':' suite { $$ = createWhileStmtNode($2, $4); cout << "P: WHILE expr ':' suite -> whileStmt" << endl; }
+         | WHILE expr ':' suite ELSE ':' suite { $$ = createCompoundWhileStmtNode(createWhileStmtNode($2, $4), createElseStmtNode($7)); cout << "P: WHILE expr ':' suite ELSE ':' suite  -> whileStmt" << endl; }
          ;
 
 // TRY STATEMENT

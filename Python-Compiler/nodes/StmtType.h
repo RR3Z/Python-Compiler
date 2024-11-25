@@ -4,4 +4,6 @@ enum StmtType {
 	_ELIF = 3,
 	_COMPOUND_IF = 4,
 	_ASSIGN = 5,
+	_WHILE = 6,
+	_COMPOUND_WHILE = 7,
 };

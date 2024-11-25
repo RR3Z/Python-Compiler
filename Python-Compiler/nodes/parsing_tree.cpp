@@ -486,6 +486,29 @@ StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr) {
 	return node;
 }
 
+StmtNode* createWhileStmtNode(ExprNode* expr, StmtsListNode* suite) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _WHILE;
+	node->expr = expr;
+	node->suite = suite;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createCompoundWhileStmtNode(StmtNode* whileStmt, StmtNode* elseStmt) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _COMPOUND_WHILE;
+	node->leftNode = whileStmt;
+	node->rightNode = elseStmt;
+	node->id = ID++;
+
+	return node;
+}
+
+
 /* ========== STATEMENTS LIST ========== */
 
 StmtsListNode* createStmtsListNode(StmtNode* firstElement) {

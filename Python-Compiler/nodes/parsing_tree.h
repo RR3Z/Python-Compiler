@@ -91,6 +91,11 @@ StmtNode* createElifStmtNode(ExprNode* expr, StmtsListNode* suite);
 
 StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr);
 
+StmtNode* createWhileStmtNode(ExprNode* expr, StmtsListNode* suite);
+
+StmtNode* createCompoundWhileStmtNode(StmtNode* whileStmt, StmtNode* elseStmt);
+
+
 /* ========== STATEMENTS LIST ========== */
 
 StmtsListNode* createStmtsListNode(StmtNode* firstElement);
