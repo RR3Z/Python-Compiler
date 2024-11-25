@@ -200,9 +200,9 @@ string generateDotFromExprNode(ExprNode* node) {
 		break;
 	case _LIST_COMPREHENSION:
 		dot += dotLabel(node->id, "List Comprehension");
-		dot += generateDotFromExprListNode(node->list);
+		dot += generateDotFromExprNode(node->left);
 		dot += generateDotFromExprListNode(node->forHeaderList);
-		dot += dotConnectionWithLabel(node->id, node->list->id, "exprList");
+		dot += dotConnectionWithLabel(node->id, node->left->id, "expr");
 		dot += dotConnectionWithLabel(node->id, node->forHeaderList->id, "forHeaderList");
 		if (node->ifHeaderList != nullptr) {
 			dot += generateDotFromExprListNode(node->ifHeaderList);

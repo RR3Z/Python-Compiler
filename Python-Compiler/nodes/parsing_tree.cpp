@@ -386,11 +386,11 @@ ExprNode* createForHeaderExprNode(TargetListNode* targetList, ExprNode* expr) {
 	return node;
 }
 
-ExprNode* createListComprehensionExprNode(ExprListNode* exprList, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE) {
+ExprNode* createListComprehensionExprNode(ExprNode* expr, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE) {
 	ExprNode* node = new ExprNode();
 
 	node->exprType = _LIST_COMPREHENSION;
-	node->list = exprList;
+	node->left = expr;
 	node->forHeaderList = forHeaderList;
 	node->ifHeaderList = ifHeaderListE;
 	node->id = ID++;

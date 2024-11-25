@@ -67,7 +67,7 @@ ExprNode* createIfHeaderExprNode(ExprNode* expr);
 
 ExprNode* createForHeaderExprNode(TargetListNode* targetList, ExprNode* expr);
 
-ExprNode* createListComprehensionExprNode(ExprListNode* exprList, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE);
+ExprNode* createListComprehensionExprNode(ExprNode* expr, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE);
 
 /* ========== EXPRESSION LIST ========== */
 
