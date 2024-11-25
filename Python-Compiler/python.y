@@ -69,6 +69,7 @@
 %type <stmtsListNode>stmtsList
 %type <stmtsListNode>elifStmtList
 %type <stmtsListNode>suite
+%type <stmtsListNode>exceptStmtList
 
 %token TRUE FALSE
 NEWLINE INDENT DEDENT
@@ -200,8 +201,8 @@ exceptStmt: EXCEPT ':' suite {$$ = createExceptStmtNode(nullptr, $3);}
           | EXCEPT expr AS identifier ':' suite {$$ = createExceptIdentifierStmtNode($2, createIdExprNode($4), $6);}
           ;
 
-exceptStmtList: exceptStmt
-              | exceptStmtList exceptStmt
+exceptStmtList: exceptStmt {$$ = createStmtsListNode($1);}
+              | exceptStmtList exceptStmt { $$ = addElementToStmtsList($1, $2);}
               ;
 
 // FUNCTION DEFINITION
