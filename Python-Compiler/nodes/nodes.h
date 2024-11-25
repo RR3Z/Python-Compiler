@@ -89,6 +89,9 @@ struct StmtNode {
 	// Используется для: задания самого условия (if, else)
 	ExprNode* expr = nullptr;
 
+	// Используется для
+	ExprListNode* exprList = nullptr;
+
 	// Используется для задания тела stmt
 	StmtsListNode* suite = nullptr;
 

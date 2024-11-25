@@ -508,6 +508,16 @@ StmtNode* createCompoundWhileStmtNode(StmtNode* whileStmt, StmtNode* elseStmt) {
 	return node;
 }
 
+StmtNode* createReturnStmtNode(ExprListNode* list) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _RETURN;
+    node->exprList = list;
+	node->id = ID++;
+
+	return node;
+}
+
 
 /* ========== STATEMENTS LIST ========== */
 

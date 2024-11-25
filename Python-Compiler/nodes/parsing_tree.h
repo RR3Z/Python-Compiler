@@ -95,6 +95,9 @@ StmtNode* createWhileStmtNode(ExprNode* expr, StmtsListNode* suite);
 
 StmtNode* createCompoundWhileStmtNode(StmtNode* whileStmt, StmtNode* elseStmt);
 
+StmtNode* createWhileStmtNode(ExprNode* expr, StmtsListNode* suite);
+
+StmtNode* createReturnStmtNode(ExprListNode* list);
 
 /* ========== STATEMENTS LIST ========== */
 

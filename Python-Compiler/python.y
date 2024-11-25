@@ -50,6 +50,7 @@
 %type <stmtNode>stmt
 %type <stmtNode>ifStmt
 %type <stmtNode>whileStmt
+%type <stmtNode>returnStmt
 
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
@@ -252,6 +253,7 @@ assignStmtTargetAssignList: targetList { cout << "P: targetList -> assignStmtTar
 // RETURN STATEMENT
 
 returnStmt: RETURN exprListE NEWLINE { 
+                                        $$ = createReturnStmtNode($2);
                                         if(!isFunc) { yyerror("syntax error (\'return\' outside function)"); }
                                         cout << "P: RETURN exprListE NEWLINE -> returnStmt" << endl; 
                                      }
