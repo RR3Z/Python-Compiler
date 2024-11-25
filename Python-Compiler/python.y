@@ -53,6 +53,7 @@
 %type <stmtNode>returnStmt
 %type <stmtNode>exceptStmt
 %type <stmtNode>forStmt
+%type <stmtNode>tryStmt
 
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
@@ -196,12 +197,12 @@ tryStmt: TRY ':' suite exceptStmtList
        | TRY ':' suite FINALLY ':' suite
        ;
 
-exceptStmt: EXCEPT ':' suite {$$ = createExceptStmtNode(nullptr, $3);}
-          | EXCEPT expr ':' suite  {$$ = createExceptStmtNode($2, $4);}
-          | EXCEPT expr AS identifier ':' suite {$$ = createExceptIdentifierStmtNode($2, createIdExprNode($4), $6);}
+exceptStmt: EXCEPT ':' suite { $$ = createExceptStmtNode(nullptr, $3);}
+          | EXCEPT expr ':' suite  { $$ = createExceptStmtNode($2, $4);}
+          | EXCEPT expr AS identifier ':' suite { $$ = createExceptIdentifierStmtNode($2, createIdExprNode($4), $6);}
           ;
 
-exceptStmtList: exceptStmt {$$ = createStmtsListNode($1);}
+exceptStmtList: exceptStmt { $$ = createStmtsListNode($1);}
               | exceptStmtList exceptStmt { $$ = addElementToStmtsList($1, $2);}
               ;
 
