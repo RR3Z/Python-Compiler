@@ -80,9 +80,9 @@
 %type <stmtsListNode>stmtsList
 %type <stmtsListNode>elifStmtList
 %type <stmtsListNode>exceptStmtList
+%type <stmtsListNode>assignStmtTargetAssignList 
 %type <stmtsListNode>suite
 %type <fileElementsListNode>programStmtsList
-%type <stmtsListNode>assignStmtTargetAssignList 
 
 %token TRUE FALSE
 NEWLINE INDENT DEDENT
