@@ -58,6 +58,7 @@
 %type <expressionListNode>identifiersE
 %type <funcArgsListNode>paramsList
 %type <funcArgsListNode>paramsListE
+%type <funcArgsListNode>namedArgsList
 
 %type <stmtNode>stmt
 %type <stmtNode>ifStmt
@@ -340,8 +341,8 @@ slicing: exprE ':' exprE { $$ = createSlicingNode($1, $3, nullptr); cout << "P: 
        | exprE ':' exprE ':' exprE { $$ = createSlicingNode($1, $3, $5); cout << "P: exprE ':' exprE ':' exprE -> slicing" << endl; }
        ;
 
-namedArgsList: identifier '=' expr
-             | namedArgsList ',' identifier '=' expr
+namedArgsList: identifier '=' expr { $$ = createParamsListNode(createNamedFuncArgNode(createAssignStmtNode(createIdExprNode($1), $3))); }
+             | namedArgsList ',' identifier '=' expr { $$ = addElementToParamsList($1, createNamedFuncArgNode(createAssignStmtNode(createIdExprNode($3), $5))); }
              ;
 
 funcArgs: exprList
