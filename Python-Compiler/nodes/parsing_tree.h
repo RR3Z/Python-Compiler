@@ -67,6 +67,8 @@ ExprNode* createIfHeaderExprNode(ExprNode* expr);
 
 ExprNode* createForHeaderExprNode(ExprListNode* targetList, ExprNode* expr);
 
+ExprNode* createFuncHeaderExprNode(ExprNode* identifier, FuncArgsListNode* funcArgs); ////////////////////////////////////////////////////////////
+
 ExprNode* createListComprehensionExprNode(ExprNode* expr, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE);
 
 ExprNode* createLambdaExprNode(FuncArgsListNode* funcArgsListNode, ExprNode* expr);
@@ -95,6 +97,8 @@ StmtNode* createElseStmtNode(StmtsListNode* suite);
 
 StmtNode* createElifStmtNode(ExprNode* expr, StmtsListNode* suite);
 
+StmtNode* createFinallyStmtNode(StmtsListNode* suite);
+
 StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr);
 
 StmtNode* createWhileStmtNode(ExprNode* expr, StmtsListNode* suite);
@@ -112,6 +116,8 @@ StmtNode* createExceptIdentifierStmtNode(ExprNode* expr, ExprNode* identifier, S
 StmtNode* createForStmtNode(ExprListNode* targetList, ExprNode* expr, StmtsListNode* suite);
 
 StmtNode* createCompoundForStmtNode(StmtNode* forStmt, StmtNode* elseStmt);
+
+StmtNode* createCompoundTryStmtNode(StmtsListNode* suite, StmtsListNode* exceptStmtsList, StmtNode* elseStmt, StmtNode* finallyStmt);
 
 /* ========== STATEMENTS LIST ========== */
 

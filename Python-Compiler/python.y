@@ -49,6 +49,7 @@
 %type <expressionNode>target
 %type <expressionNode>ifHeader
 %type <expressionNode>forHeader
+%type <expressionNode>funcHeader
 %type <slicingNode>slicing
 %type <funcArgNode>param
 %type <stmtNode>stmt
@@ -57,6 +58,7 @@
 %type <stmtNode>returnStmt
 %type <stmtNode>exceptStmt
 %type <stmtNode>forStmt
+%type <stmtNode>tryStmt
 %type <funcNode>funcDef
 %type <classNode>classDef
 %type <fileElementNode>topLevelStmt
@@ -76,6 +78,7 @@
 %type <funcArgsListNode>funcArgs
 %type <stmtsListNode>stmtsList
 %type <stmtsListNode>elifStmtList
+%type <stmtsListNode>exceptStmtList
 %type <stmtsListNode>suite
 %type <fileElementsListNode>programStmtsList
 
@@ -196,20 +199,20 @@ whileStmt: WHILE expr ':' suite { $$ = createWhileStmtNode($2, $4); cout << "P: 
 
 // TRY STATEMENT
 
-tryStmt: TRY ':' suite exceptStmtList
-       | TRY ':' suite exceptStmtList ELSE ':' suite
-       | TRY ':' suite exceptStmtList FINALLY ':' suite
-       | TRY ':' suite exceptStmtList ELSE ':' suite FINALLY ':' suite
-       | TRY ':' suite FINALLY ':' suite
+tryStmt: TRY ':' suite exceptStmtList { $$ = createCompoundTryStmtNode($3, $4, nullptr, nullptr);}
+       | TRY ':' suite exceptStmtList ELSE ':' suite { $$ = createCompoundTryStmtNode($3, $4, createElseStmtNode($7), nullptr);}
+       | TRY ':' suite exceptStmtList FINALLY ':' suite { $$ = createCompoundTryStmtNode($3, $4, nullptr, createFinallyStmtNode($7));}
+       | TRY ':' suite exceptStmtList ELSE ':' suite FINALLY ':' suite  { $$ = createCompoundTryStmtNode($3, $4, createElseStmtNode($7), createFinallyStmtNode($10));}
+       | TRY ':' suite FINALLY ':' suite { $$ = createCompoundTryStmtNode($3, nullptr, nullptr, createFinallyStmtNode($6));}
        ;
 
-exceptStmt: EXCEPT ':' suite {$$ = createExceptStmtNode(nullptr, $3);}
-          | EXCEPT expr ':' suite  {$$ = createExceptStmtNode($2, $4);}
-          | EXCEPT expr AS identifier ':' suite {$$ = createExceptIdentifierStmtNode($2, createIdExprNode($4), $6);}
+exceptStmt: EXCEPT ':' suite { $$ = createExceptStmtNode(nullptr, $3);}
+          | EXCEPT expr ':' suite  { $$ = createExceptStmtNode($2, $4);}
+          | EXCEPT expr AS identifier ':' suite { $$ = createExceptIdentifierStmtNode($2, createIdExprNode($4), $6);}
           ;
 
-exceptStmtList: exceptStmt
-              | exceptStmtList exceptStmt
+exceptStmtList: exceptStmt { $$ = createStmtsListNode($1);}
+              | exceptStmtList exceptStmt { $$ = addElementToStmtsList($1, $2);}
               ;
 
 // FUNCTION DEFINITION
@@ -221,6 +224,7 @@ funcDef: funcHeader ':' suite {
        ;
 
 funcHeader: DEF identifier '(' paramsListE ')' { 
+                                                 $$ = createFuncHeaderExprNode(createIdExprNode($2), $4);
                                                  isFunc = true; 
                                                  cout << "P: DEF identifier '(' paramsListE ')' -> funcHeader" << endl; 
                                                }

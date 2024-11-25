@@ -386,6 +386,17 @@ ExprNode* createForHeaderExprNode(ExprListNode* targetList, ExprNode* expr) {
 	return node;
 }
 
+ExprNode* createFuncHeaderExprNode(ExprNode* identifier, FuncArgsListNode* funcArgs) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _FUNC_HEADER;
+	node->left = identifier;
+	node->funcArgs = funcArgs;
+	node->id = ID++;
+
+	return node;
+}
+
 ExprNode* createListComprehensionExprNode(ExprNode* expr, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE) {
 	ExprNode* node = new ExprNode();
 
@@ -509,6 +520,17 @@ StmtNode* createElifStmtNode(ExprNode* expr, StmtsListNode* suite) {
 	return node;
 }
 
+
+StmtNode* createFinallyStmtNode(StmtsListNode* suite) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _FINALLY;
+	node->suite = suite;
+	node->id = ID++;
+
+	return node;
+}
+
 StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr) {
 	StmtNode* node = new StmtNode();
 
@@ -593,6 +615,18 @@ StmtNode* createCompoundForStmtNode(StmtNode* forStmt, StmtNode* elseStmt) {
 	node->stmtType = _COMPOUND_FOR;
 	node->leftNode = forStmt;
 	node->rightNode = elseStmt;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createCompoundTryStmtNode(StmtsListNode* suite, StmtsListNode* exceptStmtsList, StmtNode* elseStmt, StmtNode* finallyStmt) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _COMPOUND_TRY;
+	node->leftNode = elseStmt;
+	node->rightNode = finallyStmt;
+	node->stmtsList = exceptStmtsList;
 	node->id = ID++;
 
 	return node;
