@@ -98,7 +98,7 @@ struct StmtNode {
 	ExprNode* identifier = nullptr;
 
 	// Используется для
-	ExprListNode* exprList = nullptr;
+	ExprListNode* list = nullptr;
 
 	// Используется для задания тела stmt
 	StmtsListNode* suite = nullptr;

@@ -542,6 +542,61 @@ StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr) {
 	return node;
 }
 
+StmtNode* createCompoundAssignStmtNode(StmtsListNode* targetList, ExprNode* expr) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _COMPOUND_ASSIGN;
+	node->stmtsList = targetList;
+	node->rightExpr = expr;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createPlusAssignStmtNode(ExprNode* identifier, ExprNode* expr) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _PLUS_ASSIGN;
+	node->leftExpr = identifier;
+	node->rightExpr = expr;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createMinusAssignStmtNode(ExprNode* identifier, ExprNode* expr) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _MINUS_ASSIGN;
+	node->leftExpr = identifier;
+	node->rightExpr = expr;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createMulAssignStmtNode(ExprNode* identifier, ExprNode* expr) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _MUL_ASSIGN;
+	node->leftExpr = identifier;
+	node->rightExpr = expr;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createDivAssignStmtNode(ExprNode* identifier, ExprNode* expr) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _DIV_ASSIGN;
+	node->leftExpr = identifier;
+	node->rightExpr = expr;
+	node->id = ID++;
+
+	return node;
+}
+
 StmtNode* createWhileStmtNode(ExprNode* expr, StmtsListNode* suite) {
 	StmtNode* node = new StmtNode();
 
@@ -568,7 +623,7 @@ StmtNode* createReturnStmtNode(ExprListNode* list) {
 	StmtNode* node = new StmtNode();
 
 	node->stmtType = _RETURN;
-    node->exprList = list;
+    node->list = list;
 	node->id = ID++;
 
 	return node;
@@ -601,7 +656,7 @@ StmtNode* createForStmtNode(ExprListNode* targetList, ExprNode* expr, StmtsListN
 	StmtNode* node = new StmtNode();
 
 	node->stmtType = _FOR;
-	node->exprList = targetList;
+	node->list = targetList;
 	node->expr = expr;
 	node->stmtsList = suite;
 	node->id = ID++;
@@ -637,6 +692,16 @@ StmtNode* createStmtNodeFromExprNode(ExprNode* expr) {
 
 	node->stmtType = _EXPR_STMT;
 	node->expr = expr;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createStmtNodeFromExprListNode(ExprListNode* list){
+	StmtNode* node = new StmtNode();
+
+   node->stmtType = _EXPR_LIST_STMT;
+	node->list = list;
 	node->id = ID++;
 
 	return node;
