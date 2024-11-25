@@ -173,6 +173,7 @@ string generateDotFromExprNode(ExprNode* node) {
 		if (node->list != nullptr) {
 			dot += dotLabel(node->id, "[exprList]");
 			dot += generateDotFromExprListNode(node->list);
+			dot += dotConnection(node->id, node->list->id);
 		}
 		else {
 			dot += dotLabel(node->id, "[]");
@@ -207,6 +208,7 @@ string generateDotFromExprListNode(ExprListNode* node) {
 	if (node->first != nullptr) {
 		ExprNode* expr = node->first;
 
+		dot += dotLabel(node->id, "targetList");
 		dot += generateDotFromExprNode(expr);
 		dot += dotConnection(node->id, expr->id);
 
@@ -228,6 +230,7 @@ string generateDotFromIdentifierListNode(IdentifierListNode* node) {
 	if (node->first != nullptr) {
 		ExprNode* expr = node->first;
 
+		dot += dotLabel(node->id, "exprList");
 		dot += generateDotFromExprNode(expr);
 		dot += dotConnection(node->id, expr->id);
 
@@ -249,6 +252,7 @@ string generateDotFromTargetListNode(TargetListNode* node) {
 	if (node->first != nullptr) {
 		ExprNode* expr = node->first;
 
+		dot += dotLabel(node->id, "identifiersList");
 		dot += generateDotFromExprNode(expr);
 		dot += dotConnection(node->id, expr->id);
 
