@@ -63,6 +63,7 @@ ExprNode* createListCreationExprNode(ExprListNode* elements);
 
 ExprNode* createListAccessWithSlicingExprNode(ExprNode* var, SlicingNode* slicing);
 
+ExprNode* createIfHeaderExprNode(ExprNode* expr);
 
 /* ========== EXPRESSION LIST ========== */
 

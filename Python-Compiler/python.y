@@ -145,7 +145,7 @@ ifStmt: IF expr ':' suite { $$ = createIfStmtNode($2, $4); cout << "P: IF expr '
       | IF expr ':' suite elifStmtList ELSE ':' suite { $$ = createCompoundIfStmtNode(createIfStmtNode($2, $4), createElseStmtNode($8), $5); cout << "P: IF expr ':' suite elifStmtList ELSE ':' suite -> ifStmt" << endl; }
       ;
 
-ifHeader: IF expr { $$ = $2; cout << "P: IF expr -> ifHeader" << endl; }
+ifHeader: IF expr { $$ = createIfHeaderExprNode($2); cout << "P: IF expr -> ifHeader" << endl; }
         ;
 
 ifHeaderList: ifHeader { $$ = createExprListNode($1); cout << "P: ifHeader -> ifHeaderList" << endl; }

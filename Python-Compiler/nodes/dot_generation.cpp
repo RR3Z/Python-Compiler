@@ -185,6 +185,11 @@ string generateDotFromExprNode(ExprNode* node) {
 		dot += dotConnectionWithLabel(node->id, node->left->id, "id");
 		dot += dotConnectionWithLabel(node->id, node->slicing->id, "index");
 		break;
+	case _IF_HEADER:
+		dot += generateDotFromExprNode(node->left);
+		dot += dotLabel(node->id, "if expr");
+		dot += dotConnectionWithLabel(node->id, node->left->id, "expr");
+		break;
 	case _UNKNOWN:
 		break;
 	default:

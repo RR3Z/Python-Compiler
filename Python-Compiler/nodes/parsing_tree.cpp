@@ -365,6 +365,16 @@ ExprNode* createListAccessWithSlicingExprNode(ExprNode* var, SlicingNode* slicin
 	return node;
 }
 
+ExprNode* createIfHeaderExprNode(ExprNode* expr) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _IF_HEADER;
+	node->left = expr;
+	node->id = ID++;
+
+	return node;
+}
+
 /* ========== EXPRESSION LIST ========== */
 
 ExprListNode* createExprListNode(ExprNode* firstElement) {

@@ -17,7 +17,7 @@ enum NodeType {
 	_U_PLUS = 15,					// +
 	_U_MINUS = 16,					// +
 	_LAMBDA = 17,
-	_ASSIGN_OP = 18,					// +
+	_ASSIGN_OP = 18,				// +
 	_SUPER = 19,					// +
 	_SELF = 20,						// +
 	_FALSE = 21,					// +
@@ -34,5 +34,5 @@ enum NodeType {
 	_LIST_CREATION = 32,			// +
 	_BRACKETS = 33, // '(' expr ')'	// +
 	_IDENTIFIER = 34,				// +
-	_ASSIGN = 35
+	_IF_HEADER = 35,				// +
 };
