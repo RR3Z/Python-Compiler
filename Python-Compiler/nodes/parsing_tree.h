@@ -95,6 +95,8 @@ StmtNode* createElseStmtNode(StmtsListNode* suite);
 
 StmtNode* createElifStmtNode(ExprNode* expr, StmtsListNode* suite);
 
+StmtNode* createFinallyStmtNode(StmtsListNode* suite);
+
 StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr);
 
 StmtNode* createWhileStmtNode(ExprNode* expr, StmtsListNode* suite);

@@ -509,6 +509,17 @@ StmtNode* createElifStmtNode(ExprNode* expr, StmtsListNode* suite) {
 	return node;
 }
 
+
+StmtNode* createFinallyStmtNode(StmtsListNode* suite) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _FINALLY;
+	node->suite = suite;
+	node->id = ID++;
+
+	return node;
+}
+
 StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr) {
 	StmtNode* node = new StmtNode();
 
