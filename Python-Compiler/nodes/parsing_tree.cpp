@@ -529,6 +529,28 @@ StmtNode* createReturnStmtNode(ExprListNode* list) {
 	return node;
 }
 
+StmtNode* createExceptStmtNode(ExprNode* expr, StmtsListNode* suite) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _EXCEPT;
+	node->expr = expr;
+	node->suite = suite;
+	node->id = ID++;
+
+	return node;
+}
+
+StmtNode* createExceptIdentifierStmtNode(ExprNode* expr, ExprNode* identifier, StmtsListNode* suite) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _IDENTIFIER_EXCEPT;
+	node->expr = expr;
+	node->identifier = identifier;
+	node->suite = suite;
+	node->id = ID++;
+
+	return node;
+}
 
 /* ========== STATEMENTS LIST ========== */
 

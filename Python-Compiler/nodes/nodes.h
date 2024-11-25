@@ -93,6 +93,9 @@ struct StmtNode {
 	// Используется для: задания самого условия (if, else)
 	ExprNode* expr = nullptr;
 
+	// Используется для: задания identifier in EXCEPT
+	ExprNode* identifier = nullptr;
+
 	// Используется для
 	ExprListNode* exprList = nullptr;
 
