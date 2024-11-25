@@ -34,5 +34,6 @@ enum ExprType {
 	_BRACKETS = 33, // '(' expr ')'	
 	_IDENTIFIER = 34,				
 	_IF_HEADER = 35,				
-	_FOR_HEADER = 36				
+	_FOR_HEADER = 36,
+	_FUNC_HEADER = 37				
 };

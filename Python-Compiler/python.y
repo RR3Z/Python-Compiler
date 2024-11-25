@@ -45,6 +45,7 @@
 %type <expressionNode>target
 %type <expressionNode>ifHeader
 %type <expressionNode>forHeader
+%type <expressionNode>funcHeader
 %type <slicingNode>slicing
 %type <funcArgNode>param
 %type <stmtNode>stmt
@@ -216,6 +217,7 @@ funcDef: funcHeader ':' suite {
        ;
 
 funcHeader: DEF identifier '(' paramsListE ')' { 
+                                                 $$ = createFuncHeaderExprNode(createIdExprNode($2), $4);
                                                  isFunc = true; 
                                                  cout << "P: DEF identifier '(' paramsListE ')' -> funcHeader" << endl; 
                                                }

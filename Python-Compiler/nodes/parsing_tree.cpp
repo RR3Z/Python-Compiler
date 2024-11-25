@@ -386,6 +386,17 @@ ExprNode* createForHeaderExprNode(ExprListNode* targetList, ExprNode* expr) {
 	return node;
 }
 
+ExprNode* createFuncHeaderExprNode(ExprNode* identifier, FuncArgsListNode* funcArgs) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _FUNC_HEADER;
+	node->left = identifier;
+	node->funcArgs = funcArgs;
+	node->id = ID++;
+
+	return node;
+}
+
 ExprNode* createListComprehensionExprNode(ExprNode* expr, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE) {
 	ExprNode* node = new ExprNode();
 
