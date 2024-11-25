@@ -48,6 +48,8 @@
 %type <expressionNode>ifHeader
 %type <expressionListNode>exprList
 %type <expressionListNode>exprListE
+%type <expressionListNode>ifHeaderList
+%type <expressionListNode>ifHeaderListE
 %type <slicingNode>slicing
 %type <identifierListNode>identifiers
 %type <identifierListNode>identifiersE
@@ -146,12 +148,12 @@ ifStmt: IF expr ':' suite { $$ = createIfStmtNode($2, $4); cout << "P: IF expr '
 ifHeader: IF expr { $$ = $2; cout << "P: IF expr -> ifHeader" << endl; }
         ;
 
-ifHeaderList: ifHeader { cout << "P: ifHeader -> ifHeaderList" << endl; }
-            | ifHeaderList ifHeader { cout << "P: ifHeaderList ifHeader -> ifHeaderList" << endl; }
+ifHeaderList: ifHeader { $$ = createExprListNode($1); cout << "P: ifHeader -> ifHeaderList" << endl; }
+            | ifHeaderList ifHeader { $$ = addElementToExprList($1, $2); cout << "P: ifHeaderList ifHeader -> ifHeaderList" << endl; }
             ;
 
-ifHeaderListE: ifHeaderList { cout << "P: ifHeaderList -> ifHeaderListE" << endl; }
-             | /* empty */ { cout << "P: /* empty */ -> ifHeaderListE" << endl; }
+ifHeaderListE: ifHeaderList { $$ = $1; cout << "P: ifHeaderList -> ifHeaderListE" << endl; }
+             | /* empty */ { $$ = nullptr; cout << "P: /* empty */ -> ifHeaderListE" << endl; }
              ;
 
 elifStmtList: ELIF expr ':' suite { $$ = createStmtsListNode(createElifStmtNode($2, $4)); cout << "P: ELIF expr ':' suite -> elifStmtList" << endl; }
