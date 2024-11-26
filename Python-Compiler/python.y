@@ -261,10 +261,10 @@ classDef: CLASS identifier ':' classSuite  { $$ = createClassNode($2, $4, nullpt
 // ASSIGNMENT STATEMENT
 
 assignStmt: assignStmtTargetAssignList '=' expr { $$ = createCompoundAssignStmtNode($1, $3); cout << "P: assignStmtTargetAssignList '=' expr -> assignStmt" << endl; }
-          | identifier PLUS_ASSIGN expr { $$ = createPlusAssignStmtNode(createIdExprNode($1), $3); cout << "P: identifier PLUS_ASSIGN expr -> assignStmt" << endl; }
-          | identifier MINUS_ASSIGN expr { $$ = createMinusAssignStmtNode(createIdExprNode($1), $3); cout << "P: identifier MINUS_ASSIGN expr -> assignStmt" << endl; }
-          | identifier MUL_ASSIGN expr { $$ = createMulAssignStmtNode(createIdExprNode($1), $3); cout << "P: identifier MUL_ASSIGN expr -> assignStmt" << endl; }
-          | identifier DIV_ASSIGN expr { $$ = createDivAssignStmtNode(createIdExprNode($1), $3); cout << "P: identifier DIV_ASSIGN expr -> assignStmt" << endl; }
+          | target PLUS_ASSIGN expr { $$ = createPlusAssignStmtNode($1, $3); cout << "P: identifier PLUS_ASSIGN expr -> assignStmt" << endl; }
+          | target MINUS_ASSIGN expr { $$ = createMinusAssignStmtNode($1, $3); cout << "P: identifier MINUS_ASSIGN expr -> assignStmt" << endl; }
+          | target MUL_ASSIGN expr { $$ = createMulAssignStmtNode($1, $3); cout << "P: identifier MUL_ASSIGN expr -> assignStmt" << endl; }
+          | target DIV_ASSIGN expr { $$ = createDivAssignStmtNode($1, $3); cout << "P: identifier DIV_ASSIGN expr -> assignStmt" << endl; }
           ;
 
 assignStmtTargetAssignList: targetList { $$ = createStmtsListNode(createStmtNodeFromExprListNode($1)); cout << "P: targetList -> assignStmtTargetAssignList" << endl; }

@@ -117,7 +117,6 @@
     </Link>
     <Bison>
       <Warnings>all</Warnings>
-      <AdditionalOptions>-Wcounterexamples %(AdditionalOptions)</AdditionalOptions>
     </Bison>
     <PostBuildEvent>
       <Command>$(ProjectDir)Graphviz\bin\dot.exe -Tpng -O $(ProjectDir)diagram.dot"
@@ -165,7 +164,6 @@ copy /b main.cpp +,,</Command>
     <Bison>
       <Verbose>true</Verbose>
       <Warnings>all</Warnings>
-      <AdditionalOptions>-Wcounterexamples %(AdditionalOptions)</AdditionalOptions>
     </Bison>
     <PreBuildEvent>
       <Command>copy /b main.cpp +,,</Command>
