@@ -381,11 +381,11 @@ ExprNode* createLambdaExprNode(FuncArgsListNode* funcArgsListNode, ExprNode* exp
 	return node;
 }
 
-ExprNode* createMethodCallExprNode(ExprNode* expr, string* identifier, FuncArgsListNode* funcArgs) {
+ExprNode* createMethodCallExprNode(ExprNode* expr, ExprNode* identifier, FuncArgsListNode* funcArgs) {
 	ExprNode* node = new ExprNode();
 
 	node->exprType = _METHOD_CALL;
-	node->identifier = *identifier;
+	node->right = identifier;
 	node->left = expr;
 	node->funcArgs = funcArgs;
 	node->id = ID++;
