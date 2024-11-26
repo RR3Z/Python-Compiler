@@ -225,7 +225,7 @@ exceptStmtList: exceptStmt { $$ = createStmtsListNode($1);}
 // FUNCTION DEFINITION
 
 funcDef: funcHeader ':' suite { 
-                                $$ = createFuncNode($1, $3);
+                                $$ = createFuncNode(new string($1->identifier), $1->funcArgs, $3);
                                 isFunc = false; 
                                 cout << "P: funcHeader ':' suite -> funcDef" << endl; 
                               }

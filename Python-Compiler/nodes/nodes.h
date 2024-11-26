@@ -211,8 +211,11 @@ struct FuncNode {
 	// Индекс узла
 	int id = -1;
 
-	// Заголовок функции
-	ExprNode* funcHeader = nullptr;
+	// Наименование функции
+	string identifier = "";
+
+	// Аргументы функции
+	FuncArgsListNode* args = nullptr;
 
 	// Тело функции
 	StmtsListNode* suite = nullptr;

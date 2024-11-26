@@ -742,10 +742,11 @@ ClassElementsListNode* addElementToClassElementsList(ClassElementsListNode* list
 
 /* ========== FUNC ========== */
 
-FuncNode* createFuncNode(ExprNode* funcHeader, StmtsListNode* suite) {
+FuncNode* createFuncNode(string* identifier, FuncArgsListNode* args, StmtsListNode* suite) {
 	FuncNode* node = new FuncNode();
 
-	node->funcHeader = funcHeader;
+	node->identifier = *identifier;
+	node->args = args;
 	node->suite = suite;
 	node->id = ID++;
 

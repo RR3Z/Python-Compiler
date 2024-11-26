@@ -157,7 +157,7 @@ ClassElementsListNode* addElementToClassElementsList(ClassElementsListNode* list
 
 /* ========== FUNC ========== */
 
-FuncNode* createFuncNode(ExprNode* funcHeader, StmtsListNode* suite);
+FuncNode* createFuncNode(string* identifier, FuncArgsListNode* args, StmtsListNode* suite);
 
 /* ========== FUNC ARG ========== */
 
