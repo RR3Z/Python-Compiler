@@ -8,7 +8,8 @@
   int yyerror(const char *s);
 
   bool isFunc = false;
-  struct ExprNode* exprTest; // TEMP
+
+  struct FileNode* fileRoot;
 %}
 
 %union {
@@ -120,8 +121,8 @@ RETURN LAMBDA
 
 %%
 
-program: programStmtsList { $$ = createFileNode($1); cout << "P: programStmtsList -> program" << endl; }
-       | NEWLINE { $$ = nullptr; cout << "P: newLineList -> program" << endl; }
+program: programStmtsList { $$ = fileRoot = createFileNode($1); cout << "P: programStmtsList -> program" << endl; }
+       | NEWLINE { $$ = fileRoot = nullptr; cout << "P: newLineList -> program" << endl; }
        ;
 
 programStmtsList: topLevelStmt { $$ = createFileElementsListNode($1); cout << "P: topLevelStmt -> programStmtsList" << endl; }
@@ -283,40 +284,40 @@ returnStmt: RETURN exprListE NEWLINE {
 
 // EXPRESSIONS
 
-expr: expr '+' expr { $$ = createPlusExprNode($1, $3); exprTest = $$; cout << "P: expr '+' expr -> expr" << endl; }
-    | expr '-' expr { $$ = createMinusExprNode($1, $3); exprTest = $$; cout << "P: expr '-' expr -> expr" << endl;}
-    | expr '*' expr { $$ = createMulExprNode($1, $3); exprTest = $$;  cout << "P: expr '*' expr -> expr" << endl;}
-    | expr '/' expr { $$ = createDivExprNode($1, $3); exprTest = $$;  cout << "P: expr '/' expr -> expr" << endl;}
-    | expr AND expr { $$ = createAndLogicExprNode($1, $3); exprTest = $$; cout << "P: expr AND expr -> expr" << endl;}
-    | expr '&' expr { $$ = createAndBitwiseExprNode($1, $3); exprTest = $$; cout << "P: expr '&' expr -> expr" << endl;}
-    | expr OR expr { $$ = createOrLogicExprNode($1, $3); exprTest = $$;  cout << "P: expr OR expr -> expr" << endl;}
-    | expr '|' expr { $$ = createOrBitwiseExprNode($1, $3); exprTest = $$; cout << "P: expr '|' expr -> expr" << endl;}
-    | expr GT expr { $$ = createGreatExprNode($1, $3); exprTest = $$; cout << "P: expr GT expr -> expr" << endl;}
-    | expr GE expr { $$ = createGreatEqualExprNode($1, $3); exprTest = $$; cout << "P: expr GE expr -> expr" << endl;}
-    | expr LT expr { $$ = createLessExprNode($1, $3); exprTest = $$; cout << "P: expr LT expr -> expr" << endl;}
-    | expr LE expr { $$ = createLessEqualExprNode($1, $3); exprTest = $$; cout << "P: expr LE expr -> expr" << endl;}
-    | expr EQ expr { $$ = createEqualExprNode($1, $3); exprTest = $$; cout << "P: expr EQ expr -> expr" << endl;}
-    | expr NE expr { $$ = createNotEqualExprNode($1, $3); exprTest = $$; cout << "P: expr NE expr -> expr" << endl; }
-    | '+' expr %prec UPLUS { $$ = createUnaryPlusExprNode($2); exprTest = $$; cout << "P: '+' expr -> expr" << endl;}
-    | '-' expr %prec UMINUS { $$ = createUnaryMinusExprNode($2); exprTest = $$; cout << "P: '-' expr -> expr" << endl; }
-    | identifier ASSIGN_OP expr { $$ = createAssignOpExprNode(createIdExprNode($1), $3); exprTest = $$; cout << "P: identifier ASSIGN_OP expr -> expr" << endl; }
-    | '(' expr ')' { $$ = createExprInParenthesesBracketsNode($2); exprTest = $$; cout << "P: '(' expr ')' -> expr" << endl; }
-    | expr '[' expr ']' { $$ = createListAccessExprNode($1, $3); exprTest = $$; cout << "P: expr '[' expr ']' -> expr" << endl; }
-    | '[' exprListE ']' { $$ = createListCreationExprNode($2); exprTest = $$; cout << "P: '[' exprListE ']' -> expr" << endl; }
-    | expr '[' slicing ']' { $$ = createListAccessWithSlicingExprNode($1, $3); exprTest = $$; cout << "P: expr '[' slicing ']' -> expr" << endl; }
-    | '[' expr forHeaderList ifHeaderListE ']' { $$ = createListComprehensionExprNode($2, $3, $4); exprTest = $$; cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
-    | LAMBDA paramsListE ':' expr %prec LAMBDA { $$ = createLambdaExprNode($2, $4); exprTest = $$; cout << "P: lambdaExpr -> expr" << endl; }
-    | expr '(' funcArgs ')' { $$ = createFunctionCallExprNode($1, $3); exprTest = $$; cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
-    | expr '.' identifier '(' funcArgs ')' { $$ = createMethodCallExprNode($1, $3, $5); exprTest = $$; cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
-    | expr '.' identifier { $$ = createAttributeRefExprNode($1, createIdExprNode($3)); exprTest = $$; cout << "P: expr '.' identifier -> expr | ATTRIBUTE REF" << endl; }
-    | INT_C { $$ = createIntConstExprNode($1); exprTest = $$; cout << "P: INT_C -> expr" << endl; }
-    | FLOAT_C { $$ = createFloatConstExprNode($1); exprTest = $$; cout << "P: FLOAT_C -> expr" << endl; }
-    | STRING_C { $$ = createStringConstExprNode($1); exprTest = $$; cout << "P: STRING_C -> expr" << endl; }
-    | identifier { $$ = createIdExprNode($1); exprTest = $$; cout << "P: identifier -> expr" << endl; }
-    | TRUE { $$ = createTrueConstExprNode(); exprTest = $$; cout << "P: TRUE -> expr" << endl; }
-    | FALSE { $$ = createFalseConstExprNode(); exprTest = $$; cout << "P: FALSE -> expr" << endl; }
-    | SELF { $$ = createSelfExprNode(); exprTest = $$; cout << "P: SELF -> expr" << endl; }
-    | SUPER { $$ = createSuperExprNode(); exprTest = $$; cout << "P: SUPER -> expr" << endl; }
+expr: expr '+' expr { $$ = createPlusExprNode($1, $3); cout << "P: expr '+' expr -> expr" << endl; }
+    | expr '-' expr { $$ = createMinusExprNode($1, $3); cout << "P: expr '-' expr -> expr" << endl;}
+    | expr '*' expr { $$ = createMulExprNode($1, $3);  cout << "P: expr '*' expr -> expr" << endl;}
+    | expr '/' expr { $$ = createDivExprNode($1, $3);  cout << "P: expr '/' expr -> expr" << endl;}
+    | expr AND expr { $$ = createAndLogicExprNode($1, $3); cout << "P: expr AND expr -> expr" << endl;}
+    | expr '&' expr { $$ = createAndBitwiseExprNode($1, $3); cout << "P: expr '&' expr -> expr" << endl;}
+    | expr OR expr { $$ = createOrLogicExprNode($1, $3);  cout << "P: expr OR expr -> expr" << endl;}
+    | expr '|' expr { $$ = createOrBitwiseExprNode($1, $3); cout << "P: expr '|' expr -> expr" << endl;}
+    | expr GT expr { $$ = createGreatExprNode($1, $3); cout << "P: expr GT expr -> expr" << endl;}
+    | expr GE expr { $$ = createGreatEqualExprNode($1, $3); cout << "P: expr GE expr -> expr" << endl;}
+    | expr LT expr { $$ = createLessExprNode($1, $3); cout << "P: expr LT expr -> expr" << endl;}
+    | expr LE expr { $$ = createLessEqualExprNode($1, $3); cout << "P: expr LE expr -> expr" << endl;}
+    | expr EQ expr { $$ = createEqualExprNode($1, $3); cout << "P: expr EQ expr -> expr" << endl;}
+    | expr NE expr { $$ = createNotEqualExprNode($1, $3); cout << "P: expr NE expr -> expr" << endl; }
+    | '+' expr %prec UPLUS { $$ = createUnaryPlusExprNode($2); cout << "P: '+' expr -> expr" << endl;}
+    | '-' expr %prec UMINUS { $$ = createUnaryMinusExprNode($2); cout << "P: '-' expr -> expr" << endl; }
+    | identifier ASSIGN_OP expr { $$ = createAssignOpExprNode(createIdExprNode($1), $3); cout << "P: identifier ASSIGN_OP expr -> expr" << endl; }
+    | '(' expr ')' { $$ = createExprInParenthesesBracketsNode($2); cout << "P: '(' expr ')' -> expr" << endl; }
+    | expr '[' expr ']' { $$ = createListAccessExprNode($1, $3); cout << "P: expr '[' expr ']' -> expr" << endl; }
+    | '[' exprListE ']' { $$ = createListCreationExprNode($2); cout << "P: '[' exprListE ']' -> expr" << endl; }
+    | expr '[' slicing ']' { $$ = createListAccessWithSlicingExprNode($1, $3); cout << "P: expr '[' slicing ']' -> expr" << endl; }
+    | '[' expr forHeaderList ifHeaderListE ']' { $$ = createListComprehensionExprNode($2, $3, $4); cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
+    | LAMBDA paramsListE ':' expr %prec LAMBDA { $$ = createLambdaExprNode($2, $4); cout << "P: lambdaExpr -> expr" << endl; }
+    | expr '(' funcArgs ')' { $$ = createFunctionCallExprNode($1, $3); cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
+    | expr '.' identifier '(' funcArgs ')' { $$ = createMethodCallExprNode($1, $3, $5); cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
+    | expr '.' identifier { $$ = createAttributeRefExprNode($1, createIdExprNode($3)); cout << "P: expr '.' identifier -> expr | ATTRIBUTE REF" << endl; }
+    | INT_C { $$ = createIntConstExprNode($1); cout << "P: INT_C -> expr" << endl; }
+    | FLOAT_C { $$ = createFloatConstExprNode($1); cout << "P: FLOAT_C -> expr" << endl; }
+    | STRING_C { $$ = createStringConstExprNode($1); cout << "P: STRING_C -> expr" << endl; }
+    | identifier { $$ = createIdExprNode($1); cout << "P: identifier -> expr" << endl; }
+    | TRUE { $$ = createTrueConstExprNode(); cout << "P: TRUE -> expr" << endl; }
+    | FALSE { $$ = createFalseConstExprNode(); cout << "P: FALSE -> expr" << endl; }
+    | SELF { $$ = createSelfExprNode(); cout << "P: SELF -> expr" << endl; }
+    | SUPER { $$ = createSuperExprNode(); cout << "P: SUPER -> expr" << endl; }
     ;
 
 exprE: expr { $$ = $1; }

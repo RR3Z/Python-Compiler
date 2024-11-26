@@ -5,7 +5,7 @@ using namespace std;
 
 extern int yyparse();
 extern FILE* yyin;
-extern struct ExprNode* exprTest;
+extern struct FileNode* fileRoot;
 
 int main(int argc, const char* argv[])
 {
@@ -31,7 +31,7 @@ int main(int argc, const char* argv[])
 	yyparse();
 	fclose(yyin);
 
-	string parseRes = "digraph G {\n" + generateDotFromExprNode(exprTest) + "}";
+	string parseRes = "digraph G {\n" + generateDotFromRoot(fileRoot) + "}";
 	//cout << parseRes << endl;
 	FILE* dotFile;
 	fopen_s(&dotFile, "diagram.dot", "w");
