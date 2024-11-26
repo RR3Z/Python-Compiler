@@ -766,11 +766,11 @@ FuncNode* createFuncNode(string* identifier, FuncArgsListNode* args, StmtsListNo
 
 /* ========== FUNC ARG ========== */
 
-FuncArgNode* createVarFuncArgNode(string* identifier) {
+FuncArgNode* createVarFuncArgNode(ExprNode* var) {
 	FuncArgNode* node = new FuncArgNode();
 
 	node->funcArgType = _VAR;
-	node->identifier = *identifier;
+	node->var = var;
 	node->id = ID++;
 
 	return node;

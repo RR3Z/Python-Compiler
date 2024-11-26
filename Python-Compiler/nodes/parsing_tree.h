@@ -163,7 +163,7 @@ FuncNode* createFuncNode(string* identifier, FuncArgsListNode* args, StmtsListNo
 
 /* ========== FUNC ARG ========== */
 
-FuncArgNode* createVarFuncArgNode(string* identifier);
+FuncArgNode* createVarFuncArgNode(ExprNode* var);
 
 FuncArgNode* createNamedFuncArgNode(StmtNode* assignStmt);
 

@@ -138,8 +138,8 @@ struct FuncArgNode {
 	// Для именованного аргумента
 	StmtNode* assignStmt = nullptr;
 
-	// Имя (id) аргумента
-	string identifier = "";
+	// Для аргумента-перемнной
+	ExprNode* var = nullptr;
 
 	// Следующий узел в FuncArgsListNode
 	FuncArgNode* next = nullptr;
