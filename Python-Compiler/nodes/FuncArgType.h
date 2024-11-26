@@ -1,4 +1,4 @@
 enum FuncArgType {
 	_NAMED = 1,
-	_UNNAMED = 2,
+	_VAR = 2,
 };

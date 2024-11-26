@@ -232,7 +232,7 @@ funcHeader: DEF identifier '(' paramsListE ')' {
                                                }
           ;
 
-param: identifier { $$ = createUnnamedFuncArgNode($1); cout << "P: identifier -> param" << endl; }
+param: identifier { $$ = createVarFuncArgNode($1); cout << "P: identifier -> param" << endl; }
      | identifier '=' expr { $$ = createNamedFuncArgNode(createAssignStmtNode(createIdExprNode($1), $3)); cout << "P: identifier '=' expr -> param" << endl; }
      ;
 

@@ -141,7 +141,7 @@ StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement);
 
 /* ========== FUNC ARG ========== */
 
-FuncArgNode* createUnnamedFuncArgNode(string* identifier);
+FuncArgNode* createVarFuncArgNode(string* identifier);
 
 FuncArgNode* createNamedFuncArgNode(StmtNode* assignStmt);
 

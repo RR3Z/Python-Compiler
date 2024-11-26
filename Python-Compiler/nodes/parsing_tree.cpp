@@ -728,10 +728,10 @@ StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement) 
 
 /* ========== FUNC ARG ========== */
 
-FuncArgNode* createUnnamedFuncArgNode(string* identifier) {
+FuncArgNode* createVarFuncArgNode(string* identifier) {
 	FuncArgNode* node = new FuncArgNode();
 
-	node->funcArgType = _UNNAMED;
+	node->funcArgType = _VAR;
 	node->identifier = *identifier;
 	node->id = ID++;
 
