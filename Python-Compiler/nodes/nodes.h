@@ -175,6 +175,8 @@ struct ClassNode {
 	ExprNode* base = nullptr;
 };
 
+/* ========== CLASS ELEMENT ========== */
+
 struct ClassElementNode {
 	// Индекс узла
 	int id = -1;
@@ -190,6 +192,8 @@ struct ClassElementNode {
 	// Следующий элемент в списке
 	ClassElementNode* next = nullptr;
 };
+
+/* ========== CLASS ELEMENTS LIST ========== */
 
 struct ClassElementsListNode {
 	// Индекс узла
@@ -214,7 +218,7 @@ struct FuncNode {
 	StmtsListNode* suite = nullptr;
 };
 
-/* ========== FILE ========== */
+/* ========== FILE ELEMENT ========== */
 
 struct FileElementNode {
 	// Индекс узла
@@ -238,6 +242,8 @@ struct FileElementNode {
 	ClassNode* classDef = nullptr;
 };
 
+/* ========== FILE ELEMENTS LIST ========== */
+
 struct FileElementsListNode {
 	// Индекс узла
 	int id = -1;
@@ -248,6 +254,8 @@ struct FileElementsListNode {
 	FileElementNode* last = nullptr;
 };
 
+/* ========== FILE ========== */
+
 struct FileNode {
 	// Индекс узла
 	int id = -1;
@@ -255,5 +263,3 @@ struct FileNode {
 	// Для хранения элементов, из которых состои файл
 	FileElementsListNode* elementsList = nullptr;
 };
-
-
