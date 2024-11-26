@@ -16,7 +16,6 @@ string generateDotFromRoot(FileNode* root) {
 
 		while (element->next != nullptr) {
 			dot += generateDotFromFileElementNode(root->id, element->next);
-			dot += dotConnection(root->id, element->next->id);
 			element = element->next;
 		}
 	}
