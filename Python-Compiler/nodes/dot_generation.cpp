@@ -125,8 +125,10 @@ string generateDotFromStmtNode(StmtNode* node) {
 			dot += generateDotFromStmtNode(node->leftNode);
 			dot += dotConnection(node->id, node->leftNode->id);
 			// ELIF stmt
-			dot += generateDotFromStmtsListNode(node->stmtsList);
-			dot += dotConnection(node->id, node->suite->id);
+			if (node->stmtsList != nullptr) {
+				dot += generateDotFromStmtsListNode(node->stmtsList);
+				dot += dotConnection(node->id, node->suite->id);
+			}
 			// ELSE STMT
 			dot += generateDotFromStmtNode(node->rightNode);
 			dot += dotConnection(node->id, node->rightNode->id);
