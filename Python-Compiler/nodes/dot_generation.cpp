@@ -440,28 +440,28 @@ string generateDotFromExprNode(ExprNode* node) {
 	switch (node->exprType)
 	{
 		case _PLUS:
-			dot += dotLabel(node->id, "plus");
+			dot += dotLabel(node->id, "+");
 			dot += generateDotFromExprNode(node->left);
 			dot += dotConnection(node->id, node->left->id);
 			dot += generateDotFromExprNode(node->right);
 			dot += dotConnection(node->id, node->right->id);
 			break;
 		case _MINUS:
-			dot += dotLabel(node->id, "minus");
+			dot += dotLabel(node->id, "-");
 			dot += generateDotFromExprNode(node->left);
 			dot += dotConnection(node->id, node->left->id);
 			dot += generateDotFromExprNode(node->right);
 			dot += dotConnection(node->id, node->right->id);
 			break;
 		case _MUL:
-			dot += dotLabel(node->id, "mul");
+			dot += dotLabel(node->id, "*");
 			dot += generateDotFromExprNode(node->left);
 			dot += dotConnection(node->id, node->left->id);
 			dot += generateDotFromExprNode(node->right);
 			dot += dotConnection(node->id, node->right->id);
 			break;
 		case _DIV:
-			dot += dotLabel(node->id, "div");
+			dot += dotLabel(node->id, "/");
 			dot += generateDotFromExprNode(node->left);
 			dot += dotConnection(node->id, node->left->id);
 			dot += generateDotFromExprNode(node->right);
@@ -583,7 +583,7 @@ string generateDotFromExprNode(ExprNode* node) {
 			dot += dotLabel(node->id, to_string(node->floatVal));
 			break;
 		case _STRING_CONST:
-			dot += dotLabel(node->id, node->stringVal);
+			dot += dotLabel(node->id, "\'\'" + node->stringVal + "\'\'");
 			break;
 		case _ATTRIBUTE_REF:
 			dot += dotLabel(node->id, "Attribute ref");
