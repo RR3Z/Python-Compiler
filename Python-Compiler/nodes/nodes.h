@@ -14,6 +14,7 @@ struct FuncNode;
 struct StmtNode;
 struct StmtsListNode;
 struct FuncArgsListNode;
+struct ClassElementsListNode;
 
 /* ========== EXPRESSION ========== */
 
@@ -171,7 +172,7 @@ struct ClassNode {
 	string identifier = "";
 
 	// Тело класса
-	StmtsListNode* suite = nullptr;
+	ClassElementsListNode* suite = nullptr;
 
 	// Родительский класс
 	ExprNode* base = nullptr;
@@ -183,7 +184,7 @@ struct ClassElementNode {
 	// Индекс узла
 	int id = -1;
 	// Тип узла
-	ClassElementType type;
+	ClassElementType elementType;
 
 	// ДЛЯ FUNCDEF
 	FuncNode* funcDef = nullptr;

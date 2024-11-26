@@ -143,7 +143,7 @@ StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement);
 
 /* ========== CLASS ========== */
 
-ClassNode* createClassNode(string* identifier, StmtsListNode* suite, ExprNode* parent);
+ClassNode* createClassNode(string* identifier, ClassElementsListNode* suite, ExprNode* parent);
 
 /* ========== CLASS ELEMENT ========== */
 

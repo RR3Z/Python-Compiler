@@ -87,7 +87,7 @@
 %type <stmtsListNode>exceptStmtList
 %type <stmtsListNode>assignStmtTargetAssignList 
 %type <stmtsListNode>suite
-%type <stmtsListNode>classSuite
+%type <classElementsListNode>classSuite
 %type <fileElementsListNode>programStmtsList
 
 %token TRUE FALSE
@@ -160,7 +160,7 @@ classElementsList: classElement { $$ = createClassElementsListNode($1); cout << 
 suite: NEWLINE INDENT stmtsList DEDENT { $$ = $3; cout << "P: NEWLINE INDENT stmtsList DEDENT -> suite" << endl; }
      ;
 
-classSuite: NEWLINE INDENT classElementsList DEDENT { cout << "P: NEWLINE INDENT classElementsList DEDENT -> classSuite" << endl; }
+classSuite: NEWLINE INDENT classElementsList DEDENT { $$ = $3; cout << "P: NEWLINE INDENT classElementsList DEDENT -> classSuite" << endl; }
           ;
 
 // IF STATEMENT
