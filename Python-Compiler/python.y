@@ -28,6 +28,7 @@
     struct FuncNode* funcNode;
     struct ClassNode* classNode;
     struct ClassElementNode* classElementNode;
+    struct ClassElementsListNode* classElementsListNode;
     struct FileNode* fileNode;
     struct FileElementNode* fileElementNode;
     struct FileElementsListNode* fileElementsListNode;
@@ -75,6 +76,7 @@
 %type <expressionListNode>targetList
 %type <expressionListNode>identifiers
 %type <expressionListNode>identifiersE
+%type <classElementsListNode>classElementsList
 %type <funcArgsListNode>paramsList
 %type <funcArgsListNode>paramsListE
 %type <funcArgsListNode>namedArgsList
@@ -150,8 +152,8 @@ classElement: funcDef { $$ = createFuncDefClassElementNode($1); cout << "P: func
             | stmt { $$ = createStmtClassElementNode($1); cout << "P: stmt -> classElement" << endl; }
             ;
 
-classElementsList: classElement { cout << "P: classElement -> classElementsList" << endl; }
-                 | classElementsList classElement { cout << "P: classElementsList classElement -> classElementsList" << endl; }
+classElementsList: classElement { $$ = createClassElementsListNode($1); cout << "P: classElement -> classElementsList" << endl; }
+                 | classElementsList classElement { $$ = addElementToClassElementsList($1, $2); cout << "P: classElementsList classElement -> classElementsList" << endl; }
                  ;
 
 suite: NEWLINE INDENT stmtsList DEDENT { $$ = $3; cout << "P: NEWLINE INDENT stmtsList DEDENT -> suite" << endl; }

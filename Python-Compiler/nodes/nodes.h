@@ -186,6 +186,19 @@ struct ClassElementNode {
 
 	// ДЛЯ STMT
 	StmtNode* stmt = nullptr;
+
+	// Следующий элемент в списке
+	ClassElementNode* next = nullptr;
+};
+
+struct ClassElementsListNode {
+	// Индекс узла
+	int id = -1;
+
+	// Первый элемент списка
+	ClassElementNode* first = nullptr;
+	// Последний элемент списка
+	ClassElementNode* last = nullptr;
 };
 
 /* ========== FUNC ========== */

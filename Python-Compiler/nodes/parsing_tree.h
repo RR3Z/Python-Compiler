@@ -149,6 +149,12 @@ ClassElementNode* createFuncDefClassElementNode(FuncNode* funcDef);
 
 ClassElementNode* createStmtClassElementNode(StmtNode* stmt);
 
+/* ========== CLASS ELEMENTS LIST ========== */
+
+ClassElementsListNode* createClassElementsListNode(ClassElementNode* firstElement);
+
+ClassElementsListNode* addElementToClassElementsList(ClassElementsListNode* list, ClassElementNode* newElement);
+
 /* ========== FUNC ========== */
 
 FuncNode* createFuncNode(ExprNode* funcHeader, StmtsListNode* suite);

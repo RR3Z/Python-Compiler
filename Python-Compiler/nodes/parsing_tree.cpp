@@ -761,6 +761,25 @@ ClassElementNode* createStmtClassElementNode(StmtNode* stmt) {
 	return node;
 }
 
+/* ========== CLASS ELEMENTS LIST ========== */
+
+ClassElementsListNode* createClassElementsListNode(ClassElementNode* firstElement) {
+	ClassElementsListNode* list = new ClassElementsListNode();
+
+	list->first = firstElement;
+	list->last = firstElement;
+	list->id = ID++;
+
+	return list;
+}
+
+ClassElementsListNode* addElementToClassElementsList(ClassElementsListNode* list, ClassElementNode* newElement) {
+	list->last->next = newElement;
+	list->last = newElement;
+
+	return list;
+}
+
 /* ========== FUNC ========== */
 
 FuncNode* createFuncNode(ExprNode* funcHeader, StmtsListNode* suite) {
