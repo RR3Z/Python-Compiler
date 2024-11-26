@@ -618,7 +618,7 @@ StmtNode* createForStmtNode(ExprListNode* targetList, ExprNode* expr, StmtsListN
 	node->stmtType = _FOR;
 	node->list = targetList;
 	node->expr = expr;
-	node->stmtsList = suite;
+	node->suite = suite;
 	node->id = ID++;
 
 	return node;
@@ -642,6 +642,7 @@ StmtNode* createCompoundTryStmtNode(StmtsListNode* suite, StmtsListNode* exceptS
 	node->leftNode = elseStmt;
 	node->rightNode = finallyStmt;
 	node->stmtsList = exceptStmtsList;
+	node->suite = suite;
 	node->id = ID++;
 
 	return node;
