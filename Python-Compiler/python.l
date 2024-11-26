@@ -57,7 +57,7 @@
 
 <INDENT_OUTPUT>""/. {
     if(dents.count > 0) {
-        cout << "Line: " << yylineno << ". Return DentType (265-indent, 266-dedent): " << dents.DentType << endl;
+        cout << "Line: " << yylineno << ". Return DentType (271-indent, 272-dedent): " << dents.DentType << endl;
         dents.count--;
         return dents.DentType;
     } else {
@@ -476,7 +476,7 @@ super { cout << "Line: " << yylineno << ". Found keyword: " << yytext << endl; r
 
     if(dentsCountEOF > 0) {
         dentsCountEOF--;
-        cout << "Return dents.DentType (265-indent, 266-dedent): " << dents.DentType << endl;
+        cout << "Return dents.DentType (271-indent, 272-dedent): " << dents.DentType << endl;
         return dents.DentType;
     } else {
         cout << "LEXER: yyterminate()" << endl;
