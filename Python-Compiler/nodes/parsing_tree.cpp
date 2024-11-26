@@ -726,6 +726,19 @@ StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement) 
 	return list;
 }
 
+/* ========== CLASS ========== */
+
+ClassNode* createClassNode(string* identifier, StmtsListNode* suite, ExprNode* parent) {
+	ClassNode* node = new ClassNode();
+
+	node->identifier = *identifier;
+	node->suite = suite;
+	node->base = parent;
+	node->id = ID++;
+
+	return node;
+}
+
 /* ========== FUNC ========== */
 
 FuncNode* createFuncNode(ExprNode* funcHeader, StmtsListNode* suite) {

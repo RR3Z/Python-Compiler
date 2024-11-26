@@ -139,6 +139,10 @@ StmtsListNode* createStmtsListNode(StmtNode* firstElement);
 
 StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement);
 
+/* ========== CLASS ========== */
+
+ClassNode* createClassNode(string* identifier, StmtsListNode* suite, ExprNode* parent);
+
 /* ========== FUNC ========== */
 
 FuncNode* createFuncNode(ExprNode* funcHeader, StmtsListNode* suite);

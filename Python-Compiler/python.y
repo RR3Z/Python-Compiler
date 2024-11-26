@@ -82,6 +82,7 @@
 %type <stmtsListNode>exceptStmtList
 %type <stmtsListNode>assignStmtTargetAssignList 
 %type <stmtsListNode>suite
+%type <stmtsListNode>classSuite
 %type <fileElementsListNode>programStmtsList
 
 %token TRUE FALSE
@@ -248,8 +249,8 @@ paramsListE: paramsList { $$ = $1; cout << "P: paramsList -> paramsListE" << end
 
 // CLASS DEFINITION
 
-classDef: CLASS identifier ':' classSuite  { cout << "P: CLASS identifier ':' classSuite -> classDef" << endl; }
-        | CLASS identifier '(' identifiersE ')' ':' classSuite { cout << "P: CLASS identifier '(' identifiersE ')' ':' classSuite -> classDef" << endl; }
+classDef: CLASS identifier ':' classSuite  { $$ = createClassNode($2, $4, nullptr); cout << "P: CLASS identifier ':' classSuite -> classDef" << endl; }
+        | CLASS identifier '(' identifier ')' ':' classSuite { $$ = createClassNode($2, $7, createIdExprNode($4)); cout << "P: CLASS identifier '(' identifier ')' ':' classSuite -> classDef" << endl; }
         ;
 
 // ASSIGNMENT STATEMENT

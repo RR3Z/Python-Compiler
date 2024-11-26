@@ -159,7 +159,17 @@ struct FuncArgsListNode {
 /* ========== CLASS ========== */
 
 struct ClassNode {
+	// Индекс узла
+	int id = -1;
 
+	// Наименование класса
+	string identifier = "";
+
+	// Тело класса
+	StmtsListNode* suite = nullptr;
+
+	// Родительский класс
+	ExprNode* base = nullptr;
 };
 
 /* ========== FUNC ========== */
@@ -168,8 +178,10 @@ struct FuncNode {
 	// Индекс узла
 	int id = -1;
 
+	// Заголовок функции
 	ExprNode* funcHeader = nullptr;
 
+	// Тело функции
 	StmtsListNode* suite = nullptr;
 };
 
