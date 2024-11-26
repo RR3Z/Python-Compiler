@@ -152,8 +152,7 @@ string generateDotFromStmtNode(StmtNode* node) {
 		case _FOR:
 			dot += dotLabel(node->id, "FOR stmt");
 			// Target List
-			dot += generateDotFromExprListNode(node->list);
-			dot += dotConnection(node->id, node->list->id);
+			dot += generateDotFromExprListNode(node->id, node->list);
 			// Expression
 			dot += generateDotFromExprNode(node->expr);
 			dot += dotConnection(node->id, node->expr->id);
@@ -279,16 +278,14 @@ string generateDotFromStmtNode(StmtNode* node) {
 			dot += dotConnection(node->id, node->expr->id);
 			break;
 		case _EXPR_LIST_STMT:
-			dot += dotLabel(node->id, "TargetList\n(compound Assign)");
+			dot += dotLabel(node->id, "Assign\nTarget List");
 			// Target List
-			dot += generateDotFromExprListNode(node->list);
-			dot += dotConnection(node->id, node->list->id);
+			dot += generateDotFromExprListNode(node->id, node->list);
 			break;
 		case _RETURN:
 			dot += dotLabel(node->id, "RETURN stmt");
 			// Return values
-			dot += generateDotFromExprListNode(node->list);
-			dot += dotConnection(node->id, node->list->id);
+			dot += generateDotFromExprListNode(node->id, node->list);
 			break;
 		default:
 			break;
@@ -595,19 +592,17 @@ string generateDotFromExprNode(ExprNode* node) {
 		case _LIST_COMPREHENSION:
 			dot += dotLabel(node->id, "List Comprehension");
 			dot += generateDotFromExprNode(node->left);
-			dot += generateDotFromExprListNode(node->forHeaderList);
+			dot += generateDotFromExprListNode(node->id, node->forHeaderList);
 			dot += dotConnectionWithLabel(node->id, node->left->id, "expr");
-			dot += dotConnectionWithLabel(node->id, node->forHeaderList->id, "forHeaderList");
 			if (node->ifHeaderList != nullptr) {
-				dot += generateDotFromExprListNode(node->ifHeaderList);
+				dot += generateDotFromExprListNode(node->id, node->ifHeaderList);
 				dot += dotConnectionWithLabel(node->id, node->ifHeaderList->id, "ifHeaderList");
 			}
 			break;
 		case _LIST_CREATION:
 			if (node->list != nullptr) {
 				dot += dotLabel(node->id, "[exprList]");
-				dot += generateDotFromExprListNode(node->list);
-				dot += dotConnection(node->id, node->list->id);
+				dot += generateDotFromExprListNode(node->id, node->list);
 			}
 			else {
 				dot += dotLabel(node->id, "[]");
@@ -630,8 +625,7 @@ string generateDotFromExprNode(ExprNode* node) {
 			dot += dotLabel(node->id, "for header");
 			dot += generateDotFromExprNode(node->left);
 			dot += dotConnectionWithLabel(node->id, node->left->id, "expr");
-			dot += generateDotFromExprListNode(node->list);
-			dot += dotConnectionWithLabel(node->id, node->list->id, "targetList");
+			dot += generateDotFromExprListNode(node->id, node->list);
 			break;
 		case _FUNC_HEADER:
 			break;
@@ -642,24 +636,23 @@ string generateDotFromExprNode(ExprNode* node) {
 	return dot;
 }
 
-string generateDotFromExprListNode(ExprListNode* node) {
+string generateDotFromExprListNode(int parentId, ExprListNode* node) {
 	string dot = "";
 
 	if (node == nullptr) { return dot; }
 
-	//if (node->first != nullptr) {
-	//	ExprNode* expr = node->first;
+	if (node->first != nullptr) {
+		ExprNode* expr = node->first;
 
-	//	dot += dotLabel(node->id, "exprList");
-	//	dot += generateDotFromExprNode(expr);
-	//	dot += dotConnection(node->id, expr->id);
+		dot += generateDotFromExprNode(expr);
+		dot += dotConnection(parentId, expr->id);
 
-	//	while (expr->next != nullptr) {
-	//		dot += generateDotFromExprNode(expr->next);
-	//		dot += dotConnection(node->id, expr->next->id);
-	//		expr = expr->next;
-	//	}
-	//}
+		while (expr->next != nullptr) {
+			dot += generateDotFromExprNode(expr->next);
+			dot += dotConnection(parentId, expr->next->id);
+			expr = expr->next;
+		}
+	}
 
 	return dot;
 }

@@ -23,6 +23,6 @@ string generateDotFromClassElementNode(int parentId, ClassElementNode* node);
 
 string generateDotFromExprNode(ExprNode* node);
 
-string generateDotFromExprListNode(ExprListNode* node);
+string generateDotFromExprListNode(int parentId, ExprListNode* node);
 
 string generateDotFromSlicingNode(SlicingNode* node);
