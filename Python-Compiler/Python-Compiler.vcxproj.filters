@@ -83,5 +83,8 @@
     <ClInclude Include="nodes\FileElementType.h">
       <Filter>Файлы заголовков\nodes</Filter>
     </ClInclude>
+    <ClInclude Include="nodes\ClassElementType.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

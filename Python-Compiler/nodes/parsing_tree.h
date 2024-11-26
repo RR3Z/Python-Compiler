@@ -143,6 +143,12 @@ StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement);
 
 ClassNode* createClassNode(string* identifier, StmtsListNode* suite, ExprNode* parent);
 
+/* ========== CLASS ELEMENT ========== */
+
+ClassElementNode* createFuncDefClassElementNode(FuncNode* funcDef);
+
+ClassElementNode* createStmtClassElementNode(StmtNode* stmt);
+
 /* ========== FUNC ========== */
 
 FuncNode* createFuncNode(ExprNode* funcHeader, StmtsListNode* suite);

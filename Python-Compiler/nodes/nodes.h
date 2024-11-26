@@ -4,10 +4,13 @@
 #include "StmtType.h"
 #include "FuncArgType.h"
 #include "FileElementType.h"
+#include "ClassElementType.h"
 using namespace std;
 
 struct ExprListNode;
 struct SlicingNode;
+struct ClassNode;
+struct FuncNode;
 struct StmtsListNode;
 struct FuncArgsListNode;
 
@@ -170,6 +173,19 @@ struct ClassNode {
 
 	// Родительский класс
 	ExprNode* base = nullptr;
+};
+
+struct ClassElementNode {
+	// Индекс узла
+	int id = -1;
+	// Тип узла
+	ClassElementType type;
+
+	// ДЛЯ FUNCDEF
+	FuncNode* funcDef = nullptr;
+
+	// ДЛЯ STMT
+	StmtNode* stmt = nullptr;
 };
 
 /* ========== FUNC ========== */

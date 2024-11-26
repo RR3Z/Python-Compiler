@@ -739,6 +739,28 @@ ClassNode* createClassNode(string* identifier, StmtsListNode* suite, ExprNode* p
 	return node;
 }
 
+/* ========== CLASS ELEMENT ========== */
+
+ClassElementNode* createFuncDefClassElementNode(FuncNode* funcDef) {
+	ClassElementNode* node = new ClassElementNode();
+
+	node->type = _FUNCTION_DEF;
+	node->funcDef = funcDef;
+	node->id = ID++;
+
+	return node;
+}
+
+ClassElementNode* createStmtClassElementNode(StmtNode* stmt) {
+	ClassElementNode* node = new ClassElementNode();
+
+	node->type = _STMT_NODE;
+	node->stmt = stmt;
+	node->id = ID++;
+
+	return node;
+}
+
 /* ========== FUNC ========== */
 
 FuncNode* createFuncNode(ExprNode* funcHeader, StmtsListNode* suite) {

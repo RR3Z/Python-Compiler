@@ -27,6 +27,7 @@
     struct FuncArgsListNode* funcArgsListNode;
     struct FuncNode* funcNode;
     struct ClassNode* classNode;
+    struct ClassElementNode* classElementNode;
     struct FileNode* fileNode;
     struct FileElementNode* fileElementNode;
     struct FileElementsListNode* fileElementsListNode;
@@ -62,6 +63,7 @@
 %type <stmtNode>assignStmt
 %type <funcNode>funcDef
 %type <classNode>classDef
+%type <classElementNode>classElement
 %type <fileElementNode>topLevelStmt
 %type <fileNode>program
 
@@ -144,8 +146,8 @@ stmtsList: stmt { $$ = createStmtsListNode($1); cout << "P: stmt -> stmtsList" <
          | stmtsList stmt { $$ = addElementToStmtsList($1, $2); cout << "P: stmtsList stmt -> stmtsList" << endl; }
          ;
                   
-classElement: funcDef { cout << "P: funcDef -> classElement" << endl; }
-            | stmt { cout << "P: stmtWithoutReturn -> classElement" << endl; }
+classElement: funcDef { $$ = createFuncDefClassElementNode($1); cout << "P: funcDef -> classElement" << endl; }
+            | stmt { $$ = createStmtClassElementNode($1); cout << "P: stmt -> classElement" << endl; }
             ;
 
 classElementsList: classElement { cout << "P: classElement -> classElementsList" << endl; }
