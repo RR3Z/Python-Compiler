@@ -232,10 +232,10 @@ funcDef: funcHeader ':' suite {
                               }
        ;
 
-funcHeader: DEF identifier '(' paramsListE ')' { 
+funcHeader: DEF identifier '(' funcArgs ')' { 
                                                  $$ = createFuncHeaderExprNode($2, $4);
                                                  isFunc = true; 
-                                                 cout << "P: DEF identifier '(' paramsListE ')' -> funcHeader" << endl; 
+                                                 cout << "P: DEF identifier '(' funcArgs ')' -> funcHeader" << endl; 
                                                }
           ;
 
