@@ -22,9 +22,6 @@ ExprNode* createIntConstExprNode(int value) {
 
 	node->exprType = _INT_CONST;
 	node->intVal = value;
-	node->left = nullptr;
-	node->right = nullptr;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -35,9 +32,6 @@ ExprNode* createFloatConstExprNode(float value) {
 
 	node->exprType = _FLOAT_CONST;
 	node->floatVal = value;
-	node->left = nullptr;
-	node->right = nullptr;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -48,9 +42,6 @@ ExprNode* createStringConstExprNode(string* text) {
 
 	node->exprType = _STRING_CONST;
 	node->stringVal = *text;
-	node->left = nullptr;
-	node->right = nullptr;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -61,9 +52,6 @@ ExprNode* createTrueConstExprNode() {
 
 	node->exprType = _TRUE;
 	node->boolVal = true;
-	node->left = nullptr;
-	node->right = nullptr;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -74,9 +62,6 @@ ExprNode* createFalseConstExprNode() {
 
 	node->exprType = _FALSE;
 	node->boolVal = false;
-	node->left = nullptr;
-	node->right = nullptr;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -88,7 +73,6 @@ ExprNode* createPlusExprNode(ExprNode* leftOperand, ExprNode* rightOperand) {
 	node->exprType = _PLUS;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -100,7 +84,6 @@ ExprNode* createMinusExprNode(ExprNode* leftOperand, ExprNode* rightOperand) {
 	node->exprType = _MINUS;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -112,7 +95,6 @@ ExprNode* createMulExprNode(ExprNode* leftOperand, ExprNode* rightOperand) {
 	node->exprType = _MUL;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -124,7 +106,6 @@ ExprNode* createDivExprNode(ExprNode* leftOperand, ExprNode* rightOperand) {
 	node->exprType = _DIV;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -136,7 +117,6 @@ ExprNode* createAndLogicExprNode(ExprNode* leftOperand, ExprNode* rightOperand) 
 	node->exprType = _AND_LOGIC;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -148,7 +128,6 @@ ExprNode* createAndBitwiseExprNode(ExprNode* leftOperand, ExprNode* rightOperand
 	node->exprType = _AND_BITWISE;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -160,7 +139,6 @@ ExprNode* createOrLogicExprNode(ExprNode* leftOperand, ExprNode* rightOperand) {
 	node->exprType = _OR_LOGIC;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -172,7 +150,6 @@ ExprNode* createOrBitwiseExprNode(ExprNode* leftOperand, ExprNode* rightOperand)
 	node->exprType = _OR_BITWISE;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -184,7 +161,6 @@ ExprNode* createGreatExprNode(ExprNode* leftOperand, ExprNode* rightOperand) {
 	node->exprType = _GREAT;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -196,7 +172,6 @@ ExprNode* createGreatEqualExprNode(ExprNode* leftOperand, ExprNode* rightOperand
 	node->exprType = _GREAT_EQUAL;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -208,7 +183,6 @@ ExprNode* createLessExprNode(ExprNode* leftOperand, ExprNode* rightOperand) {
 	node->exprType = _LESS;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -220,7 +194,6 @@ ExprNode* createLessEqualExprNode(ExprNode* leftOperand, ExprNode* rightOperand)
 	node->exprType = _LESS_EQUAL;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -232,7 +205,6 @@ ExprNode* createEqualExprNode(ExprNode* leftOperand, ExprNode* rightOperand) {
 	node->exprType = _EQUAL;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -244,7 +216,6 @@ ExprNode* createNotEqualExprNode(ExprNode* leftOperand, ExprNode* rightOperand) 
 	node->exprType = _NOT_EQUAL;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -256,7 +227,6 @@ ExprNode* createUnaryPlusExprNode(ExprNode* value) {
 	node->exprType = _U_PLUS;
 	node->left = nullptr;
 	node->right = value;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -268,7 +238,6 @@ ExprNode* createUnaryMinusExprNode(ExprNode* value) {
 	node->exprType = _U_MINUS;
 	node->left = nullptr;
 	node->right = value;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -278,9 +247,6 @@ ExprNode* createSelfExprNode() {
 	ExprNode* node = new ExprNode();
 
 	node->exprType = _SELF;
-	node->left = nullptr;
-	node->right = nullptr;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -290,9 +256,6 @@ ExprNode* createSuperExprNode() {
 	ExprNode* node = new ExprNode();
 
 	node->exprType = _SUPER;
-	node->left = nullptr;
-	node->right = nullptr;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -304,7 +267,6 @@ ExprNode* createAssignOpExprNode(ExprNode* leftOperand, ExprNode* rightOperand) 
 	node->exprType = _ASSIGN_OP;
 	node->left = leftOperand;
 	node->right = rightOperand;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -316,7 +278,6 @@ ExprNode* createExprInParenthesesBracketsNode(ExprNode* expression) {
 	node->exprType = _BRACKETS;
 	node->left = expression;
 	node->right = nullptr;
-	node->next = nullptr;
 	node->id = ID++;
 
 	return node;
@@ -476,13 +437,13 @@ SlicingNode* createSlicingNode(ExprNode* start, ExprNode* end, ExprNode* step) {
 
 /* ========== STATEMENT ========== */
 
-StmtNode* createCompoundIfStmtNode(StmtNode* ifStmt, StmtNode* elseStmt, StmtsListNode* elseStmtsList) {
+StmtNode* createCompoundIfStmtNode(StmtNode* ifStmt, StmtNode* elseStmt, StmtsListNode* elifStmtsList) {
 	StmtNode* node = new StmtNode();
 
 	node->stmtType = _COMPOUND_IF;
 	node->leftNode = ifStmt;
 	node->rightNode = elseStmt;
-	node->stmtsList = elseStmtsList;
+	node->stmtsList = elifStmtsList;
 	node->id = ID++;
 
 	return node;
@@ -519,7 +480,6 @@ StmtNode* createElifStmtNode(ExprNode* expr, StmtsListNode* suite) {
 
 	return node;
 }
-
 
 StmtNode* createFinallyStmtNode(StmtsListNode* suite) {
 	StmtNode* node = new StmtNode();
@@ -816,7 +776,7 @@ FuncArgNode* createNamedFuncArgNode(StmtNode* assignStmt) {
 
 /* ========== FUNC ARGS LIST ========== */
 
-FuncArgsListNode* createParamsListNode(FuncArgNode* firstElement) {
+FuncArgsListNode* createFuncArgsListNode(FuncArgNode* firstElement) {
 	FuncArgsListNode* list = new FuncArgsListNode();
 
 	list->first = firstElement;
@@ -854,7 +814,7 @@ FuncArgsListNode* createFuncArgsListNodeFromDifferentLists(ExprListNode* exprLis
 	return list;
 }
 
-FuncArgsListNode* addElementToParamsList(FuncArgsListNode* list, FuncArgNode* newElement) {
+FuncArgsListNode* addElementToFuncArgsList(FuncArgsListNode* list, FuncArgNode* newElement) {
 	list->last->next = newElement;
 	list->last = newElement;
 

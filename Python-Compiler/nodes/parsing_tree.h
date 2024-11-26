@@ -89,7 +89,7 @@ SlicingNode* createSlicingNode(ExprNode* start, ExprNode* end, ExprNode* step);
 
 /* ========== STATEMENT ========== */
 
-StmtNode* createCompoundIfStmtNode(StmtNode* ifStmt, StmtNode* elseStmt, StmtsListNode* elseStmtsList);
+StmtNode* createCompoundIfStmtNode(StmtNode* ifStmt, StmtNode* elseStmt, StmtsListNode* elifStmtsList);
 
 StmtNode* createIfStmtNode(ExprNode* expr, StmtsListNode* suite);
 
@@ -167,7 +167,7 @@ FuncArgNode* createNamedFuncArgNode(StmtNode* assignStmt);
 
 /* ========== FUNC ARGS LIST ========== */
 
-FuncArgsListNode* createParamsListNode(FuncArgNode* firstElement);
+FuncArgsListNode* createFuncArgsListNode(FuncArgNode* firstElement);
 
 FuncArgsListNode* createFuncArgsListNodeFromExprList(ExprListNode* exprList);
 
@@ -175,7 +175,7 @@ FuncArgsListNode* createFuncArgsListNodeFromFuncArgsList(FuncArgsListNode* named
 
 FuncArgsListNode* createFuncArgsListNodeFromDifferentLists(ExprListNode* exprList, FuncArgsListNode* namedArgsList);
 
-FuncArgsListNode* addElementToParamsList(FuncArgsListNode* list, FuncArgNode* newElement);
+FuncArgsListNode* addElementToFuncArgsList(FuncArgsListNode* list, FuncArgNode* newElement);
 
 /* ========== FILE ========== */
 

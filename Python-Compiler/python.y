@@ -242,8 +242,8 @@ param: identifier { $$ = createVarFuncArgNode($1); cout << "P: identifier -> par
      | identifier '=' expr { $$ = createNamedFuncArgNode(createAssignStmtNode(createIdExprNode($1), $3)); cout << "P: identifier '=' expr -> param" << endl; }
      ;
 
-paramsList: param { $$ = createParamsListNode($1); cout << "P: param -> paramsList" << endl; }
-          | paramsList ',' param { $$ = addElementToParamsList($1, $3); cout << "P: paramsList ',' param -> paramsList" << endl; }
+paramsList: param { $$ = createFuncArgsListNode($1); cout << "P: param -> paramsList" << endl; }
+          | paramsList ',' param { $$ = addElementToFuncArgsList($1, $3); cout << "P: paramsList ',' param -> paramsList" << endl; }
           ;
 
 paramsListE: paramsList { $$ = $1; cout << "P: paramsList -> paramsListE" << endl; }
@@ -364,8 +364,8 @@ slicing: exprE ':' exprE { $$ = createSlicingNode($1, $3, nullptr); cout << "P: 
        | exprE ':' exprE ':' exprE { $$ = createSlicingNode($1, $3, $5); cout << "P: exprE ':' exprE ':' exprE -> slicing" << endl; }
        ;
 
-namedArgsList: identifier '=' expr { $$ = createParamsListNode(createNamedFuncArgNode(createAssignStmtNode(createIdExprNode($1), $3))); }
-             | namedArgsList ',' identifier '=' expr { $$ = addElementToParamsList($1, createNamedFuncArgNode(createAssignStmtNode(createIdExprNode($3), $5))); }
+namedArgsList: identifier '=' expr { $$ = createFuncArgsListNode(createNamedFuncArgNode(createAssignStmtNode(createIdExprNode($1), $3))); }
+             | namedArgsList ',' identifier '=' expr { $$ = addElementToFuncArgsList($1, createNamedFuncArgNode(createAssignStmtNode(createIdExprNode($3), $5))); }
              ;
 
 funcArgs: exprList { $$ = createFuncArgsListNodeFromExprList($1); }
