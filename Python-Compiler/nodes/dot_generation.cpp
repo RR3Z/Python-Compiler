@@ -78,8 +78,9 @@ string generateDotFromFuncNode(FuncNode* node) {
 
 	// Аргументы функции
 	if (node->args != nullptr) {
-		dot += generateDotFromFuncArgsListNode(node->args);
-		dot += dotConnectionWithLabel(node->id, node->args->id, "args");
+		dot += dotLabel(node->args->id, "args");
+		dot += generateDotFromFuncArgsListNode(node->args->id, node->args);
+		dot += dotConnection(node->id, node->args->id);
 	}
 
 	// Тело функции
@@ -315,19 +316,54 @@ string generateDotFromStmtsListNode(StmtsListNode* node) {
 	return dot;
 }
 
-string generateDotFromFuncArgsListNode(FuncArgsListNode* node) {
+string generateDotFromFuncArgsListNode(int parentId, FuncArgsListNode* node) {
 	string dot = "";
 	if (node == nullptr) { return dot; }
 
 	if (node->first != nullptr) {
 		FuncArgNode* element = node->first;
 
-		dot += dotLabel(node->id, "Func Args List");
-		dot += generateDotFromFuncArgNode(node->id, element);
+		if (parentId > 0) {
+			dot += generateDotFromFuncArgNode(parentId, element);
 
-		while (element->next != nullptr) {
-			dot += generateDotFromFuncArgNode(node->id, element->next);
-			element = element->next;
+			while (element->next != nullptr) {
+				dot += generateDotFromFuncArgNode(parentId, element->next);
+				dot += dotConnection(parentId, element->next->id);
+				element = element->next;
+			}
+		}
+		else {
+			dot += dotLabel(node->id, "Func Args List");
+			dot += generateDotFromFuncArgNode(node->id, element);
+			dot += dotConnection(node->id, element->id);
+
+			while (element->next != nullptr) {
+				dot += generateDotFromFuncArgNode(node->id, element->next);
+				dot += dotConnection(node->id, element->next->id);
+				element = element->next;
+			}
+		}
+	}
+
+	if (node->namedArgsList != nullptr) {
+		if (parentId > 0) {
+			dot += generateDotFromFuncArgsListNode(parentId, node->namedArgsList);
+			//dot += dotConnection(parentId, node->namedArgsList->id);
+		}
+		else {
+			dot += dotLabel(node->id, "Func Args List");
+			dot += generateDotFromFuncArgsListNode(node->id, node->namedArgsList);
+			dot += dotConnection(node->id, node->namedArgsList->id);
+		}
+	}
+
+	if (node->exprList != nullptr) {
+		if (parentId > 0) {
+			dot += generateDotFromExprListNode(parentId, node->exprList);
+		}
+		else {
+			dot += dotLabel(node->id, "Func Args List");
+			dot += generateDotFromExprListNode(node->id, node->exprList);
 		}
 	}
 
@@ -513,8 +549,9 @@ string generateDotFromExprNode(ExprNode* node) {
 		case _LAMBDA:
 			dot += dotLabel(node->id, "LAMBDA");
 			// PARAMS
-			dot += generateDotFromFuncArgsListNode(node->funcArgs);
-			dot += dotConnection(node->id, node->funcArgs->id);
+			dot += dotLabel(node->funcArgs->id, "lambda params");
+			dot += generateDotFromFuncArgsListNode(node->funcArgs->id, node->funcArgs);
+			dot += dotConnection(node->id, node->funcArgs->id); 
 			// EXPRESSION
 			dot += generateDotFromExprNode(node->left);
 			dot += dotConnection(node->id, node->left->id);
@@ -563,8 +600,9 @@ string generateDotFromExprNode(ExprNode* node) {
 			dot += generateDotFromExprNode(node->right);
 			dot += dotConnectionWithLabel(node->id, node->right->id, "funcId");
 			// PARAMS
-			dot += generateDotFromFuncArgsListNode(node->funcArgs);
-			dot += dotConnectionWithLabel(node->id, node->funcArgs->id, "params");
+			dot += dotLabel(node->funcArgs->id, "params");
+			dot += generateDotFromFuncArgsListNode(node->funcArgs->id, node->funcArgs);
+			dot += dotConnection(node->id, node->funcArgs->id); 
 			break;
 		case _FUNCTION_CALL:
 			dot += dotLabel(node->id, "Function call");
@@ -572,8 +610,9 @@ string generateDotFromExprNode(ExprNode* node) {
 			dot += generateDotFromExprNode(node->left);
 			dot += dotConnectionWithLabel(node->id, node->left->id, "id");
 			// PARAMS
-			dot += generateDotFromFuncArgsListNode(node->funcArgs);
-			dot += dotConnectionWithLabel(node->id, node->funcArgs->id, "params");
+			dot += dotLabel(node->funcArgs->id, "params");
+			dot += generateDotFromFuncArgsListNode(node->funcArgs->id, node->funcArgs);
+			dot += dotConnection(node->id, node->funcArgs->id); 
 			break;
 		case _SLICING_LIST_ACCESS:
 			dot += generateDotFromExprNode(node->left);

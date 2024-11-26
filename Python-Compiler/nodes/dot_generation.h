@@ -13,7 +13,7 @@ string generateDotFromStmtNode(StmtNode* node);
 
 string generateDotFromStmtsListNode(StmtsListNode* node);
 
-string generateDotFromFuncArgsListNode(FuncArgsListNode* node);
+string generateDotFromFuncArgsListNode(int parentId, FuncArgsListNode* node);
 
 string generateDotFromFuncArgNode(int parentId, FuncArgNode* node);
 
