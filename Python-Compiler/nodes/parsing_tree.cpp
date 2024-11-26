@@ -386,11 +386,11 @@ ExprNode* createForHeaderExprNode(ExprListNode* targetList, ExprNode* expr) {
 	return node;
 }
 
-ExprNode* createFuncHeaderExprNode(ExprNode* identifier, FuncArgsListNode* funcArgs) {
+ExprNode* createFuncHeaderExprNode(string* identifier, FuncArgsListNode* funcArgs) {
 	ExprNode* node = new ExprNode();
 
 	node->exprType = _FUNC_HEADER;
-	node->left = identifier;
+	node->identifier = *identifier;
 	node->funcArgs = funcArgs;
 	node->id = ID++;
 
@@ -724,6 +724,18 @@ StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement) 
 	list->last = newElement;
 
 	return list;
+}
+
+/* ========== FUNC ========== */
+
+FuncNode* createFuncNode(ExprNode* funcHeader, StmtsListNode* suite) {
+	FuncNode* node = new FuncNode();
+
+	node->funcHeader = funcHeader;
+	node->suite = suite;
+	node->id = ID++;
+
+	return node;
 }
 
 /* ========== FUNC ARG ========== */

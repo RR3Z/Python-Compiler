@@ -67,7 +67,7 @@ ExprNode* createIfHeaderExprNode(ExprNode* expr);
 
 ExprNode* createForHeaderExprNode(ExprListNode* targetList, ExprNode* expr);
 
-ExprNode* createFuncHeaderExprNode(ExprNode* identifier, FuncArgsListNode* funcArgs);
+ExprNode* createFuncHeaderExprNode(string* identifier, FuncArgsListNode* funcArgs);
 
 ExprNode* createListComprehensionExprNode(ExprNode* expr, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE);
 
@@ -138,6 +138,10 @@ StmtNode* createStmtNodeFromExprListNode(ExprListNode* list);
 StmtsListNode* createStmtsListNode(StmtNode* firstElement);
 
 StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement);
+
+/* ========== FUNC ========== */
+
+FuncNode* createFuncNode(ExprNode* funcHeader, StmtsListNode* suite);
 
 /* ========== FUNC ARG ========== */
 

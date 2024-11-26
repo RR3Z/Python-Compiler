@@ -220,13 +220,14 @@ exceptStmtList: exceptStmt { $$ = createStmtsListNode($1);}
 // FUNCTION DEFINITION
 
 funcDef: funcHeader ':' suite { 
+                                $$ = createFuncNode($1, $3);
                                 isFunc = false; 
                                 cout << "P: funcHeader ':' suite -> funcDef" << endl; 
                               }
        ;
 
 funcHeader: DEF identifier '(' paramsListE ')' { 
-                                                 $$ = createFuncHeaderExprNode(createIdExprNode($2), $4);
+                                                 $$ = createFuncHeaderExprNode($2, $4);
                                                  isFunc = true; 
                                                  cout << "P: DEF identifier '(' paramsListE ')' -> funcHeader" << endl; 
                                                }

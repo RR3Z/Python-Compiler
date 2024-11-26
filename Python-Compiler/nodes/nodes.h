@@ -165,7 +165,12 @@ struct ClassNode {
 /* ========== FUNC ========== */
 
 struct FuncNode {
+	// Индекс узла
+	int id = -1;
 
+	ExprNode* funcHeader = nullptr;
+
+	StmtsListNode* suite = nullptr;
 };
 
 /* ========== FILE ========== */
