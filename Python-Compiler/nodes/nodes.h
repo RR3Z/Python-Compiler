@@ -11,6 +11,7 @@ struct ExprListNode;
 struct SlicingNode;
 struct ClassNode;
 struct FuncNode;
+struct StmtNode;
 struct StmtsListNode;
 struct FuncArgsListNode;
 
@@ -94,20 +95,21 @@ struct StmtNode {
 	ExprNode* leftExpr = nullptr;
 	ExprNode* rightExpr = nullptr;
 
-	// Используется для: задания самого условия (if, else)
+	// Используется для: задания условия (condition для if, while и т.д.)
 	ExprNode* expr = nullptr;
 
-	// Используется для: задания identifier in EXCEPT
+	// Используется для задания списков (stmtsList, exprList)
+	ExprListNode* list = nullptr;
+	StmtsListNode* stmtsList = nullptr;
+
+	// ТОЛЬКО ДЛЯ TRY STMT
+	StmtNode* tryStmt = nullptr;
+
+	// ТОЛЬКО ДЛЯ EXCEPT as IDENTIFIER
 	ExprNode* identifier = nullptr;
 
-	// Используется для
-	ExprListNode* list = nullptr;
-
-	// Используется для задания тела stmt
+	// ТОЛЬКО ДЛЯ SUITE
 	StmtsListNode* suite = nullptr;
-
-	// Используется, если для одного stmt можно задать несколько условий (например, elifStmtsList в ifStmt)
-	StmtsListNode* stmtsList = nullptr;
 
 	// ТОЛЬКО ДЛЯ STMTSLIST
 	StmtNode* next = nullptr;

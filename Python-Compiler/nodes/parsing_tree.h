@@ -127,11 +127,13 @@ StmtNode* createForStmtNode(ExprListNode* targetList, ExprNode* expr, StmtsListN
 
 StmtNode* createCompoundForStmtNode(StmtNode* forStmt, StmtNode* elseStmt);
 
-StmtNode* createCompoundTryStmtNode(StmtsListNode* suite, StmtsListNode* exceptStmtsList, StmtNode* elseStmt, StmtNode* finallyStmt);
+StmtNode* createCompoundTryStmtNode(StmtNode* tryStmt, StmtsListNode* exceptStmtsList, StmtNode* elseStmt, StmtNode* finallyStmt);
 
 StmtNode* createStmtNodeFromExprNode(ExprNode* expr);
 
 StmtNode* createStmtNodeFromExprListNode(ExprListNode* list);
+
+StmtNode* createTryStmtNode(StmtsListNode* suite);
 
 /* ========== STATEMENTS LIST ========== */
 

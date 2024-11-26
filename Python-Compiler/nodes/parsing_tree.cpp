@@ -635,14 +635,23 @@ StmtNode* createCompoundForStmtNode(StmtNode* forStmt, StmtNode* elseStmt) {
 	return node;
 }
 
-StmtNode* createCompoundTryStmtNode(StmtsListNode* suite, StmtsListNode* exceptStmtsList, StmtNode* elseStmt, StmtNode* finallyStmt) {
+StmtNode* createTryStmtNode(StmtsListNode* suite) {
+	StmtNode* node = new StmtNode();
+
+	node->stmtType = _TRY;
+	node->suite = suite;
+
+	return node;
+}
+
+StmtNode* createCompoundTryStmtNode(StmtNode* tryStmt, StmtsListNode* exceptStmtsList, StmtNode* elseStmt, StmtNode* finallyStmt) {
 	StmtNode* node = new StmtNode();
 
 	node->stmtType = _COMPOUND_TRY;
 	node->leftNode = elseStmt;
 	node->rightNode = finallyStmt;
 	node->stmtsList = exceptStmtsList;
-	node->suite = suite;
+	node->tryStmt = tryStmt;
 	node->id = ID++;
 
 	return node;
