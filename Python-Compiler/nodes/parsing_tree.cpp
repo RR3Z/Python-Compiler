@@ -657,10 +657,11 @@ StmtNode* createStmtNodeFromExprNode(ExprNode* expr) {
 	return node;
 }
 
+// USED ONLY FOR assignStmtTargetAssignList
 StmtNode* createStmtNodeFromExprListNode(ExprListNode* list){
 	StmtNode* node = new StmtNode();
 
-   node->stmtType = _EXPR_LIST_STMT;
+	node->stmtType = _EXPR_LIST_STMT;
 	node->list = list;
 	node->id = ID++;
 
