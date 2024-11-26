@@ -67,7 +67,7 @@ ExprNode* createIfHeaderExprNode(ExprNode* expr);
 
 ExprNode* createForHeaderExprNode(ExprListNode* targetList, ExprNode* expr);
 
-ExprNode* createFuncHeaderExprNode(ExprNode* identifier, FuncArgsListNode* funcArgs); ////////////////////////////////////////////////////////////
+ExprNode* createFuncHeaderExprNode(ExprNode* identifier, FuncArgsListNode* funcArgs);
 
 ExprNode* createListComprehensionExprNode(ExprNode* expr, ExprListNode* forHeaderList, ExprListNode* ifHeaderListE);
 
@@ -103,13 +103,13 @@ StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr);
 
 StmtNode* createCompoundAssignStmtNode(StmtsListNode* targetList, ExprNode* expr);
 
-StmtNode* createPlusAssignStmtNode(ExprNode* identifier, ExprNode* expr); /////////////
+StmtNode* createPlusAssignStmtNode(ExprNode* identifier, ExprNode* expr);
 
-StmtNode* createMinusAssignStmtNode(ExprNode* identifier, ExprNode* expr); //////////////
+StmtNode* createMinusAssignStmtNode(ExprNode* identifier, ExprNode* expr);
 
-StmtNode* createMulAssignStmtNode(ExprNode* identifier, ExprNode* expr); /////////////////
+StmtNode* createMulAssignStmtNode(ExprNode* identifier, ExprNode* expr);
 
-StmtNode* createDivAssignStmtNode(ExprNode* identifier, ExprNode* expr); ///////////////////
+StmtNode* createDivAssignStmtNode(ExprNode* identifier, ExprNode* expr);
 
 StmtNode* createWhileStmtNode(ExprNode* expr, StmtsListNode* suite);
 
