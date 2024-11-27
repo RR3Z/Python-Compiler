@@ -135,12 +135,12 @@ topLevelStmt: funcDef { $$ = createFuncDefFileElementNode($1); cout << "P: funcD
             | classDef { $$ = createClassDefFileElementNode($1); cout << "P: classDef -> topLevelStmt" << endl; }
             ;
 
-stmt: assignStmt { $$ = $1; cout << "P: assignStmt -> stmt" << endl; }
+stmt: assignStmt NEWLINE { $$ = $1; cout << "P: assignStmt NEWLINE -> stmt" << endl; }
     | returnStmt { $$ = $1; cout << "P: returnStmt -> stmt" << endl; }
-    | ifStmt { $$ = $1; cout << "P: ifStmt -> stmt" << endl; }
-    | forStmt { $$ = $1; cout << "P: forStmt -> stmt" << endl; }
-    | whileStmt { $$ = $1; cout << "P: whileStmt -> stmt" << endl; }
-    | tryStmt { $$ = $1; cout << "P: tryStmt -> stmt" << endl; }
+    | ifStmt { $$ = $1; cout << "P: ifStmt NEWLINE -> stmt" << endl; }
+    | forStmt { $$ = $1; cout << "P: forStmt NEWLINE -> stmt" << endl; }
+    | whileStmt { $$ = $1; cout << "P: whileStmt NEWLINE -> stmt" << endl; }
+    | tryStmt { $$ = $1; cout << "P: tryStmt NEWLINE -> stmt" << endl; }
     | expr NEWLINE { $$ = createStmtNodeFromExprNode($1); cout << "P: expr NEWLINE -> stmt" << endl; }
     | stmt NEWLINE { $$ = $1; cout << "P: stmt NEWLINE -> stmt" << endl; }
     ;
@@ -260,17 +260,17 @@ classDef: CLASS identifier ':' classSuite  { $$ = createClassNode(createIdExprNo
 
 // ASSIGNMENT STATEMENT
 
-assignStmt: assignStmtTargetAssignList '=' expr { $$ = createCompoundAssignStmtNode($1, $3); cout << "P: assignStmtTargetAssignList '=' expr -> assignStmt" << endl; }
-          | target PLUS_ASSIGN expr { $$ = createPlusAssignStmtNode($1, $3); cout << "P: identifier PLUS_ASSIGN expr -> assignStmt" << endl; }
-          | target MINUS_ASSIGN expr { $$ = createMinusAssignStmtNode($1, $3); cout << "P: identifier MINUS_ASSIGN expr -> assignStmt" << endl; }
-          | target MUL_ASSIGN expr { $$ = createMulAssignStmtNode($1, $3); cout << "P: identifier MUL_ASSIGN expr -> assignStmt" << endl; }
-          | target DIV_ASSIGN expr { $$ = createDivAssignStmtNode($1, $3); cout << "P: identifier DIV_ASSIGN expr -> assignStmt" << endl; }
+assignStmt: assignStmtTargetAssignList '=' exprList { $$ = createCompoundAssignStmtNode($1, $3); cout << "P: assignStmtTargetAssignList '=' expr -> assignStmt" << endl; }
+          | target PLUS_ASSIGN expr { $$ = createPlusAssignStmtNode($1, $3); cout << "P: target PLUS_ASSIGN expr -> assignStmt" << endl; }
+          | target MINUS_ASSIGN expr { $$ = createMinusAssignStmtNode($1, $3); cout << "P: target MINUS_ASSIGN expr -> assignStmt" << endl; }
+          | target MUL_ASSIGN expr { $$ = createMulAssignStmtNode($1, $3); cout << "P: target MUL_ASSIGN expr -> assignStmt" << endl; }
+          | target DIV_ASSIGN expr { $$ = createDivAssignStmtNode($1, $3); cout << "P: target DIV_ASSIGN expr -> assignStmt" << endl; }
           ;
 
-assignStmtTargetAssignList: targetList { $$ = createStmtsListNode(createStmtNodeFromExprListNode($1)); cout << "P: targetList -> assignStmtTargetAssignList" << endl; }
-                          | targetList ',' { $$ = createStmtsListNode(createStmtNodeFromExprListNode($1));  cout << "P: targetList ',' -> assignStmtTargetAssignList" << endl; }
-                          | assignStmtTargetAssignList '=' targetList { $$ = addElementToStmtsList($1, createStmtNodeFromExprListNode($3)); cout << "P: assignStmtTargetAssignList '=' targetList -> assignStmtTargetAssignList" << endl; }
-                          | assignStmtTargetAssignList '=' targetList ',' {  $$ = addElementToStmtsList($1, createStmtNodeFromExprListNode($3)); cout << "P: assignStmtTargetAssignList '=' targetList ',' -> assignStmtTargetAssignList" << endl; }
+assignStmtTargetAssignList: exprList { $$ = createStmtsListNode(createStmtNodeFromExprListNode($1)); cout << "P: exprList -> assignStmtTargetAssignList" << endl; }
+                          | exprList ',' { $$ = createStmtsListNode(createStmtNodeFromExprListNode($1));  cout << "P: exprList ',' -> assignStmtTargetAssignList" << endl; }
+                          | assignStmtTargetAssignList '=' exprList { $$ = addElementToStmtsList($1, createStmtNodeFromExprListNode($3)); cout << "P: assignStmtTargetAssignList '=' exprList -> assignStmtTargetAssignList" << endl; }
+                          | assignStmtTargetAssignList '=' exprList ',' {  $$ = addElementToStmtsList($1, createStmtNodeFromExprListNode($3)); cout << "P: assignStmtTargetAssignList '=' exprList ',' -> assignStmtTargetAssignList" << endl; }
                           ;
 
 // RETURN STATEMENT
@@ -302,22 +302,19 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); cout << "P: expr '+' expr
     | '-' expr %prec UMINUS { $$ = createUnaryMinusExprNode($2); cout << "P: '-' expr -> expr" << endl; }
     | identifier ASSIGN_OP expr { $$ = createAssignOpExprNode(createIdExprNode($1), $3); cout << "P: identifier ASSIGN_OP expr -> expr" << endl; }
     | '(' expr ')' { $$ = createExprInParenthesesBracketsNode($2); cout << "P: '(' expr ')' -> expr" << endl; }
-    | expr '[' expr ']' { $$ = createListAccessExprNode($1, $3); cout << "P: expr '[' expr ']' -> expr" << endl; }
     | '[' exprListE ']' { $$ = createListCreationExprNode($2); cout << "P: '[' exprListE ']' -> expr" << endl; }
-    | expr '[' slicing ']' { $$ = createListAccessWithSlicingExprNode($1, $3); cout << "P: expr '[' slicing ']' -> expr" << endl; }
     | '[' expr forHeaderList ifHeaderListE ']' { $$ = createListComprehensionExprNode($2, $3, $4); cout << "P: '[' exprList forHeaderList ifHeaderListE ']' -> expr" << endl; }
     | LAMBDA paramsListE ':' expr %prec LAMBDA { $$ = createLambdaExprNode($2, $4); cout << "P: lambdaExpr -> expr" << endl; }
     | expr '(' funcArgs ')' { $$ = createFunctionCallExprNode($1, $3); cout << "P: expr '(' funcArgs ')' -> expr | FUNCTION CALL" << endl; }
     | expr '.' identifier '(' funcArgs ')' { $$ = createMethodCallExprNode($1, createIdExprNode($3), $5); cout << "P: expr '.' identifier '(' funcArgs ')' -> expr | METHOD CALL" << endl; }
-    | expr '.' identifier { $$ = createAttributeRefExprNode($1, createIdExprNode($3)); cout << "P: expr '.' identifier -> expr | ATTRIBUTE REF" << endl; }
     | INT_C { $$ = createIntConstExprNode($1); cout << "P: INT_C -> expr" << endl; }
     | FLOAT_C { $$ = createFloatConstExprNode($1); cout << "P: FLOAT_C -> expr" << endl; }
     | STRING_C { $$ = createStringConstExprNode($1); cout << "P: STRING_C -> expr" << endl; }
-    | identifier { $$ = createIdExprNode($1); cout << "P: identifier -> expr" << endl; }
     | TRUE { $$ = createTrueConstExprNode(); cout << "P: TRUE -> expr" << endl; }
     | FALSE { $$ = createFalseConstExprNode(); cout << "P: FALSE -> expr" << endl; }
     | SELF { $$ = createSelfExprNode(); cout << "P: SELF -> expr" << endl; }
     | SUPER { $$ = createSuperExprNode(); cout << "P: SUPER -> expr" << endl; }
+    | target { $$ = $1; cout << "P: target -> expr" << endl; }
     ;
 
 exprE: expr { $$ = $1; }

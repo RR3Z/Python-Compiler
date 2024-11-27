@@ -240,8 +240,8 @@ string generateDotFromStmtNode(StmtNode* node) {
 			dot += generateDotFromStmtsListNode(node->stmtsList);
 			dot += dotConnection(node->id, node->stmtsList->id);
 			// Expression
-			dot += generateDotFromExprNode(node->rightExpr);
-			dot += dotConnection(node->id, node->rightExpr->id);
+			dot += generateDotFromExprListNode(-1, node->list);
+			dot += dotConnection(node->id, node->list->id);
 			break;
 		case _PLUS_ASSIGN:
 			dot += dotLabel(node->id, "+= stmt");
@@ -690,13 +690,26 @@ string generateDotFromExprListNode(int parentId, ExprListNode* node) {
 	if (node->first != nullptr) {
 		ExprNode* expr = node->first;
 
-		dot += generateDotFromExprNode(expr);
-		dot += dotConnection(parentId, expr->id);
+		if (parentId > 0) {
+			dot += generateDotFromExprNode(expr);
+			dot += dotConnection(parentId, expr->id);
 
-		while (expr->next != nullptr) {
-			dot += generateDotFromExprNode(expr->next);
-			dot += dotConnection(parentId, expr->next->id);
-			expr = expr->next;
+			while (expr->next != nullptr) {
+				dot += generateDotFromExprNode(expr->next);
+				dot += dotConnection(parentId, expr->next->id);
+				expr = expr->next;
+			}
+		}
+		else {
+			dot += dotLabel(node->id, "Expr List");
+			dot += generateDotFromExprNode(expr);
+			dot += dotConnection(node->id, expr->id);
+
+			while (expr->next != nullptr) {
+				dot += generateDotFromExprNode(expr->next);
+				dot += dotConnection(node->id, expr->next->id);
+				expr = expr->next;
+			}
 		}
 	}
 

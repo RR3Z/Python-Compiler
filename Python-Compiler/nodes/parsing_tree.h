@@ -101,7 +101,7 @@ StmtNode* createFinallyStmtNode(StmtsListNode* suite);
 
 StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr);
 
-StmtNode* createCompoundAssignStmtNode(StmtsListNode* targetList, ExprNode* expr);
+StmtNode* createCompoundAssignStmtNode(StmtsListNode* targetList, ExprListNode* exprList);
 
 StmtNode* createPlusAssignStmtNode(ExprNode* identifier, ExprNode* expr);
 

@@ -502,12 +502,12 @@ StmtNode* createAssignStmtNode(ExprNode* identifier, ExprNode* expr) {
 	return node;
 }
 
-StmtNode* createCompoundAssignStmtNode(StmtsListNode* targetList, ExprNode* expr) {
+StmtNode* createCompoundAssignStmtNode(StmtsListNode* targetList, ExprListNode* exprList) {
 	StmtNode* node = new StmtNode();
 
 	node->stmtType = _COMPOUND_ASSIGN;
 	node->stmtsList = targetList;
-	node->rightExpr = expr;
+	node->list = exprList;
 	node->id = ID++;
 
 	return node;
