@@ -143,7 +143,7 @@ StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement);
 
 /* ========== CLASS ========== */
 
-ClassNode* createClassNode(string* identifier, ClassElementsListNode* suite, ExprNode* parent);
+ClassNode* createClassNode(ExprNode* identifier, ClassElementsListNode* suite, ExprNode* parent);
 
 /* ========== CLASS ELEMENT ========== */
 
@@ -159,7 +159,7 @@ ClassElementsListNode* addElementToClassElementsList(ClassElementsListNode* list
 
 /* ========== FUNC ========== */
 
-FuncNode* createFuncNode(string* identifier, FuncArgsListNode* args, StmtsListNode* suite);
+FuncNode* createFuncNode(ExprNode* identifier, FuncArgsListNode* args, StmtsListNode* suite);
 
 /* ========== FUNC ARG ========== */
 

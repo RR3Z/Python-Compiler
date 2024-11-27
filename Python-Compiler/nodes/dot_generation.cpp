@@ -52,8 +52,11 @@ string generateDotFromClassNode(ClassNode* node) {
 	string dot = "";
 	if (node == nullptr) { return dot; }
 
+	dot += dotLabel(node->id, "class");
+
 	// Наименование класса
-	dot += dotLabel(node->id, "class " + node->identifier);
+	dot += generateDotFromExprNode(node->identifier);
+	dot += dotConnectionWithLabel(node->id, node->identifier->id, "id");
 
 	// Родительский класс (одиночное наследование)
 	if (node->base != nullptr) {
@@ -72,8 +75,11 @@ string generateDotFromFuncNode(FuncNode* node) {
 	string dot = "";
 	if (node == nullptr) { return dot; }
 
+	dot += dotLabel(node->id, "def");
+
 	// Наименование функции
-	dot += dotLabel(node->id, "def " + node->identifier);
+	dot += generateDotFromExprNode(node->identifier);
+	dot += dotConnectionWithLabel(node->id, node->identifier->id, "id");
 
 	// Аргументы функции
 	if (node->args != nullptr) {

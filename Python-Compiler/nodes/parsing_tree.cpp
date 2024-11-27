@@ -699,10 +699,10 @@ StmtsListNode* addElementToStmtsList(StmtsListNode* list, StmtNode* newElement) 
 
 /* ========== CLASS ========== */
 
-ClassNode* createClassNode(string* identifier, ClassElementsListNode* suite, ExprNode* parent) {
+ClassNode* createClassNode(ExprNode* identifier, ClassElementsListNode* suite, ExprNode* parent) {
 	ClassNode* node = new ClassNode();
 
-	node->identifier = *identifier;
+	node->identifier = identifier;
 	node->suite = suite;
 	node->base = parent;
 	node->id = ID++;
@@ -753,10 +753,10 @@ ClassElementsListNode* addElementToClassElementsList(ClassElementsListNode* list
 
 /* ========== FUNC ========== */
 
-FuncNode* createFuncNode(string* identifier, FuncArgsListNode* args, StmtsListNode* suite) {
+FuncNode* createFuncNode(ExprNode* identifier, FuncArgsListNode* args, StmtsListNode* suite) {
 	FuncNode* node = new FuncNode();
 
-	node->identifier = *identifier;
+	node->identifier = identifier;
 	node->args = args;
 	node->suite = suite;
 	node->id = ID++;

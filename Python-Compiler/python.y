@@ -226,7 +226,7 @@ exceptStmtList: exceptStmt { $$ = createStmtsListNode($1);}
 // FUNCTION DEFINITION
 
 funcDef: funcHeader ':' suite { 
-                                $$ = createFuncNode(new string($1->identifier), $1->funcArgs, $3);
+                                $$ = createFuncNode(createIdExprNode(new string($1->identifier)), $1->funcArgs, $3);
                                 isFunc = false; 
                                 cout << "P: funcHeader ':' suite -> funcDef" << endl; 
                               }
@@ -254,8 +254,8 @@ paramsListE: paramsList { $$ = $1; cout << "P: paramsList -> paramsListE" << end
 
 // CLASS DEFINITION
 
-classDef: CLASS identifier ':' classSuite  { $$ = createClassNode($2, $4, nullptr); cout << "P: CLASS identifier ':' classSuite -> classDef" << endl; }
-        | CLASS identifier '(' identifier ')' ':' classSuite { $$ = createClassNode($2, $7, createIdExprNode($4)); cout << "P: CLASS identifier '(' identifier ')' ':' classSuite -> classDef" << endl; }
+classDef: CLASS identifier ':' classSuite  { $$ = createClassNode(createIdExprNode($2), $4, nullptr); cout << "P: CLASS identifier ':' classSuite -> classDef" << endl; }
+        | CLASS identifier '(' identifier ')' ':' classSuite { $$ = createClassNode(createIdExprNode($2), $7, createIdExprNode($4)); cout << "P: CLASS identifier '(' identifier ')' ':' classSuite -> classDef" << endl; }
         ;
 
 // ASSIGNMENT STATEMENT

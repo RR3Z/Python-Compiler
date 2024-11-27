@@ -169,7 +169,7 @@ struct ClassNode {
 	int id = -1;
 
 	// Наименование класса
-	string identifier = "";
+	ExprNode* identifier = nullptr;
 
 	// Тело класса
 	ClassElementsListNode* suite = nullptr;
@@ -215,7 +215,7 @@ struct FuncNode {
 	int id = -1;
 
 	// Наименование функции
-	string identifier = "";
+	ExprNode* identifier = nullptr;
 
 	// Аргументы функции
 	FuncArgsListNode* args = nullptr;
