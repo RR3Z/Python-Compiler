@@ -12,6 +12,8 @@
   struct FileNode* fileRoot;
 %}
 
+%define parse.error verbose
+
 %union {
     int intVal;
     float floatVal;
