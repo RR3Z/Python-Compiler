@@ -13,8 +13,8 @@ class Rectangle:
         return self._width * self._height
 
     def area(self, value):
-        self._width = int(value**0.5)
-        self._height = int(value**0.5)
+        self._width = int(value*0.5)
+        self._height = int(value*0.5)
 
 rect = Rectangle(5, 10)
 print(rect.area) 
