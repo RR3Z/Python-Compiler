@@ -137,10 +137,10 @@ topLevelStmt: funcDef { $$ = createFuncDefFileElementNode($1); cout << "P: funcD
 
 stmt: assignStmt NEWLINE { $$ = $1; cout << "P: assignStmt NEWLINE -> stmt" << endl; }
     | returnStmt { $$ = $1; cout << "P: returnStmt -> stmt" << endl; }
-    | ifStmt { $$ = $1; cout << "P: ifStmt NEWLINE -> stmt" << endl; }
-    | forStmt { $$ = $1; cout << "P: forStmt NEWLINE -> stmt" << endl; }
-    | whileStmt { $$ = $1; cout << "P: whileStmt NEWLINE -> stmt" << endl; }
-    | tryStmt { $$ = $1; cout << "P: tryStmt NEWLINE -> stmt" << endl; }
+    | ifStmt { $$ = $1; cout << "P: ifStmt -> stmt" << endl; }
+    | forStmt { $$ = $1; cout << "P: forStmt -> stmt" << endl; }
+    | whileStmt { $$ = $1; cout << "P: whileStmt -> stmt" << endl; }
+    | tryStmt { $$ = $1; cout << "P: tryStmt -> stmt" << endl; }
     | expr NEWLINE { $$ = createStmtNodeFromExprNode($1); cout << "P: expr NEWLINE -> stmt" << endl; }
     | stmt NEWLINE { $$ = $1; cout << "P: stmt NEWLINE -> stmt" << endl; }
     ;
