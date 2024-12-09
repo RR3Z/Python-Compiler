@@ -1,0 +1,16 @@
+def my_function(arg1, arg2):
+    result = arg1 + arg2
+    return result
+
+def greet():
+    print("Привет!")
+
+def greet(name="lol"):
+    print("Привет!")
+
+def outer_function():
+    def inner_function():
+        print("Это вложенная функция")
+    inner_function()
+
+outer_function()

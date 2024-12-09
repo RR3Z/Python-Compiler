@@ -1,0 +1,22 @@
+class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+
+class Rectangle:
+    def __init__(self, width, height):
+        self._width = width
+        self._height = height
+
+    def area(self):
+        return self._width * self._height
+
+    def area(self, value):
+        self._width = int(value**0.5)
+        self._height = int(value**0.5)
+
+rect = Rectangle(5, 10)
+print(rect.area) 
+rect.area = 100
+print(rect.area) # 100
