@@ -180,8 +180,10 @@ string generateDotFromStmtNode(StmtNode* node) {
 		case _EXCEPT:
 			dot += dotLabel(node->id, "EXCEPT stmt");
 			// Expression
-			dot += generateDotFromExprNode(node->expr);
-			dot += dotConnection(node->id, node->expr->id);
+			if (node->expr != nullptr) {
+				dot += generateDotFromExprNode(node->expr);
+				dot += dotConnection(node->id, node->expr->id);
+			}
 			// Suite
 			dot += generateDotFromStmtsListNode(node->suite);
 			dot += dotConnection(node->id, node->suite->id);
@@ -216,14 +218,20 @@ string generateDotFromStmtNode(StmtNode* node) {
 			dot += generateDotFromStmtNode(node->tryStmt);
 			dot += dotConnection(node->id, node->tryStmt->id);
 			// EXCEPT stmt/stmts
-			dot += generateDotFromStmtsListNode(node->stmtsList);
-			dot += dotConnection(node->id, node->stmtsList->id);
+			if (node->stmtsList != nullptr) {
+				dot += generateDotFromStmtsListNode(node->stmtsList);
+				dot += dotConnection(node->id, node->stmtsList->id);
+			}
 			// ELSE stmt
-			dot += generateDotFromStmtNode(node->leftNode);
-			dot += dotConnection(node->id, node->leftNode->id);
+			if (node->leftNode != nullptr) {
+				dot += generateDotFromStmtNode(node->leftNode);
+				dot += dotConnection(node->id, node->leftNode->id);
+			}
 			// FINALY stmt
-			dot += generateDotFromStmtNode(node->rightNode);
-			dot += dotConnection(node->id, node->rightNode->id);
+			if (node->rightNode != nullptr) {
+				dot += generateDotFromStmtNode(node->rightNode);
+				dot += dotConnection(node->id, node->rightNode->id);
+			}
 			break;
 		case _ASSIGN:
 			dot += dotLabel(node->id, "Assign stmt");
