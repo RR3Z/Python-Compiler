@@ -52,11 +52,7 @@ string generateDotFromClassNode(ClassNode* node) {
 	string dot = "";
 	if (node == nullptr) { return dot; }
 
-	dot += dotLabel(node->id, "class");
-
-	// Íàèìåíîâàíèå êëàññà
-	dot += generateDotFromExprNode(node->identifier);
-	dot += dotConnectionWithLabel(node->id, node->identifier->id, "id");
+	dot += dotLabel(node->id, "class\\nName: " + node->identifier->identifier);
 
 	// Ğîäèòåëüñêèé êëàññ (îäèíî÷íîå íàñëåäîâàíèå)
 	if (node->base != nullptr) {
@@ -66,7 +62,7 @@ string generateDotFromClassNode(ClassNode* node) {
 
 	// Òåëî êëàññà
 	dot += generateDotFromClassElementsListNode(node->suite);
-	dot += dotConnectionWithLabel(node->id, node->suite->id, "suite");
+	dot += dotConnection(node->id, node->suite->id);
 
 	return dot;
 }
@@ -75,11 +71,7 @@ string generateDotFromFuncNode(FuncNode* node) {
 	string dot = "";
 	if (node == nullptr) { return dot; }
 
-	dot += dotLabel(node->id, "def");
-
-	// Íàèìåíîâàíèå ôóíêöèè
-	dot += generateDotFromExprNode(node->identifier);
-	dot += dotConnectionWithLabel(node->id, node->identifier->id, "id");
+	dot += dotLabel(node->id, "def\\nName: " + node->identifier->identifier);
 
 	// Àğãóìåíòû ôóíêöèè
 	if (node->args != nullptr) {
@@ -89,8 +81,9 @@ string generateDotFromFuncNode(FuncNode* node) {
 	}
 
 	// Òåëî ôóíêöèè
-	dot += generateDotFromStmtsListNode(node->suite);
-	dot += dotConnectionWithLabel(node->id, node->suite->id, "suite");
+	dot += dotLabel(node->suite->id, "suite");
+	dot += generateDotFromStmtsListNode(node->suite->id, node->suite);
+	dot += dotConnection(node->id, node->suite->id);
 
 	return dot;
 }
@@ -107,13 +100,15 @@ string generateDotFromStmtNode(StmtNode* node) {
 			dot += generateDotFromExprNode(node->expr);
 			dot += dotConnectionWithLabel(node->id, node->expr->id, "condition");
 			// Suite
-			dot += generateDotFromStmtsListNode(node->suite);
-			dot += dotConnectionWithLabel(node->id, node->suite->id, "suite");
+			dot += dotLabel(node->suite->id, "suite");
+			dot += generateDotFromStmtsListNode(node->suite->id, node->suite);
+			dot += dotConnection(node->id, node->suite->id);
 			break;
 		case _ELSE:
 			dot += dotLabel(node->id, "ELSE stmt");
 			// Suite
-			dot += generateDotFromStmtsListNode(node->suite);
+			dot += dotLabel(node->suite->id, "suite");
+			dot += generateDotFromStmtsListNode(node->suite->id, node->suite);
 			dot += dotConnection(node->id, node->suite->id);
 			break;
 		case _ELIF:
@@ -122,22 +117,24 @@ string generateDotFromStmtNode(StmtNode* node) {
 			dot += generateDotFromExprNode(node->expr);
 			dot += dotConnectionWithLabel(node->id, node->expr->id, "condition");
 			// Suite
-			dot += generateDotFromStmtsListNode(node->suite);
-			dot += dotConnectionWithLabel(node->id, node->suite->id, "suite");
+			dot += dotLabel(node->suite->id, "suite");
+			dot += generateDotFromStmtsListNode(node->suite->id, node->suite);
+			dot += dotConnection(node->id, node->suite->id);
 			break;
 		case _COMPOUND_IF:
-			dot += dotLabel(node->id, "Compound\nIF stmt");
+			dot += dotLabel(node->id, "Compound\\nIF stmt");
 			// IF stmt
 			dot += generateDotFromStmtNode(node->leftNode);
 			dot += dotConnection(node->id, node->leftNode->id);
 			// ELIF stmt
 			if (node->stmtsList != nullptr) {
-				dot += generateDotFromStmtsListNode(node->stmtsList);
-				dot += dotConnection(node->id, node->suite->id);
+				dot += generateDotFromStmtsListNode(node->id, node->stmtsList);
 			}
 			// ELSE STMT
-			dot += generateDotFromStmtNode(node->rightNode);
-			dot += dotConnection(node->id, node->rightNode->id);
+			if (node->rightNode != nullptr) {
+				dot += generateDotFromStmtNode(node->rightNode);
+				dot += dotConnection(node->id, node->rightNode->id);
+			}
 			break;
 		case _WHILE:
 			dot += dotLabel(node->id, "WHILE stmt");
@@ -145,11 +142,12 @@ string generateDotFromStmtNode(StmtNode* node) {
 			dot += generateDotFromExprNode(node->expr);
 			dot += dotConnectionWithLabel(node->id, node->expr->id, "condition");
 			// Suite
-			dot += generateDotFromStmtsListNode(node->suite);
-			dot += dotConnectionWithLabel(node->id, node->suite->id, "suite");
+			dot += dotLabel(node->suite->id, "suite");
+			dot += generateDotFromStmtsListNode(node->suite->id, node->suite);
+			dot += dotConnection(node->id, node->suite->id);
 			break;
 		case _COMPOUND_WHILE:
-			dot += dotLabel(node->id, "Compound\nWHILE stmt");
+			dot += dotLabel(node->id, "Compound\\nWHILE stmt");
 			// WHILE stmt
 			dot += generateDotFromStmtNode(node->leftNode);
 			dot += dotConnection(node->id, node->leftNode->id);
@@ -160,16 +158,19 @@ string generateDotFromStmtNode(StmtNode* node) {
 		case _FOR:
 			dot += dotLabel(node->id, "FOR stmt");
 			// Target List
-			dot += generateDotFromExprListNode(node->id, node->list);
+			dot += dotLabel(node->list->id, "Target List");
+			dot += generateDotFromExprListNode(node->list->id, node->list);
+			dot += dotConnection(node->id, node->list->id);
 			// Expression
 			dot += generateDotFromExprNode(node->expr);
-			dot += dotConnection(node->id, node->expr->id);
+			dot += dotConnectionWithLabel(node->id, node->expr->id, "expr");
 			// Suite
-			dot += generateDotFromStmtsListNode(node->suite);
+			dot += dotLabel(node->suite->id, "suite");
+			dot += generateDotFromStmtsListNode(node->suite->id, node->suite);
 			dot += dotConnection(node->id, node->suite->id);
 			break;
 		case _COMPOUND_FOR:
-			dot += dotLabel(node->id, "Compound\nFOR stmt");
+			dot += dotLabel(node->id, "Compound\\nFOR stmt");
 			// FOR stmt
 			dot += generateDotFromStmtNode(node->leftNode);
 			dot += dotConnection(node->id, node->leftNode->id);
@@ -182,44 +183,48 @@ string generateDotFromStmtNode(StmtNode* node) {
 			// Expression
 			if (node->expr != nullptr) {
 				dot += generateDotFromExprNode(node->expr);
-				dot += dotConnection(node->id, node->expr->id);
+				dot += dotConnectionWithLabel(node->id, node->expr->id, "expr");
 			}
 			// Suite
-			dot += generateDotFromStmtsListNode(node->suite);
+			dot += dotLabel(node->suite->id, "suite");
+			dot += generateDotFromStmtsListNode(node->suite->id, node->suite);
 			dot += dotConnection(node->id, node->suite->id);
 			break;
 		case _IDENTIFIER_EXCEPT:
 			dot += dotLabel(node->id, "EXCEPT stmt");
 			// Expression
 			dot += generateDotFromExprNode(node->expr);
-			dot += dotConnection(node->id, node->expr->id);
+			dot += dotConnectionWithLabel(node->id, node->expr->id, "expr");
 			// Identifier (except expr as IDENTIFIER)
 			dot += generateDotFromExprNode(node->identifier);
-			dot += dotConnection(node->id, node->identifier->id);
+			dot += dotConnectionWithLabel(node->id, node->identifier->id, "as expr");
 			// Suite
-			dot += generateDotFromStmtsListNode(node->suite);
+			dot += dotLabel(node->suite->id, "suite");
+			dot += generateDotFromStmtsListNode(node->suite->id, node->suite);
 			dot += dotConnection(node->id, node->suite->id);
 			break;
 		case _FINALLY:
 			dot += dotLabel(node->id, "FINALLY stmt");
 			// Suite
-			dot += generateDotFromStmtsListNode(node->suite);
+			dot += dotLabel(node->suite->id, "suite");
+			dot += generateDotFromStmtsListNode(node->suite->id, node->suite);
 			dot += dotConnection(node->id, node->suite->id);
 			break;
 		case _TRY:
 			dot += dotLabel(node->id, "TRY stmt");
 			// Suite
-			dot += generateDotFromStmtsListNode(node->suite);
+			dot += dotLabel(node->suite->id, "suite");
+			dot += generateDotFromStmtsListNode(node->suite->id, node->suite);
 			dot += dotConnection(node->id, node->suite->id);
 			break;
 		case _COMPOUND_TRY:
-			dot += dotLabel(node->id, "Compound\nTRY stmt");
+			dot += dotLabel(node->id, "Compound\\nTRY stmt");
 			// TRY stmt
 			dot += generateDotFromStmtNode(node->tryStmt);
 			dot += dotConnection(node->id, node->tryStmt->id);
 			// EXCEPT stmt/stmts
 			if (node->stmtsList != nullptr) {
-				dot += generateDotFromStmtsListNode(node->stmtsList);
+				dot += generateDotFromStmtsListNode(-1,node->stmtsList);
 				dot += dotConnection(node->id, node->stmtsList->id);
 			}
 			// ELSE stmt
@@ -243,10 +248,9 @@ string generateDotFromStmtNode(StmtNode* node) {
 			dot += dotConnection(node->id, node->rightExpr->id);
 			break;
 		case _COMPOUND_ASSIGN:
-			dot += dotLabel(node->id, "Compound\nAssign stmt");
+			dot += dotLabel(node->id, "Compound\\nAssign stmt");
 			// Target List
-			dot += generateDotFromStmtsListNode(node->stmtsList);
-			dot += dotConnection(node->id, node->stmtsList->id);
+			dot += generateDotFromStmtsListNode(node->id,node->stmtsList);
 			// Expression
 			dot += generateDotFromExprListNode(-1, node->list);
 			dot += dotConnection(node->id, node->list->id);
@@ -294,7 +298,7 @@ string generateDotFromStmtNode(StmtNode* node) {
 			dot += dotConnection(node->id, node->expr->id);
 			break;
 		case _EXPR_LIST_STMT:
-			dot += dotLabel(node->id, "Assign\nTarget List");
+			dot += dotLabel(node->id, "Assign\\nTarget List");
 			// Target List
 			dot += generateDotFromExprListNode(node->id, node->list);
 			break;
@@ -310,22 +314,34 @@ string generateDotFromStmtNode(StmtNode* node) {
 	return dot;
 }
 
-string generateDotFromStmtsListNode(StmtsListNode* node) {
+string generateDotFromStmtsListNode(int parentId, StmtsListNode* node) {
 	string dot = "";
 	if (node == nullptr) { return dot; }
 
 	if (node->first != nullptr) {
 		StmtNode* element = node->first;
 
-		dot += dotLabel(node->id, "Stmts List");
-		dot += generateDotFromStmtNode(element);
-		dot += dotConnection(node->id, element->id);
+		if (parentId > 0) {
+			dot += generateDotFromStmtNode(element);
+			dot += dotConnection(parentId, element->id);
 
-		while (element->next != nullptr) {
-			dot += generateDotFromStmtNode(element->next);
-			dot += dotConnection(node->id, element->next->id);
-			element = element->next;
+			while (element->next != nullptr) {
+				dot += generateDotFromStmtNode(element->next);
+				dot += dotConnection(parentId, element->next->id);
+				element = element->next;
+			}
 		}
+		else {
+			dot += dotLabel(node->id, "Stmts List");
+			dot += generateDotFromStmtNode(element);
+			dot += dotConnection(node->id, element->id);
+
+			while (element->next != nullptr) {
+				dot += generateDotFromStmtNode(element->next);
+				dot += dotConnection(node->id, element->next->id);
+				element = element->next;
+			}
+		}	
 	}
 
 	return dot;
@@ -343,7 +359,6 @@ string generateDotFromFuncArgsListNode(int parentId, FuncArgsListNode* node) {
 
 			while (element->next != nullptr) {
 				dot += generateDotFromFuncArgNode(parentId, element->next);
-				dot += dotConnection(parentId, element->next->id);
 				element = element->next;
 			}
 		}
@@ -363,7 +378,7 @@ string generateDotFromFuncArgsListNode(int parentId, FuncArgsListNode* node) {
 	if (node->namedArgsList != nullptr) {
 		if (parentId > 0) {
 			dot += generateDotFromFuncArgsListNode(parentId, node->namedArgsList);
-			//dot += dotConnection(parentId, node->namedArgsList->id);
+			dot += dotConnection(parentId, node->namedArgsList->id);
 		}
 		else {
 			dot += dotLabel(node->id, "Func Args List");
@@ -413,7 +428,7 @@ string generateDotFromClassElementsListNode(ClassElementsListNode* node) {
 	if (node->first != nullptr) {
 		ClassElementNode* element = node->first;
 
-		dot += dotLabel(node->id, "Class Elements List");
+		dot += dotLabel(node->id, "suite");
 		dot += generateDotFromClassElementNode(node->id, element);
 
 		while (element->next != nullptr) {
@@ -731,7 +746,7 @@ string generateDotFromSlicingNode(SlicingNode* node) {
 
 	if (node == nullptr) { return dot; }
 
-	dot += dotLabel(node->id, "slicing\n(start:end:step)");
+	dot += dotLabel(node->id, "slicing\\n(start:end:step)");
 
 	if (node->start != nullptr) {
 		dot += generateDotFromExprNode(node->start);
