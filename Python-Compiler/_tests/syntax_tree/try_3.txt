@@ -1,0 +1,6 @@
+try:
+    result = 10 / 2
+except ZeroDivisionError:
+    print("Деление на ноль!")
+else:
+    print(result)

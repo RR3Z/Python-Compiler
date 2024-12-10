@@ -1,0 +1,55 @@
+class MyClass:
+
+    def __init__(self, value):
+        self.value = value
+
+    def check_value(self):
+        if value > 10:
+            return "Значение больше 10"
+        elif value < 0:
+            return "Значение меньше 0"
+        else:
+            return "Значение в допустимом диапазоне"
+    
+    def while_loop(self, limit):
+        i = 0
+        result = 0
+        while i < limit:
+            result += i
+            i += 1
+        return result
+
+    def lambda_example(self):
+        square = lambda x: x * x  
+        return square(self.value)
+
+
+def my_function(a, b):
+    return a + b
+
+def exception_handling(x, y):
+    try:
+        result = x / y
+    except ZeroDivisionError:
+        return "Деление на ноль!"
+    except TypeError:
+        return "Неверный тип данных!"
+    else:
+        return result
+    finally:
+        print("Блок finally всегда выполняется")
+
+my_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+my_object = MyClass(5)
+
+for i in range(5):  
+    age += 1
+
+age = 20
+message = ""
+if age >= 18:
+    message = "Взрослый"
+else:
+    message = "Несовершеннолетний"
+print(message)

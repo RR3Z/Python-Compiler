@@ -1,0 +1,7 @@
+if x > 5:
+  if y > 2:
+    print("x > 5 и y > 2")
+  else:
+    print("x > 5, но y <= 2")
+else:
+  print("x <= 5")
