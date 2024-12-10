@@ -12,9 +12,9 @@ int main(int argc, const char* argv[])
 #ifdef  _DEBUG
 	fopen_s(&yyin, "input.txt", "r");
 #else
-	if (argc != 2)
+	if (argc != 3)
 	{
-		cout << "Incorrect amount of args! The only argument is the file name" << endl;
+		cout << "Incorrect amount of args!" << endl;
 		return 1;
 	}
 
@@ -31,15 +31,25 @@ int main(int argc, const char* argv[])
 	yyparse();
 	fclose(yyin);
 
+#ifdef  _DEBUG
 	string parseRes = "digraph G {\n" + generateDotFromRoot(fileRoot) + "}";
-	//cout << parseRes << endl;
 	FILE* dotFile;
 	fopen_s(&dotFile, "diagram.dot", "w");
 	fprintf(dotFile, parseRes.c_str());
 	fclose(dotFile);
 
-	// Auto generate image from Dot Code
+	// Image generation
 	system("cd");
 	system("Graphviz\\bin\\dot.exe -Tpng -O diagram.dot");
 	system("diagram.dot.png");
+#else
+	string parseRes = "digraph G {\n" + generateDotFromRoot(fileRoot) + "}";
+	FILE* dotFile;
+	char fileName[256];
+	snprintf(fileName, sizeof(fileName), "%s.dot", argv[2]);
+	fopen_s(&dotFile, fileName, "w");
+	fprintf(dotFile, parseRes.c_str());
+	fclose(dotFile);
+#endif
+
 }
