@@ -625,9 +625,11 @@ string generateDotFromExprNode(ExprNode* node) {
 			dot += generateDotFromExprNode(node->left);
 			dot += dotConnectionWithLabel(node->id, node->left->id, "id");
 			// PARAMS
-			dot += dotLabel(node->funcArgs->id, "params");
-			dot += generateDotFromFuncArgsListNode(node->funcArgs->id, node->funcArgs);
-			dot += dotConnection(node->id, node->funcArgs->id); 
+			if (node->funcArgs != nullptr) {
+				dot += dotLabel(node->funcArgs->id, "params");
+				dot += generateDotFromFuncArgsListNode(node->funcArgs->id, node->funcArgs);
+				dot += dotConnection(node->id, node->funcArgs->id);
+			}
 			break;
 		case _SLICING_LIST_ACCESS:
 			dot += generateDotFromExprNode(node->left);
