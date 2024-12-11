@@ -103,6 +103,7 @@ FOR WHILE IN
 TRY FINALLY EXCEPT AS
 DEF CLASS SELF SUPER
 RETURN LAMBDA
+ERROR
 
 %right ASSIGN_OP '=' PLUS_ASSIGN MINUS_ASSIGN MUL_ASSIGN DIV_ASSIGN
 %nonassoc LAMBDA
@@ -124,8 +125,12 @@ RETURN LAMBDA
 %%
 
 program: programStmtsList { $$ = fileRoot = createFileNode($1); cout << "P: programStmtsList -> program" << endl; }
-       | NEWLINE { $$ = fileRoot = nullptr; cout << "P: newLineList -> program" << endl; }
+       | newLineList { $$ = fileRoot = nullptr; cout << "P: newLineList -> program" << endl; }
        ;
+
+newLineList: NEWLINE {}
+           | newLineList NEWLINE {}
+           ;
 
 programStmtsList: topLevelStmt { $$ = createFileElementsListNode($1); cout << "P: topLevelStmt -> programStmtsList" << endl; }
                 | stmt { $$ = createFileElementsListNode(createStmtFileElementNode($1)); cout << "P: stmt -> programStmtsList" << endl; }
