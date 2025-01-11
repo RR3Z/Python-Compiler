@@ -19,6 +19,12 @@
     <Filter Include="Файлы заголовков\nodes">
       <UniqueIdentifier>{0b5811f0-0ea4-4995-bad2-2bd17171901e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\semantic">
+      <UniqueIdentifier>{c4fc26e0-65a7-4383-be1c-d4cfcb5aea1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\semantic">
+      <UniqueIdentifier>{ce1972b3-4b88-42c4-a9b6-b08a3be517c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Flex Include="python.l">
@@ -43,6 +49,12 @@
     </ClCompile>
     <ClCompile Include="nodes\dot_generation.cpp">
       <Filter>Исходные файлы\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="semantic\transform_tree.cpp">
+      <Filter>Исходные файлы\semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="semantic\fill_tables.cpp">
+      <Filter>Исходные файлы\semantic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -85,6 +97,9 @@
     </ClInclude>
     <ClInclude Include="nodes\ClassElementType.h">
       <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="semantic\semantic.h">
+      <Filter>Файлы заголовков\semantic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

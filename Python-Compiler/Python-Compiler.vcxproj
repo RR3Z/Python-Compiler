@@ -28,6 +28,8 @@
     <ClCompile Include="nodes\parsing_tree.cpp" />
     <ClCompile Include="python.flex.cpp" />
     <ClCompile Include="python.tab.cpp" />
+    <ClCompile Include="semantic\fill_tables.cpp" />
+    <ClCompile Include="semantic\transform_tree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt" />
@@ -49,6 +51,7 @@
     <ClInclude Include="nodes\parsing_tree.h" />
     <ClInclude Include="nodes\StmtType.h" />
     <ClInclude Include="python.tab.h" />
+    <ClInclude Include="semantic\semantic.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
