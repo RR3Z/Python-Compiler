@@ -1,120 +1,297 @@
 #pragma once
 
 #include "./semantic.h"
+#include <iostream>
+using namespace std;
 
+/*
+	Начало нашего дерева находится в FileNode - во что свернулся код на этапе грамматики.
+	Что хранится в узлах, можно смотреть в файле nodes.h в папке nodes.
+
+	Изменяем только "[]" и "=" на "[]="
+*/
+
+/* ========== FILE ========== */
 void transformTree(FileNode* program) {
-	if (program->elementsList != nullptr) {
-		FileElementNode* node = program->elementsList->first;
-		while (node != nullptr) {
-			// TODO: transform(node);
-			node = node->next;
-		}
+	if (program == nullptr || program->elementsList == nullptr) {
+		cout << "S: ERROR -> file is empty (FileNode is unavailable) or something went wrong in the previous stages (FileElementsListNode is unavailable)" << endl;
+		return;
+	}
+
+	// FileNode состоит из множества FileElementNode (список FileElementsListNode)
+	FileElementNode* programElement = program->elementsList->first;
+	while (programElement != nullptr) {
+		transform(programElement);
+		programElement = programElement->next;
 	}
 }
 
-void transform(StmtsListNode* stmt_list) {
-	if (stmt_list != 0) {
-		StmtNode* node = stmt_list->first;
-		while (node != nullptr) {
-			transform(node); // -> для этого ниже 
-			node = node->next;
-		}
+void transform(FileElementNode* programElement) {
+	if (programElement == nullptr) {
+		cout << "S: ERROR -> FileElementNode is unavailable" << endl;
+		return;
+	}
+	
+	switch (programElement->elementType)
+	{
+	case _CLASS_DEF:
+		transform(programElement->classDef);
+		break;
+	case _FUNC_DEF:
+		transform(programElement->funcDef);
+		break;
+	case _STMT:
+		transform(programElement->stmt);
+		break;
 	}
 }
 
-// TODO: ALL TRANSFORM
+/* ========== FUNCTION ========== */
+void transform(FuncNode* funcDef) {
+	if (funcDef == nullptr) {
+		cout << "S: ERROR -> FuncNode is unavailable" << endl;
+		return;
+	}
+	if (funcDef->identifier == nullptr) {
+		cout << "S: ERROR -> FuncNode (id = " << funcDef->id << ") has no identifier" << endl;
+		return;
+	}
+
+	// В функции могут быть/не быть аргументы
+	if (funcDef->args != nullptr) {
+		transform(funcDef->args);
+	}
+
+	// В функции может быть/не быть тело (подразумевается кода внутри тела)
+	if (funcDef->suite != nullptr) {
+		transform(funcDef->suite);
+	}
+}
+
+void transform(FuncArgsListNode* funcArgsList) {
+	if (funcArgsList == nullptr) {
+		cout << "S: ERROR -> FuncArgsListNode is unavailable" << endl;
+		return;
+	}
+	if (funcArgsList->first == nullptr) {
+		cout << "S: ERROR -> FuncArgsListNode (id = " << funcArgsList->id << ") first element in list is unavailable" << endl;
+		return;
+	}
+
+	FuncArgNode* funcArg = funcArgsList->first;
+	while (funcArg != nullptr) {
+		transform(funcArg);
+		funcArg = funcArg->next;
+	}
+}
+
+void transform(FuncArgNode* funcArg) {
+	if (funcArg == nullptr) {
+		cout << "S: ERROR -> FuncArgNode is unavailable" << endl;
+		return;
+	}
+	
+	switch (funcArg->funcArgType)
+	{
+	case _NAMED:
+		transform(funcArg->assignStmt);
+		break;
+	case _VAR:
+		transform(funcArg->var);
+		break;
+	}
+}
+
+/* ========== CLASS ========== */
+void transform(ClassNode* classDef) {
+
+}
+
+void transform(ClassElementsListNode* classElementsList) {
+	if (classElementsList == nullptr) {
+		cout << "S: ERROR -> ClassElementsListNode is unavailable" << endl;
+		return;
+	}
+	if (classElementsList->first == nullptr) {
+		cout << "S: ERROR -> ClassElementsListNode (id = " << classElementsList->id << ") first element in list is unavailable" << endl;
+		return;
+	}
+
+	ClassElementNode* classElement = classElementsList->first;
+	while (classElement != nullptr) {
+		transform(classElement);
+		classElement = classElement->next;
+	}
+}
+
+void transform(ClassElementNode* classElement) {
+	if (classElement == nullptr) {
+		cout << "S: ERROR -> ClassElementNode is unavailable" << endl;
+		return;
+	}
+	
+	switch (classElement->elementType)
+	{
+	case _FUNCTION_DEF:
+		transform(classElement->funcDef);
+		break;
+	case _STMT_NODE:
+		transform(classElement->stmt);
+		break;
+	}
+}
+
+/* ========== STMTS ========== */
+void transform(StmtsListNode* stmtsList) {
+	if (stmtsList == nullptr) {
+		cout << "S: ERROR -> StmtsListNode is unavailable" << endl;
+		return;
+	}
+	if (stmtsList->first == nullptr) {
+		cout << "S: ERROR -> StmtsListNode (id = " << stmtsList->id << ") first element in list is unavailable" << endl;
+		return;
+	}
+	
+	StmtNode* stmtNode = stmtsList->first;
+	while (stmtNode != nullptr) {
+		transform(stmtNode);
+		stmtNode = stmtNode->next;
+	}
+}
+
+// TODO
 void transform(StmtNode* stmt) {
+	if (stmt == nullptr) {
+		cout << "S: ERROR -> StmtNode is unavailable" << endl;
+		return;
+	}
+
+	// EXPR STMT
+	/*
+		А надо ли что-то изменять в expr?
+		Егор: нет, не надо. AssignOp (как expr) работает иначе чем Assign (как Stmt).
+
+		if a[0][0]:=5:
+		SyntaxError: cannot use assignment expressions with subscript
+		НЕЛЬЗЯ таким образом задавать значение элементу списка (массива). Соответственно, не надо ничего изменять.
+	*/
+	
 	switch (stmt->stmtType) {
+	// IF STMT
 	case _IF:
-		//TODO:  ДЛЯ ЭТОГО ОТДЕЛЬНЫЙ transform (где просто if, а также все с прочим elif,else...)   
-		// Т.к нет отдельной структуры с IF, назвал transformIF
-		transformIf(stmt);
+		//transform(stmt->expr); // condition (expr, который нам не надо изменять)
+		transform(stmt->suite); // suite
 		break;
+	case _ELSE:
+		transform(stmt->suite); // suite
+		break;
+	case _ELIF:
+		//transform(stmt->expr); // condition (expr, который нам не надо изменять)
+		transform(stmt->suite); // suite
+		break;
+	case _COMPOUND_IF:
+		transform(stmt->leftNode);	// ifStmt
+		transform(stmt->rightNode);	// elseStmt
+		transform(stmt->stmtsList);	// elifStmtsList
+		break;
+
+	// ASSIGN STMT TODO
+	/* 
+		Меняем тип узла + связи между узлами + проверка типов(та самая ошибка на которую мы забили на грамматике) + изменение всех последующих узлов(a[1][1] = a[2][2] = ...).
+		Надо получше потестить и поразбираться.
+	*/ 
 	case _ASSIGN:
-		//transform(stmt->if_stmt_f);
-		// TODO:  по идее, все что связано с ASSIGN проверять в expr transform
 		break;
+	case _MUL_ASSIGN:
+		break;
+	case _COMPOUND_ASSIGN:
+		break;
+	case _DIV_ASSIGN:
+		break;
+	case _MINUS_ASSIGN:
+		break;
+	case _PLUS_ASSIGN:
+		break;
+
+	// WHILE STMT
 	case _WHILE:
-		// АНАЛОГИЧНО IF, спасибо Python за возможность else))))))
-		transformWhile(stmt);
+		//transform(stmt->expr); // condition (expr, который нам не надо изменять)
+		transform(stmt->suite); // suite
 		break;
-	case _RETURN:
-		// TODO: сюда обычный transform expr
+	case _COMPOUND_WHILE:
+		transform(stmt->leftNode);	// whileStmt
+		transform(stmt->rightNode);	// elseStmt
 		break;
-	case _TRY:
-		// TODO: по идее аналогично с IF, expt exptID finally и тд спонсоры показа
-		break;
+
+	// FOR STMT
 	case _FOR:
-		// АНАЛОГИЧНО IF, спасибо Python за возможность else))))))
-		transformFor(stmt);
+		//transform(stmt->list);	// targetList из expr, который нам не надо изменять
+		//transform(stmt->expr);	// expr, который нам не надо изменять
+		transform(stmt->suite);	// suite
 		break;
-	case _EXPR_STMT:
-		// Просто transform expr, а в нем уже разбор листа
+	case _COMPOUND_FOR:
+		transform(stmt->leftNode);	// forStmt
+		transform(stmt->rightNode);	// elseStmt
 		break;
-	default:
+
+	// RETURN STMT
+	case _RETURN:
+		//transform(stmt->list); // exprList (возвращаемые значения, т.е. expr, которые нам не надо изменять)
 		break;
-	}
+
+	// TRY STMT
+	case _TRY:
+		transform(stmt->suite); // suite
+		break;
+	case _COMPOUND_TRY:
+		transform(stmt->leftNode);	// elseStmt
+		transform(stmt->rightNode);	// finnalyStmt
+		transform(stmt->stmtsList); // exceptStmtsList
+		transform(stmt->tryStmt);	// tryStmt
+		break;
+	case _EXCEPT:
+		//transform(stmt->expr); // что мы отлавливаем (expr, который нам не надо изменять)
+		transform(stmt->suite); // suite
+		break;
+	case _IDENTIFIER_EXCEPT:
+		//transform(stmt->expr);		// что мы отлавливаем (expr, который нам не надо изменять)
+		//transform(stmt->identifier);  // собственное наименование того, что мы отлавливаем (expr, который нам не надо изменять)
+		transform(stmt->suite); // suite
+		break;
+	case _FINALLY:
+		transform(stmt->suite); // suite
+		break;
 }
 
-//TODO: Реализация для func/class/slicing
-
-
-//Реализация для IF
-void transformIf(StmtNode* stmt) {
-	//transform(stmt->expr); // Проверить - тут надо condition
-	transform(stmt->suite);
-
-	if (stmt->stmtsList != nullptr) {
-		StmtNode* node = stmt->stmtsList->first;
-		while (node != 0) {
-			//transform(node->expr); TODO: EXPR
-			transform(node->suite);
-			node = node->next;
-		}
+/* ========== EXPRS ========== */
+/*
+void transform(ExprListNode* exprsList) {
+	if (exprsList == nullptr) {
+		cout << "S: ERROR -> ExprListNode is unavailable" << endl;
+		return;
+	}
+	if (exprsList->first == nullptr) {
+		cout << "S: ERROR -> ExprListNode (id = " << exprsList->id << ") first element in list is unavailable" << endl;
+		return;
 	}
 
-	// По идее, тут ветка else, у нас можно проверять right, надо проверять
-	if (stmt->rightNode != nullptr) {
-		transform(stmt->rightNode);
-	}
+	//ExprNode* exprNode = exprsList->first;
+	//while (exprNode != nullptr) {
+	//	transform(exprNode);
+	//	exprNode = exprNode->next;
+	//}
 }
 
-
-//Реализация для for
-// Т.к не выделяем отдельную структуру назвал так,
-void transformFor(StmtNode* stmt) {
-	//transform(stmt->expr); // Проверить - тут надо condition
-	transform(stmt->suite);
-
-	// По идее, тут ветка else, у нас можно проверять right, надо проверять
-	if (stmt->rightNode != nullptr) {
-		transform(stmt->rightNode);
+void transform(ExprNode* expr) {
+	if (expr == nullptr) {
+		cout << "S: ERROR -> ExprNode is unavailable" << endl;
+		return;
 	}
+	
+	//switch (expr->exprType)
+	//{
+	//case _ASSIGN_OP:
+	//	break;
+	//}
 }
-                                                                                       // Объединение for/while - ??????????????????????????
-//Реализация для While
-// Т.к не выделяем отдельную структуру назвал так,
-void transformWhile(StmtNode* stmt) {
-	//transform(stmt->expr); // Проверить - тут надо condition
-	transform(stmt->suite);
-
-	// По идее, тут ветка else, у нас можно проверять right, надо проверять
-	if (stmt->rightNode != nullptr) {
-		transform(stmt->rightNode);
-	}
-}
-
-//Реализация для TRY
-// Т.к не выделяем отдельную структуру назвал так,
-void transformTRY(StmtNode* stmt) {
-	//transform(stmt->expr); // Проверить - тут надо condition
-	transform(stmt->suite);
-
-	//TODO:  прописать разные моменты( с exept, finally и тд)
-
-
-	// По идее, тут ветка else, у нас можно проверять right, надо проверять
-	if (stmt->rightNode != nullptr) {
-		transform(stmt->rightNode);
-	}
-}
+*/

@@ -3,6 +3,7 @@
 #include "./semantic.h"
 
 void fillTable(FileNode* program) {
+	/*
 	// Класс как точка входа в программу
 	Class* entryClass = new Class();
 	entryClass->name = "__PROGRAM__";
@@ -33,5 +34,4 @@ void fillTable(FileNode* program) {
 
 
 	// Инициализатор/конструктор этого класса
-
 }

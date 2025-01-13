@@ -235,7 +235,7 @@ struct FileElementNode {
 	// Следующий элемент в FileElementsListNode
 	FileElementNode* next = nullptr; 
 	
-	// ТОЛЬКО ДЛЯ TOPLEVELSTMT
+	// ТОЛЬКО ДЛЯ TOPLEVELSTMT (НЕ ИСПОЛЬЗУЕТСЯ)
 	FileElementNode* element = nullptr;
 
 	// ТОЛЬКО ДЛЯ STMT

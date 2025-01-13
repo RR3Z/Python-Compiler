@@ -26,6 +26,7 @@ struct Method {
 };
 
 class Class {
+	/*
 public:
 	int number = -1; // Номер класса в таблице
 	int parentNumber = -1; // Номер родительского класса в таблице
@@ -102,7 +103,8 @@ public:
 	int pushOrFindMethodRef(const string& methodName, const string& descriptor) {
 		return pushOrFindMethodRef(this->name, methodName, descriptor);
 	}
-
+	
+	*/
 private:
 	long long id = 0;
 };
@@ -111,6 +113,15 @@ extern map<string, Class*> classesList = {};
 
 // Функции для преобразования дерева
 void transformTree(FileNode* program);
+void transform(FileElementNode* programElement);
+void transform(FuncNode* funcDef);
+void transform(FuncArgsListNode* funcArgsList);
+void transform(FuncArgNode* funcArg);
+void transform(ClassNode* classDef);
+void transform(ClassElementsListNode* classElementsList);
+void transform(ClassElementNode* classElement);
+void transform(StmtsListNode* stmtsList);
+void transform(StmtNode* stmt);
 
 // Функции для заполнения таблиц
 void fillTable(FileNode* program);
