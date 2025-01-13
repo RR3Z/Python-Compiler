@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./semantic.h"
+#include "../nodes/nodes.h"
 #include <iostream>
 using namespace std;
 
@@ -104,7 +105,21 @@ void transform(FuncArgNode* funcArg) {
 
 /* ========== CLASS ========== */
 void transform(ClassNode* classDef) {
+	if (classDef == nullptr) {
+		cout << "S: ERROR -> FuncNode is unavailable" << endl;
+		return;
+	}
+	if (classDef->identifier == nullptr) {
+		cout << "S: ERROR -> FuncNode (id = " << classDef->id << ") has no identifier" << endl;
+		return;
+	}
 
+	// В классе может быть/не быть тело (подразумевается кода внутри тела)
+	if (classDef->suite != nullptr) {
+		transform(classDef->suite);
+	}
+
+	// Проверять/преобразовать родительский класс (base) нам не надо
 }
 
 void transform(ClassElementsListNode* classElementsList) {
@@ -129,6 +144,8 @@ void transform(ClassElementNode* classElement) {
 		cout << "S: ERROR -> ClassElementNode is unavailable" << endl;
 		return;
 	}
+
+	// TODO: определить модификатор доступа.
 	
 	switch (classElement->elementType)
 	{
@@ -159,7 +176,6 @@ void transform(StmtsListNode* stmtsList) {
 	}
 }
 
-// TODO
 void transform(StmtNode* stmt) {
 	if (stmt == nullptr) {
 		cout << "S: ERROR -> StmtNode is unavailable" << endl;
@@ -195,22 +211,44 @@ void transform(StmtNode* stmt) {
 		transform(stmt->stmtsList);	// elifStmtsList
 		break;
 
-		// ASSIGN STMT TODO
-		/*
-			Меняем тип узла + связи между узлами + проверка типов(та самая ошибка на которую мы забили на грамматике) + изменение всех последующих узлов(a[1][1] = a[2][2] = ...).
-			Надо получше потестить и поразбираться.
-		*/
+		// ASSIGN STMT
 	case _ASSIGN:
+		// НИЧЕГО НЕ НАДО ДЕЛАТЬ
 		break;
+	case _COMPOUND_ASSIGN: {
+		StmtNode* target = stmt->stmtsList->first;
+		ExprNode* value = stmt->list->first;
+
+		while (target != nullptr) {
+			if (target->list != nullptr && target->list->first->exprType == _LIST_ACCESS) {
+				target->stmtType = _ASSIGN_AND_ACCESS;
+				target->expr = target->list->last->right; // INDEX
+				target->leftExpr = target->list->last->left; // ID
+			}
+			else {
+				target->stmtType = _ASSIGN;
+				target->leftExpr = target->list->last; // ID
+			}
+			target->rightExpr = value; // VALUE
+			target->list = nullptr;
+			
+			target = target->next;
+		}
+
+		break;
+	}
+
 	case _MUL_ASSIGN:
-		break;
-	case _COMPOUND_ASSIGN:
+		// НИЧЕГО НЕ НАДО ДЕЛАТЬ
 		break;
 	case _DIV_ASSIGN:
+		// НИЧЕГО НЕ НАДО ДЕЛАТЬ
 		break;
 	case _MINUS_ASSIGN:
+		// НИЧЕГО НЕ НАДО ДЕЛАТЬ
 		break;
 	case _PLUS_ASSIGN:
+		// НИЧЕГО НЕ НАДО ДЕЛАТЬ
 		break;
 
 		// WHILE STMT

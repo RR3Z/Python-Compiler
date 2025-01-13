@@ -242,18 +242,27 @@ string generateDotFromStmtNode(StmtNode* node) {
 			dot += dotLabel(node->id, "Assign stmt");
 			// Identifier
 			dot += generateDotFromExprNode(node->leftExpr);
-			dot += dotConnection(node->id, node->leftExpr->id);
+			dot += dotConnectionWithLabel(node->id, node->leftExpr->id, "id");
 			// Expression
 			dot += generateDotFromExprNode(node->rightExpr);
-			dot += dotConnection(node->id, node->rightExpr->id);
+			dot += dotConnectionWithLabel(node->id, node->rightExpr->id, "value");
 			break;
 		case _COMPOUND_ASSIGN:
 			dot += dotLabel(node->id, "Compound\\nAssign stmt");
-			// Target List
+			// Target List (assign a value to)
 			dot += generateDotFromStmtsListNode(node->id,node->stmtsList);
-			// Expression
-			dot += generateDotFromExprListNode(-1, node->list);
-			dot += dotConnection(node->id, node->list->id);
+			break;
+		case _ASSIGN_AND_ACCESS:
+			dot += dotLabel(node->id, "[]=");
+			// Target
+			dot += generateDotFromExprNode(node->leftExpr);
+			dot += dotConnectionWithLabel(node->id, node->leftExpr->id, "id");
+			// Index
+			dot += generateDotFromExprNode(node->expr);
+			dot += dotConnectionWithLabel(node->id, node->expr->id, "index");
+			// Value
+			dot += generateDotFromExprNode(node->rightExpr);
+			dot += dotConnectionWithLabel(node->id, node->rightExpr->id, "value");
 			break;
 		case _PLUS_ASSIGN:
 			dot += dotLabel(node->id, "+= stmt");
@@ -654,9 +663,9 @@ string generateDotFromExprNode(ExprNode* node) {
 			dot += dotConnectionWithLabel(node->id, node->slicing->id, "index");
 			break;
 		case _LIST_ACCESS:
-			dot += dotLabel(node->id, "expr[expr]\nlist access");
+			dot += dotLabel(node->id, "[]");
 			dot += generateDotFromExprNode(node->left);
-			dot += dotConnectionWithLabel(node->id, node->left->id, "expr");
+			dot += dotConnectionWithLabel(node->id, node->left->id, "id");
 			dot += generateDotFromExprNode(node->right);
 			dot += dotConnectionWithLabel(node->id, node->right->id, "index");
 			break;

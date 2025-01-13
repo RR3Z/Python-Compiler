@@ -27,4 +27,6 @@ enum StmtType {
 
 	_EXPR_STMT = 21,
 	_EXPR_LIST_STMT = 22,
+
+	_ASSIGN_AND_ACCESS = 23,
 };
