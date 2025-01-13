@@ -109,7 +109,7 @@ private:
 	long long id = 0;
 };
 
-extern map<string, Class*> classesList = {};
+extern map<string, Class*> classesList;
 
 // Функции для преобразования дерева
 void transformTree(FileNode* program);

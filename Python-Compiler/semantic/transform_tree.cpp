@@ -97,7 +97,7 @@ void transform(FuncArgNode* funcArg) {
 		transform(funcArg->assignStmt);
 		break;
 	case _VAR:
-		transform(funcArg->var);
+		// transform(funcArg->var); // expr, который не надо никак преобразовывать
 		break;
 	}
 }
@@ -177,7 +177,7 @@ void transform(StmtNode* stmt) {
 	*/
 	
 	switch (stmt->stmtType) {
-	// IF STMT
+		// IF STMT
 	case _IF:
 		//transform(stmt->expr); // condition (expr, который нам не надо изменять)
 		transform(stmt->suite); // suite
@@ -195,11 +195,11 @@ void transform(StmtNode* stmt) {
 		transform(stmt->stmtsList);	// elifStmtsList
 		break;
 
-	// ASSIGN STMT TODO
-	/* 
-		Меняем тип узла + связи между узлами + проверка типов(та самая ошибка на которую мы забили на грамматике) + изменение всех последующих узлов(a[1][1] = a[2][2] = ...).
-		Надо получше потестить и поразбираться.
-	*/ 
+		// ASSIGN STMT TODO
+		/*
+			Меняем тип узла + связи между узлами + проверка типов(та самая ошибка на которую мы забили на грамматике) + изменение всех последующих узлов(a[1][1] = a[2][2] = ...).
+			Надо получше потестить и поразбираться.
+		*/
 	case _ASSIGN:
 		break;
 	case _MUL_ASSIGN:
@@ -213,7 +213,7 @@ void transform(StmtNode* stmt) {
 	case _PLUS_ASSIGN:
 		break;
 
-	// WHILE STMT
+		// WHILE STMT
 	case _WHILE:
 		//transform(stmt->expr); // condition (expr, который нам не надо изменять)
 		transform(stmt->suite); // suite
@@ -223,7 +223,7 @@ void transform(StmtNode* stmt) {
 		transform(stmt->rightNode);	// elseStmt
 		break;
 
-	// FOR STMT
+		// FOR STMT
 	case _FOR:
 		//transform(stmt->list);	// targetList из expr, который нам не надо изменять
 		//transform(stmt->expr);	// expr, который нам не надо изменять
@@ -234,12 +234,12 @@ void transform(StmtNode* stmt) {
 		transform(stmt->rightNode);	// elseStmt
 		break;
 
-	// RETURN STMT
+		// RETURN STMT
 	case _RETURN:
 		//transform(stmt->list); // exprList (возвращаемые значения, т.е. expr, которые нам не надо изменять)
 		break;
 
-	// TRY STMT
+		// TRY STMT
 	case _TRY:
 		transform(stmt->suite); // suite
 		break;
@@ -261,6 +261,7 @@ void transform(StmtNode* stmt) {
 	case _FINALLY:
 		transform(stmt->suite); // suite
 		break;
+	}
 }
 
 /* ========== EXPRS ========== */

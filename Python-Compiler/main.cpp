@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "nodes/dot_generation.h"
+#include "semantic/semantic.h"
 using namespace std;
 
 extern int yyparse();
@@ -9,6 +10,7 @@ extern struct FileNode* fileRoot;
 
 int main(int argc, const char* argv[])
 {
+	// INPUT DATA
 #ifdef  _DEBUG
 	fopen_s(&yyin, "input.txt", "r");
 #else
@@ -19,18 +21,21 @@ int main(int argc, const char* argv[])
 	}
 
 	fopen_s(&yyin, argv[1], "r");
-#endif //  _DEBUG
+#endif
 
-	
+	// GRAMMAR
 	if (!yyin)
 	{
 		cout << "Couldn't open file! Check the path!" << endl;
 		return 1;
 	}
-
 	yyparse();
 	fclose(yyin);
+	
+	// SEMANTIC
+	transformTree(fileRoot);
 
+	// DOT GENERATION
 #ifdef  _DEBUG
 	string parseRes = "digraph G {\n" + generateDotFromRoot(fileRoot) + "}";
 	FILE* dotFile;
@@ -51,5 +56,4 @@ int main(int argc, const char* argv[])
 	fprintf(dotFile, parseRes.c_str());
 	fclose(dotFile);
 #endif
-
 }
