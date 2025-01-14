@@ -14,8 +14,8 @@ using namespace std;
 
 /* ========== FILE ========== */
 void transformTree(FileNode* program) {
-	if (program == nullptr || program->elementsList == nullptr) {
-		cout << "S: ERROR -> file is empty (FileNode is unavailable) or something went wrong in the previous stages (FileElementsListNode is unavailable)" << endl;
+	if (program->elementsList == nullptr) {
+		throw runtime_error("S: ERROR -> something went wrong in the previous stages (FileElementsListNode is unavailable)");
 		return;
 	}
 
@@ -29,7 +29,7 @@ void transformTree(FileNode* program) {
 
 void transform(FileElementNode* programElement) {
 	if (programElement == nullptr) {
-		cout << "S: ERROR -> FileElementNode is unavailable" << endl;
+		throw runtime_error("S: ERROR->FileElementNode is unavailable");
 		return;
 	}
 	
@@ -50,11 +50,11 @@ void transform(FileElementNode* programElement) {
 /* ========== FUNCTION ========== */
 void transform(FuncNode* funcDef) {
 	if (funcDef == nullptr) {
-		cout << "S: ERROR -> FuncNode is unavailable" << endl;
+		throw runtime_error("S: ERROR->FuncNode is unavailable");
 		return;
 	}
 	if (funcDef->identifier == nullptr) {
-		cout << "S: ERROR -> FuncNode (id = " << funcDef->id << ") has no identifier" << endl;
+		throw runtime_error("S: ERROR -> FuncNode (id = " + to_string(funcDef->id) + ") has no identifier");
 		return;
 	}
 
@@ -71,7 +71,7 @@ void transform(FuncNode* funcDef) {
 
 void transform(FuncArgsListNode* funcArgsList) {
 	if (funcArgsList == nullptr) {
-		cout << "S: ERROR -> FuncArgsListNode is unavailable" << endl;
+		throw runtime_error("S: ERROR->FuncArgsListNode is unavailable");
 		return;
 	}
 
@@ -88,7 +88,7 @@ void transform(FuncArgsListNode* funcArgsList) {
 
 void transform(FuncArgNode* funcArg) {
 	if (funcArg == nullptr) {
-		cout << "S: ERROR -> FuncArgNode is unavailable" << endl;
+		throw runtime_error("S: ERROR->FuncArgNode is unavailable");
 		return;
 	}
 	
@@ -106,11 +106,11 @@ void transform(FuncArgNode* funcArg) {
 /* ========== CLASS ========== */
 void transform(ClassNode* classDef) {
 	if (classDef == nullptr) {
-		cout << "S: ERROR -> FuncNode is unavailable" << endl;
+		throw runtime_error("S: ERROR->FuncNode is unavailable");
 		return;
 	}
 	if (classDef->identifier == nullptr) {
-		cout << "S: ERROR -> FuncNode (id = " << classDef->id << ") has no identifier" << endl;
+		throw runtime_error("S: ERROR -> FuncNode (id = " + to_string(classDef->id) + ") has no identifier");
 		return;
 	}
 
@@ -124,11 +124,11 @@ void transform(ClassNode* classDef) {
 
 void transform(ClassElementsListNode* classElementsList) {
 	if (classElementsList == nullptr) {
-		cout << "S: ERROR -> ClassElementsListNode is unavailable" << endl;
+		throw runtime_error("S: ERROR->ClassElementsListNode is unavailable");
 		return;
 	}
 	if (classElementsList->first == nullptr) {
-		cout << "S: ERROR -> ClassElementsListNode (id = " << classElementsList->id << ") first element in list is unavailable" << endl;
+		throw runtime_error("S: ERROR -> ClassElementsListNode (id = " + to_string(classElementsList->id) + ") first element in list is unavailable");
 		return;
 	}
 
@@ -141,7 +141,7 @@ void transform(ClassElementsListNode* classElementsList) {
 
 void transform(ClassElementNode* classElement) {
 	if (classElement == nullptr) {
-		cout << "S: ERROR -> ClassElementNode is unavailable" << endl;
+		throw runtime_error("S: ERROR->ClassElementNode is unavailable");
 		return;
 	}
 
@@ -165,11 +165,11 @@ void transform(ClassElementNode* classElement) {
 /* ========== STMTS ========== */
 void transform(StmtsListNode* stmtsList) {
 	if (stmtsList == nullptr) {
-		cout << "S: ERROR -> StmtsListNode is unavailable" << endl;
+		throw runtime_error("S: ERROR->StmtsListNode is unavailable");
 		return;
 	}
 	if (stmtsList->first == nullptr) {
-		cout << "S: ERROR -> StmtsListNode (id = " << stmtsList->id << ") first element in list is unavailable" << endl;
+		throw runtime_error("S: ERROR -> StmtsListNode (id = " + to_string(stmtsList->id) + ") first element in list is unavailable");
 		return;
 	}
 	
@@ -182,7 +182,7 @@ void transform(StmtsListNode* stmtsList) {
 
 void transform(StmtNode* stmt) {
 	if (stmt == nullptr) {
-		cout << "S: ERROR -> StmtNode is unavailable" << endl;
+		throw runtime_error("S: ERROR->StmtNode is unavailable");
 		return;
 	}
 
@@ -220,8 +220,6 @@ void transform(StmtNode* stmt) {
 		// НИЧЕГО НЕ НАДО ДЕЛАТЬ
 		break;
 	case _COMPOUND_ASSIGN: {
-		// TODO: Проверка на ошибки
-
 		StmtNode* target = stmt->stmtsList->first;
 		ExprNode* value = stmt->list->first;
 
@@ -240,6 +238,8 @@ void transform(StmtNode* stmt) {
 			
 			target = target->next;
 		}
+
+		checkCompoundAssignForErrors(nullptr);
 
 		break;
 	}
@@ -369,7 +369,7 @@ void transform(ExprNode* expr) {
 
 void defineAccessModifier(FuncNode* funcDef) {
 	if (funcDef == nullptr) {
-		cout << "S: ERROR -> FuncNode is unavailable" << endl;
+		throw runtime_error("S: ERROR->FuncNode is unavailable");
 		return;
 	}
 
@@ -390,7 +390,7 @@ void defineAccessModifier(FuncNode* funcDef) {
 
 void defineAccessModifier(StmtNode* stmt) {
 	if (stmt == nullptr) {
-		cout << "S: ERROR -> StmtNode is unavailable" << endl;
+		throw runtime_error("S: ERROR->StmtNode is unavailable");
 		return;
 	}
 
