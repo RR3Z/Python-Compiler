@@ -258,16 +258,16 @@ string generateDotFromStmtNode(StmtNode* node) {
 			switch (node->accessModifier)
 			{
 				case _PRIVATE:
-					dot += dotLabel(node->id, "Assign stmt\\n AM: private(__)");
+					dot += dotLabel(node->id, "=\\n AM: private(__)");
 					break;
 				case _PROTECTED:
-					dot += dotLabel(node->id, "Assign stmt\\n AM: protected(_)");
+					dot += dotLabel(node->id, "=\\n AM: protected(_)");
 					break;
 				case _PUBLIC:
-					dot += dotLabel(node->id, "Assign stmt\\n AM: public");
+					dot += dotLabel(node->id, "=\\n AM: public");
 					break;
 				case _UNKNOWN:
-					dot += dotLabel(node->id, "Assign stmt");
+					dot += dotLabel(node->id, "=");
 					break;
 			}
 			// Identifier
