@@ -101,5 +101,8 @@
     <ClInclude Include="semantic\semantic.h">
       <Filter>Файлы заголовков\semantic</Filter>
     </ClInclude>
+    <ClInclude Include="nodes\AccessModifier.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

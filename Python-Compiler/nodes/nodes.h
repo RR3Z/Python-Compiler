@@ -5,6 +5,7 @@
 #include "FuncArgType.h"
 #include "FileElementType.h"
 #include "ClassElementType.h"
+#include "AccessModifier.h"
 using namespace std;
 
 struct ExprListNode;
@@ -87,6 +88,8 @@ struct StmtNode {
 	int id = -1;
 	// Тип узла
 	StmtType stmtType;
+	// Модификатор доступа (для полей класса)
+	AccessModifier accessModifier;
 
 	// Используется для компоновки нескольких StmtNode в один (например, ifStmt + elseStmt => compoundIf)
 	StmtNode* leftNode = nullptr;
@@ -213,6 +216,8 @@ struct ClassElementsListNode {
 struct FuncNode {
 	// Индекс узла
 	int id = -1;
+	// Модификатор доступа (для метода класса)
+	AccessModifier accessModifier;
 
 	// Наименование функции
 	ExprNode* identifier = nullptr;

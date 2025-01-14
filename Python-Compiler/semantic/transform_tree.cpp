@@ -150,10 +150,16 @@ void transform(ClassElementNode* classElement) {
 	switch (classElement->elementType)
 	{
 	case _FUNCTION_DEF:
-		transform(classElement->funcDef);
+		if (classElement->funcDef != nullptr) {
+			transform(classElement->funcDef);
+			defineAccessModifier(classElement->funcDef);
+		}
 		break;
 	case _STMT_NODE:
-		transform(classElement->stmt);
+		if (classElement->stmt != nullptr) {
+			transform(classElement->stmt);
+			defineAccessModifier(classElement->stmt);
+		}
 		break;
 	}
 }
@@ -216,6 +222,8 @@ void transform(StmtNode* stmt) {
 		// НИЧЕГО НЕ НАДО ДЕЛАТЬ
 		break;
 	case _COMPOUND_ASSIGN: {
+		// TODO: Проверка на ошибки
+
 		StmtNode* target = stmt->stmtsList->first;
 		ExprNode* value = stmt->list->first;
 
@@ -334,3 +342,75 @@ void transform(ExprNode* expr) {
 	//}
 }
 */
+
+/* ========== ACCESS MODIFIER ========== */
+/*
+	Модификаторы доступа.
+
+	1) Public
+	Пояснение:
+	Публичные свойства и методы доступны всем наследникам и создаются простым определением 
+	их в теле класса без каких-либо особых префиксов. К ним можно обращаться как внутри объекта, так и снаружи.
+	Как задается:
+	Без _ в имени.
+
+	2) Protected
+	Пояснение:
+	Это смесь между публичными и приватными.
+	Подразумевается, что такие элементы доступны только внутри класса и подклассе, но не снаружи.
+	По факту же, они доступны ото всюду (при обращении к ним).
+	Как задается:
+	Создается путем добавления одного подчеркивания (_) перед именем.
+
+	3) Private
+	Пояснение:
+	Свойства и методы с приватным модификатором доступа доступны только внутри того класса, где они были определены.
+	Как задается:
+	В начале имени __.
+*/
+
+void defineAccessModifier(FuncNode* funcDef) {
+	if (funcDef == nullptr) {
+		cout << "S: ERROR -> FuncNode is unavailable" << endl;
+		return;
+	}
+
+	string funcIdentifier = funcDef->identifier->identifier;
+
+	if (!funcIdentifier.empty()) {
+		if (funcIdentifier.starts_with("__")) {
+			funcDef->accessModifier = _PRIVATE;
+		}
+		else if (funcIdentifier.starts_with("_")) {
+			funcDef->accessModifier = _PROTECTED;
+		}
+		else {
+			funcDef->accessModifier = _PUBLIC;
+		}
+	}
+}
+
+void defineAccessModifier(StmtNode* stmt) {
+	if (stmt == nullptr) {
+		cout << "S: ERROR -> StmtNode is unavailable" << endl;
+		return;
+	}
+
+	cout << stmt << endl;
+
+	StmtNode* stmtNode = stmt->stmtsList->first;
+
+	while (stmtNode != nullptr) {
+		if ((stmtNode->leftExpr->identifier).starts_with("__")) {
+			stmtNode->accessModifier = _PRIVATE;
+		}
+		else if ((stmtNode->leftExpr->identifier).starts_with("_")) {
+			stmtNode->accessModifier = _PROTECTED;
+		}
+		else {
+			stmtNode->accessModifier = _PUBLIC;
+		}
+
+		stmtNode = stmtNode->next;
+	}
+}

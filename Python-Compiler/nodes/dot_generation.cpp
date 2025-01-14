@@ -70,8 +70,23 @@ string generateDotFromClassNode(ClassNode* node) {
 string generateDotFromFuncNode(FuncNode* node) {
 	string dot = "";
 	if (node == nullptr) { return dot; }
-
-	dot += dotLabel(node->id, "def\\nName: " + node->identifier->identifier);
+	
+	switch (node->accessModifier)
+	{
+	case _PRIVATE:
+		dot += dotLabel(node->id, "def\\nName: " + node->identifier->identifier + "\\n AM:private(__)");
+		break;
+	case _PROTECTED:
+		dot += dotLabel(node->id, "def\\nName: " + node->identifier->identifier + "\\n AM:protected(_)");
+		break;
+	case _PUBLIC:
+		dot += dotLabel(node->id, "def\\nName: " + node->identifier->identifier + "\\n AM:public");
+		break;
+	case _UNKNOWN:
+		dot += dotLabel(node->id, "def\\nName: " + node->identifier->identifier);
+		break;
+	}
+	
 
 	// Àğãóìåíòû ôóíêöèè
 	if (node->args != nullptr) {
@@ -239,7 +254,22 @@ string generateDotFromStmtNode(StmtNode* node) {
 			}
 			break;
 		case _ASSIGN:
-			dot += dotLabel(node->id, "Assign stmt");
+			// Access Modifier (åñëè ıòî ïîëå êëàññà)
+			switch (node->accessModifier)
+			{
+				case _PRIVATE:
+					dot += dotLabel(node->id, "Assign stmt\\n AM: private(__)");
+					break;
+				case _PROTECTED:
+					dot += dotLabel(node->id, "Assign stmt\\n AM: protected(_)");
+					break;
+				case _PUBLIC:
+					dot += dotLabel(node->id, "Assign stmt\\n AM: public");
+					break;
+				case _UNKNOWN:
+					dot += dotLabel(node->id, "Assign stmt");
+					break;
+			}
 			// Identifier
 			dot += generateDotFromExprNode(node->leftExpr);
 			dot += dotConnectionWithLabel(node->id, node->leftExpr->id, "id");
