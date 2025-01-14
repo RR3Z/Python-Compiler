@@ -74,15 +74,15 @@ void transform(FuncArgsListNode* funcArgsList) {
 		cout << "S: ERROR -> FuncArgsListNode is unavailable" << endl;
 		return;
 	}
-	if (funcArgsList->first == nullptr) {
-		cout << "S: ERROR -> FuncArgsListNode (id = " << funcArgsList->id << ") first element in list is unavailable" << endl;
-		return;
-	}
 
-	FuncArgNode* funcArg = funcArgsList->first;
-	while (funcArg != nullptr) {
-		transform(funcArg);
-		funcArg = funcArg->next;
+	// Для неименованных аргументов (ExprList из ExprNode*) ничего делать не надо
+
+	FuncArgNode* namedFuncArg = funcArgsList->first;
+	if (namedFuncArg != nullptr) {
+		while (namedFuncArg != nullptr) {
+			transform(namedFuncArg);
+			namedFuncArg = namedFuncArg->next;
+		}
 	}
 }
 
@@ -145,8 +145,6 @@ void transform(ClassElementNode* classElement) {
 		return;
 	}
 
-	// TODO: определить модификатор доступа.
-	
 	switch (classElement->elementType)
 	{
 	case _FUNCTION_DEF:
@@ -345,7 +343,7 @@ void transform(ExprNode* expr) {
 
 /* ========== ACCESS MODIFIER ========== */
 /*
-	Модификаторы доступа.
+	Модификаторы доступа для элементов класса.
 
 	1) Public
 	Пояснение:
@@ -395,8 +393,6 @@ void defineAccessModifier(StmtNode* stmt) {
 		cout << "S: ERROR -> StmtNode is unavailable" << endl;
 		return;
 	}
-
-	cout << stmt << endl;
 
 	StmtNode* stmtNode = stmt->stmtsList->first;
 

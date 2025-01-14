@@ -71,6 +71,7 @@ string generateDotFromFuncNode(FuncNode* node) {
 	string dot = "";
 	if (node == nullptr) { return dot; }
 	
+	// Модификатор доступа
 	switch (node->accessModifier)
 	{
 	case _PRIVATE:
@@ -87,7 +88,6 @@ string generateDotFromFuncNode(FuncNode* node) {
 		break;
 	}
 	
-
 	// Аргументы функции
 	if (node->args != nullptr) {
 		dot += dotLabel(node->args->id, "args");
@@ -417,7 +417,7 @@ string generateDotFromFuncArgsListNode(int parentId, FuncArgsListNode* node) {
 	if (node->namedArgsList != nullptr) {
 		if (parentId > 0) {
 			dot += generateDotFromFuncArgsListNode(parentId, node->namedArgsList);
-			dot += dotConnection(parentId, node->namedArgsList->id);
+			//dot += dotConnection(parentId, node->namedArgsList->id);
 		}
 		else {
 			dot += dotLabel(node->id, "Func Args List");
@@ -452,8 +452,6 @@ string generateDotFromFuncArgNode(int parentId, FuncArgNode* node) {
 		case _VAR:
 			dot += generateDotFromExprNode(node->var);
 			dot += dotConnection(parentId, node->var->id);
-			break;
-		default:
 			break;
 	}
 
