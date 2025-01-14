@@ -123,9 +123,12 @@ void transform(ClassElementNode* classElement);
 void transform(StmtsListNode* stmtsList);
 void transform(StmtNode* stmt);
 
-// Функции для определения модификатора доступа внутри класса
+// Функции для определения модификатора доступа элементов внутри класса
 void defineAccessModifier(FuncNode* funcDef);
 void defineAccessModifier(StmtNode* stmt);
+
+// Функции для определния ошибок
+void checkCompoundAssignForErrors(StmtNode* stmt);
 
 // Функции для заполнения таблиц
 void fillTable(FileNode* program);

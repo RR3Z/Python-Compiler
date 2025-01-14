@@ -9,7 +9,9 @@ using namespace std;
 	Начало нашего дерева находится в FileNode - во что свернулся код на этапе грамматики.
 	Что хранится в узлах, можно смотреть в файле nodes.h в папке nodes.
 
-	Изменяем только "[]" и "=" на "[]="
+	1) Изменяем только "[]" и "=" на "[]=" (_COMPOUND_ASSIGN в transform для StmtNode)
+	2) Добавляем модификатор доступа для элементов класса (функции defineAccessModifier)
+	3) Проверка правильности присваивания (функция checkCompoundAssignForErrors)
 */
 
 /* ========== FILE ========== */
@@ -238,9 +240,9 @@ void transform(StmtNode* stmt) {
 			
 			target = target->next;
 		}
+		stmt->list = nullptr;
 
-		checkCompoundAssignForErrors(nullptr);
-
+		checkCompoundAssignForErrors(stmt); // Проверка на правильность (на грамматике не проверял)
 		break;
 	}
 
@@ -408,5 +410,51 @@ void defineAccessModifier(StmtNode* stmt) {
 		}
 
 		stmtNode = stmtNode->next;
+	}
+}
+
+/* ========== ERRORS ========== */
+void checkCompoundAssignForErrors(StmtNode* stmt) {
+	if (stmt == nullptr) {
+		throw runtime_error("S: ERROR->StmtNode is unavailable");
+		return;
+	}
+
+	StmtNode* assignStmt = stmt->stmtsList->first;
+
+	while (assignStmt != nullptr) {
+		switch (assignStmt->leftExpr->exprType)
+		{
+			case _FALSE:
+				// False = True
+				throw runtime_error("S: Syntax Error -> cannot assign to False.");
+				break;
+			case _TRUE:
+				// True = 15
+				throw runtime_error("S: Syntax Error -> cannot assign to True.");
+				break;
+			case _INT_CONST:
+				// 15 = True
+				throw runtime_error("S: Syntax Error -> cannot assign to literal here.");
+				break;
+			case _FLOAT_CONST:
+				// 15.0 = "a"
+				throw runtime_error("S: Syntax Error -> cannot assign to literal here.");
+				break;
+			case _STRING_CONST:
+				// "a" = 15.0
+				throw runtime_error("S: Syntax Error -> cannot assign to literal here.");
+				break;
+			case _SLICING_LIST_ACCESS:
+				// my_list[1:4] = 10
+				throw runtime_error("S: Syntax Error -> must assign iterable to extended slice."); // TODO: RECHECK IT AFTER CODE GENERATION
+				break;
+			case _LIST_COMPREHENSION:
+				//[x * 2 for x in my_list] = 5
+				throw runtime_error("S: Syntax Error -> cannot assign to list comprehension.");
+				break;
+		}
+
+		assignStmt = assignStmt->next;
 	}
 }

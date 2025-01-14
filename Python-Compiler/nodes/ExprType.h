@@ -24,7 +24,7 @@ enum ExprType {
 	_STRING_CONST = 23,				
 	_FLOAT_CONST = 24,				
 	_INT_CONST = 25,				
-	_ATTRIBUTE_REF = 26,			
+	_ATTRIBUTE_REF = 26, // Оно же field ref (ссылка на поле класса)		
 	_METHOD_CALL = 27,				
 	_FUNCTION_CALL = 28,			
 	_SLICING_LIST_ACCESS = 29,		
