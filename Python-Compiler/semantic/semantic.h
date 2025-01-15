@@ -1,85 +1,96 @@
 #pragma once
-
 #include "../nodes/nodes.h"
 #include <string>
 #include <vector>
 #include <map>
 using namespace std;
 
-struct Field {
-	bool isClassVar = false;
-	string name = "";
+// Верхнеуровненая таблица (для всех классов, в том числе самой программы)
+extern map<string, Class*> classesList;
 
-	int number = -1; // Номер поля/переменной в таблице
+struct Field {
+	int number = -1;	// Номер поля
+	string name = "";	// Название поля
+	
+	// Дескриптор не нужен (динамическая типизация - у нас будет всегда один и тот же super класс)
+	// TODO: добавить модификатор доступа (для AccessModifier)
 };
 
 struct Method {
-	bool isInstanceMethod = false;
+	int number = -1; // Номер метода
+
+	// Для имени метода
 	string name = "";
+	int nameNumber = -1;
+
+	// Дескриптор нужен для корректной работы JVM
+	int descriptorNumber = -1;
+
+	// Для локальных переменных (TODO: почему строки, а не int?)
 	vector<string> localVars = {};
+
+	// Ссылка на узел дерева с элементами тела
 	StmtsListNode* suite = nullptr;
 
-	int number = -1; // Номер метода/функции в таблице
-	int nameNumber = -1; // Номер имени метода/функции в таблице
-	int descriptorNumber = -1; // Номер дескриптора метода/функции в таблице
-	int selfMethodRef = -1; // Номер ссылки на этот же метод/функцию в таблице
+	// Ссылка на super класс
+	int baseClassNumber = -1;
+	// Ссылка на конструктор super класса
+	int baseConstructorNumber = -1;
+
+	// TODO: добавить модификатор доступа (для AccessModifier)
 };
 
 class Class {
-	/*
 public:
-	int number = -1; // Номер класса в таблице
-	int parentNumber = -1; // Номер родительского класса в таблице
+	int number; // Номер класса
 
-	string name = "";
-	Class* parent = nullptr; // Ссылка на родительский класс (одиночное наследование)
+	// Родительский класс
+	int parentNumber;
+	Class* parent;
+
+	string name; // Название класса
 
 	// Таблицы
-	map<Constant, int> constants = {};
-	map<string, Method*> methods = {};
-	map<string, Field*> fields = {};
-
-	// Функции для работы с таблицами
+	map<Constant, int> constants;
+	map<string, Method*> methods;
+	map<string, Field*> fields;
+	// TODO: добавить таблицу для модификаторов доступа (для AccessModifier)
 
 	int pushOrFindConstant(const Constant& constant) {
+		// Поиск константы в таблице констант
 		auto iter = constants.find(constant);
 
+		// Если не нашли, то добавляем в таблицу
 		if (iter == constants.end()) {
-			id++;
-			constants[constant] = id;
-			return id;
+			++_ID;
+			constants[constant] = _ID;
+			return _ID;
 		}
 
-		return iter->second; // second - значение, first - ключ
+		// Если нашли, то возвращаем номер найденной константы
+		return iter->second;
 	}
 
-	void addField(const string& fieldName, const string& type) {
-		// Поиск/добавление в таблицу констант
-		int id = pushOrFindFieldRef(fieldName, type);
+	void pushField(const string& fieldName, const string& type) {
+		// Ищем/добавляем номер поля в таблице констант
+		int number = pushOrFindFieldRef(fieldName, type);
 
-		// Поиск переменной в таблице полей
+		// Если поле отсутствует в таблице полей, то добавляем в таблицу
 		if (fields.find(fieldName) == fields.end()) {
 			Field* field = new Field();
-			field->isClassVar = true;
 			field->name = fieldName;
-			field->number = id;
-			// Добавление в таблицу полей
+			field->number = number;
 			fields[fieldName] = field;
 		}
 	}
 
 	int pushOrFindFieldRef(const string& className, const string& fieldName, const string& type) {
-		// Создание/поиск переменной в таблице констант
-		int nameId = pushOrFindConstant(Constant::Utf8(fieldName));
-		int typeId = pushOrFindConstant(Constant::Utf8(type));
-		int nameAndTypeId = pushOrFindConstant(Constant::NameAndType(nameId, typeId));
-
-		// Создание/поиск класса в таблице констант
-		int classId = pushOrFindConstant(Constant::Class(pushOrFindConstant(Constant::Utf8(className))));
-
-		// Связывание поля с классом (которому он принадлежит)
-		int fileldRefId = pushOrFindConstant(Constant::FieldRef(classId, nameAndTypeId));
-		return fileldRefId;
+		int nameNumber = pushOrFindConstant(Constant::Utf8(fieldName));
+		int typeNumber = pushOrFindConstant(Constant::Utf8(type));
+		int nameAndTypeNumber = pushOrFindConstant(Constant::NameAndType(nameNumber, typeNumber));
+		int classNumber = pushOrFindConstant(Constant::Class(pushOrFindConstant(Constant::Utf8(className))));
+		int fieldRefNumber = pushOrFindConstant(Constant::FieldRef(classNumber, nameAndTypeNumber));
+		return fieldRefNumber;
 	}
 
 	int pushOrFindFieldRef(const string& fieldName, const string& type) {
@@ -87,29 +98,21 @@ public:
 	}
 
 	int pushOrFindMethodRef(const string& className, const string& methodName, const string& descriptor) {
-		// Создание/поиск метода в таблице констант
-		int nameId = pushOrFindConstant(Constant::Utf8(methodName));
-		int descriptorId = pushOrFindConstant(Constant::Utf8(descriptor));
-		int nameAndTypeId = pushOrFindConstant(Constant::NameAndType(nameId, descriptorId));
-
-		// Создание/поиск класса в таблице констант
-		int classId = pushOrFindConstant(Constant::Class(pushOrFindConstant(Constant::Utf8(className))));
-
-		// Связывание метода с классом (которому он принадлежит)
-		int methodRefId = pushOrFindConstant(Constant::MethodRef(classId, nameAndTypeId));
-		return methodRefId;
+		int nameNumber = pushOrFindConstant(Constant::Utf8(methodName));
+		int descriptorNumber = pushOrFindConstant(Constant::Utf8(descriptor));
+		int nameAndTypeNumber = pushOrFindConstant(Constant::NameAndType(nameNumber, descriptorNumber));
+		int classNumber = pushOrFindConstant(Constant::Class(pushOrFindConstant(Constant::Utf8(className))));
+		int fieldRefNumber = pushOrFindConstant(Constant::FieldRef(classNumber, nameAndTypeNumber));
+		return fieldRefNumber;
 	}
-	
+
 	int pushOrFindMethodRef(const string& methodName, const string& descriptor) {
 		return pushOrFindMethodRef(this->name, methodName, descriptor);
 	}
-	
-	*/
-private:
-	long long id = 0;
-};
 
-extern map<string, Class*> classesList;
+private:
+	long long _ID = 0;
+};
 
 // Функции для преобразования дерева
 void transformTree(FileNode* program);
