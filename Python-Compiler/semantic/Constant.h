@@ -54,12 +54,12 @@ struct Constant {
 		return constant;
 	}
 
-	static Constant FieldRef(int classNumber, int nameAndTypeNumber) {
+	static Constant* FieldRef(int classNumber, int nameAndTypeNumber) {
 		Constant* constant = new Constant();
 		constant->type = ConstantType::Fieldref;
 		constant->classNumber = classNumber;
 		constant->nameAndTypeNumber = nameAndTypeNumber;
-		return *constant;
+		return constant;
 	}
 
 	static Constant* MethodRef(int classNumber, int nameAndTypeNumber) {

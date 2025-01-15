@@ -52,6 +52,8 @@
     <ClInclude Include="nodes\parsing_tree.h" />
     <ClInclude Include="nodes\StmtType.h" />
     <ClInclude Include="python.tab.h" />
+    <ClInclude Include="semantic\Constant.h" />
+    <ClInclude Include="semantic\ConstantType.h" />
     <ClInclude Include="semantic\semantic.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

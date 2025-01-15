@@ -3,10 +3,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "./Constant.h"
 using namespace std;
-
-// Верхнеуровненая таблица (для всех классов, в том числе самой программы)
-extern map<string, Class*> classesList;
 
 struct Field {
 	int number = -1;	// Номер поля
@@ -31,6 +29,9 @@ struct Method {
 
 	// Ссылка на узел дерева с элементами тела
 	StmtsListNode* suite = nullptr;
+
+	// Номер super класса Java (java/lang/Object)
+	int selfNumber = -1;
 
 	// Ссылка на super класс
 	int baseClassNumber = -1;
@@ -85,11 +86,11 @@ public:
 	}
 
 	int pushOrFindFieldRef(const string& className, const string& fieldName, const string& type) {
-		int nameNumber = pushOrFindConstant(Constant::Utf8(fieldName));
-		int typeNumber = pushOrFindConstant(Constant::Utf8(type));
-		int nameAndTypeNumber = pushOrFindConstant(Constant::NameAndType(nameNumber, typeNumber));
-		int classNumber = pushOrFindConstant(Constant::Class(pushOrFindConstant(Constant::Utf8(className))));
-		int fieldRefNumber = pushOrFindConstant(Constant::FieldRef(classNumber, nameAndTypeNumber));
+		int nameNumber = pushOrFindConstant(*Constant::UTF8(fieldName));
+		int typeNumber = pushOrFindConstant(*Constant::UTF8(type));
+		int nameAndTypeNumber = pushOrFindConstant(*Constant::NameAndType(nameNumber, typeNumber));
+		int classNumber = pushOrFindConstant(*Constant::Class(pushOrFindConstant(*Constant::UTF8(className))));
+		int fieldRefNumber = pushOrFindConstant(*Constant::FieldRef(classNumber, nameAndTypeNumber));
 		return fieldRefNumber;
 	}
 
@@ -98,12 +99,12 @@ public:
 	}
 
 	int pushOrFindMethodRef(const string& className, const string& methodName, const string& descriptor) {
-		int nameNumber = pushOrFindConstant(Constant::Utf8(methodName));
-		int descriptorNumber = pushOrFindConstant(Constant::Utf8(descriptor));
-		int nameAndTypeNumber = pushOrFindConstant(Constant::NameAndType(nameNumber, descriptorNumber));
-		int classNumber = pushOrFindConstant(Constant::Class(pushOrFindConstant(Constant::Utf8(className))));
-		int fieldRefNumber = pushOrFindConstant(Constant::FieldRef(classNumber, nameAndTypeNumber));
-		return fieldRefNumber;
+		int nameNumber = pushOrFindConstant(*Constant::UTF8(methodName));
+		int descriptorNumber = pushOrFindConstant(*Constant::UTF8(descriptor));
+		int nameAndTypeNumber = pushOrFindConstant(*Constant::NameAndType(nameNumber, descriptorNumber));
+		int classNumber = pushOrFindConstant(*Constant::Class(pushOrFindConstant(*Constant::UTF8(className))));
+		int methodRefNumber = pushOrFindConstant(*Constant::MethodRef(classNumber, nameAndTypeNumber));
+		return methodRefNumber;
 	}
 
 	int pushOrFindMethodRef(const string& methodName, const string& descriptor) {
@@ -113,6 +114,9 @@ public:
 private:
 	long long _ID = 0;
 };
+
+// Верхнеуровненая таблица (для всех классов, в том числе самой программы)
+extern map<string, Class*> classesList;
 
 // Функции для преобразования дерева
 void transformTree(FileNode* program);

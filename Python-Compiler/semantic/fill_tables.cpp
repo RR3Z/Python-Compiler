@@ -1,37 +1,61 @@
 #pragma once
-
 #include "./semantic.h"
 
 void fillTable(FileNode* program) {
-	/*
-	// Класс как точка входа в программу
+	// Создание класса, как точки входа в программу
 	Class* entryClass = new Class();
 	entryClass->name = "__PROGRAM__";
+	// Добавление класса в глобальную таблицу
 	classesList[entryClass->name] = entryClass;
-	entryClass->pushOrFindConstant(Constant::Utf8("Code"));
-	entryClass->number = entryClass->pushOrFindConstant(Constant::Class(entryClass->pushOrFindConstant(Constant::Utf8(entryClass->name))));
 
-	// Наследуемый класс
-	// Замечание: мы тут не можем явно прописать класс для parent, т.к. это java класс, а не наш собственный.
-	int parentClassName = entryClass->pushOrFindConstant(Constant::Utf8("Ljava/lang/Object;"));
-	entryClass->parentNumber = entryClass->pushOrFindConstant(Constant::Class(parentClassName));
+	// Добавление констант класса
+	entryClass->pushOrFindConstant(*Constant::UTF8("Code")); // По идее добавляется, так как у нас будет конструктор по умолчанию
+	entryClass->number = entryClass->pushOrFindConstant(*Constant::Class(entryClass->pushOrFindConstant(*Constant::UTF8(entryClass->name))));
 
-	// Точка входа в программу
-	/* 
-	Замечание: в Python нет явной точки входа в программу(в Ruby есть - метод main).
-	Поэтому нам по хорошему реализовать что-то типа гибридного подхода:
-	1) if __name__ == "__main__": *code*
-	2) Просто код
+	// Создание функции, как точки входа в программу
+	Method* mainMethod = new Method();
+	mainMethod->name = "main";
+	// Добавление констант метода
+	mainMethod->nameNumber = entryClass->pushOrFindConstant(*Constant::UTF8(mainMethod->name));
+	// Нужен для корректной работы программы/JVM
+	mainMethod->descriptorNumber = entryClass->pushOrFindConstant(*Constant::UTF8("([Ljava/lang/String;)V"));
+	mainMethod->number = entryClass->pushOrFindMethodRef(entryClass->name, mainMethod->name, "([Ljava/lang/String;)V");
+	mainMethod->localVars.push_back("args");
+	// Добавление main в таблицу методов entryClass
+	entryClass->methods[mainMethod->name] = mainMethod;
+	// Тело метода (изначально пустое)
+	mainMethod->suite = nullptr;
 
-	Иначе говоря:
-	Нет явной точки входа: нет необходимости в методе main. Вместо этого можно будет обрабатывать любые операторы кода, который будет выполняться в области видимости.
+	// Разбор кода программы
+	if (program != nullptr && program->elementsList != nullptr) {
+		FileElementNode* programElement = program->elementsList->first;
 
-	По факту мы должны создать метод __main__, как я понял. 
-	Надо где-то про это почитать.
-	*/
+		while (programElement != nullptr) {
+			// TODO
+			switch (programElement->elementType)
+			{
+				case _CLASS_DEF:
+					break;
+				case _FUNC_DEF:
+					break;
+				case _STMT:
+					break;
+			}
 
-	// Обработка элементов программы (функции,классы,переменные и тд)
+			// Переходим к следующему элементу
+			programElement = programElement->next;
+		}
+	}
 
-
-	// Инициализатор/конструктор этого класса
+	// Создание конструктора класса __PROGRAM__
+	Method* constructor = new Method();
+	constructor->name = "__init__"; // в Python конструктор задается с помощью __init__
+	constructor->nameNumber = entryClass->pushOrFindConstant(*Constant::UTF8(constructor->name));
+	constructor->descriptorNumber = entryClass->pushOrFindConstant(*Constant::UTF8("()V"));
+	constructor->localVars.push_back("self"); // в Python экземляр класса хранится в self
+	constructor->suite = nullptr;
+	constructor->number = entryClass->pushOrFindMethodRef(entryClass->name, constructor->name, "()V");
+	constructor->selfNumber = entryClass->pushOrFindMethodRef("java/lang/Object", constructor->name, "()V"); // Как я понял, нам надо создать объект нашего языка, на основе Java объекта
+	// Добавление __init__ в таблицу методов entryClass
+	entryClass->methods[constructor->name] = constructor;
 }
