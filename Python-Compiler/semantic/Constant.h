@@ -11,6 +11,7 @@ struct Constant {
 	int intValue;
 	float floatValue;
 	string strValue;
+	bool boolValue;
 
 	// Номер/-а константы
 	unsigned int utf8Number;
@@ -37,6 +38,13 @@ struct Constant {
 		Constant* constant = new Constant();
 		constant->type = ConstantType::Float;
 		constant->floatValue = value;
+		return constant;
+	}
+
+	static Constant* Boolean(bool value) {
+		Constant* constant = new Constant();
+		constant->type = ConstantType::Boolean;
+		constant->boolValue = value;
 		return constant;
 	}
 
