@@ -1,6 +1,8 @@
 #pragma once
 #include "./semantic.h"
 
+std::map<std::string, Class*> classesList;
+
 void fillTable(FileNode* program) {
 	// Создание класса, как точки входа в программу
 	Class* entryClass = new Class();
@@ -59,3 +61,5 @@ void fillTable(FileNode* program) {
 	// Добавление __init__ в таблицу методов entryClass
 	entryClass->methods[constructor->name] = constructor;
 }
+
+
