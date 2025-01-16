@@ -22,6 +22,7 @@
     <Flex Include="python.l" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="codeGen\codeGen.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="nodes\DotHelpers.cpp" />
     <ClCompile Include="nodes\dot_generation.cpp" />
@@ -41,6 +42,8 @@
     </Bison>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="codeGen\AccessFlag.h" />
+    <ClInclude Include="codeGen\codeGen.h" />
     <ClInclude Include="nodes\AccessModifier.h" />
     <ClInclude Include="nodes\ClassElementType.h" />
     <ClInclude Include="nodes\DotHelpers.h" />

@@ -25,6 +25,12 @@
     <Filter Include="Файлы заголовков\semantic">
       <UniqueIdentifier>{ce1972b3-4b88-42c4-a9b6-b08a3be517c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\codeGen">
+      <UniqueIdentifier>{37d9c4a1-39a0-414f-803f-8d1a42cc3e55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\codeGen">
+      <UniqueIdentifier>{aae3ce45-dbca-46cd-b0f7-8ea8a91aa718}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Flex Include="python.l">
@@ -55,6 +61,9 @@
     </ClCompile>
     <ClCompile Include="semantic\fill_tables.cpp">
       <Filter>Исходные файлы\semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="codeGen\codeGen.cpp">
+      <Filter>Исходные файлы\codeGen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -103,6 +112,18 @@
     </ClInclude>
     <ClInclude Include="nodes\AccessModifier.h">
       <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="codeGen\codeGen.h">
+      <Filter>Файлы заголовков\codeGen</Filter>
+    </ClInclude>
+    <ClInclude Include="codeGen\AccessFlag.h">
+      <Filter>Файлы заголовков\codeGen</Filter>
+    </ClInclude>
+    <ClInclude Include="semantic\ConstantType.h">
+      <Filter>Файлы заголовков\semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="semantic\Constant.h">
+      <Filter>Файлы заголовков\semantic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

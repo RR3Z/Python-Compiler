@@ -53,6 +53,13 @@ struct ExprNode {
 
 	// ТОЛЬКО ДЛЯ LAMBDA
 	FuncArgsListNode* funcArgs = nullptr;
+
+
+	// SEMANTIC
+	int paramLocalVarNum = -1; // for func param
+	int valueNumber = -1; // value UTF8
+	int classNumber = -1; // parent class UTF8
+	int number = -1; // MethodRef for parent class constructor
 };
 
 /* ========== EXPRESSION LIST ========== */
@@ -227,6 +234,9 @@ struct FuncNode {
 
 	// Тело функции
 	StmtsListNode* suite = nullptr;
+
+	// Для семантики
+	int idSemantic = -1;
 };
 
 /* ========== FILE ELEMENT ========== */

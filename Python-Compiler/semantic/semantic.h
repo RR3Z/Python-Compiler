@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include "./Constant.h"
+#include "../codeGen/AccessFlag.h"
 using namespace std;
 
 struct Field {
@@ -11,7 +12,9 @@ struct Field {
 	string name = "";	// Название поля
 	
 	// Дескриптор не нужен (динамическая типизация - у нас будет всегда один и тот же super класс)
-	// TODO: добавить модификатор доступа (для AccessModifier)
+	 
+	// Модификатор доступа
+	AccessFlag accessModifier;
 };
 
 struct Method {
@@ -30,15 +33,21 @@ struct Method {
 	// Ссылка на узел дерева с элементами тела
 	StmtsListNode* suite = nullptr;
 
-	// Номер super класса Java (java/lang/Object)
-	int selfNumber = -1;
+	// Super класса Java (java/lang/Object)
+	int selfMethodRef = -1;
 
-	// Ссылка на super класс
+	/*
+	Зачем нужны?
+	Егор: Я так понял, это ссылка на конструктор, если у нас метод вдруг окажется конструктором.
+	Егор: Несмотря на то, что дескриптор "()V", конструктор лишь инициализирует значения, а не возвращает объект или ссылку на объект.
+	*/
+	// Ссылка на super класс (в моем случае, __BASE__)
 	int baseClassNumber = -1;
 	// Ссылка на конструктор super класса
 	int baseConstructorNumber = -1;
 
-	// TODO: добавить модификатор доступа (для AccessModifier)
+	// Модификатор доступа
+	AccessFlag accessModifier;
 };
 
 class Class {
@@ -115,9 +124,6 @@ private:
 	long long _ID = 0;
 };
 
-// Верхнеуровненая таблица (для всех классов, в том числе самой программы)
-extern map<string, Class*> classesList;
-
 // Функции для преобразования дерева
 void transformTree(FileNode* program);
 void transform(FileElementNode* programElement);
@@ -139,3 +145,11 @@ void checkCompoundAssignForErrors(StmtNode* stmt);
 
 // Функции для заполнения таблиц
 void fillTable(FileNode* program);
+void fillTable(ClassNode* classDef);
+void fillTable(Class* clazz, FuncNode* funcDef);
+void fillTable(Class* clazz, Method* method, StmtsListNode* suite);
+void fillTable(Class* clazz, Method* method, StmtNode* stmt);
+void fillTable(Class* clazz, Method* method, ExprNode* expr);
+
+// Вспомогательные функции для заполнения таблиц
+string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor);

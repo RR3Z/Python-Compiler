@@ -64,7 +64,7 @@ struct Constant {
 
 	static Constant* FieldRef(int classNumber, int nameAndTypeNumber) {
 		Constant* constant = new Constant();
-		constant->type = ConstantType::Fieldref;
+		constant->type = ConstantType::FieldRef;
 		constant->classNumber = classNumber;
 		constant->nameAndTypeNumber = nameAndTypeNumber;
 		return constant;
@@ -72,7 +72,7 @@ struct Constant {
 
 	static Constant* MethodRef(int classNumber, int nameAndTypeNumber) {
 		Constant* constant = new Constant();
-		constant->type = ConstantType::Methodref;
+		constant->type = ConstantType::MethodRef;
 		constant->classNumber = classNumber;
 		constant->nameAndTypeNumber = nameAndTypeNumber;
 		return constant;
@@ -101,8 +101,8 @@ struct Constant {
 			return l.utf8Number == r.utf8Number;
 		case  ConstantType::NameAndType:
 			return (l.nameNumber == r.nameNumber) && (l.typeNumber == r.typeNumber);
-		case  ConstantType::Methodref:
-		case  ConstantType::Fieldref:
+		case  ConstantType::MethodRef:
+		case  ConstantType::FieldRef:
 			return (l.nameAndTypeNumber == r.nameAndTypeNumber) && (l.classNameNumber == r.classNameNumber);
 		}
 		return false;
@@ -126,8 +126,8 @@ struct Constant {
 				return l.classNameNumber < r.classNameNumber;
 			case ConstantType::NameAndType:
 				return l.nameNumber < r.nameNumber || ((l.nameNumber == r.nameNumber) && (l.typeNumber < r.typeNumber));
-			case ConstantType::Fieldref:
-			case ConstantType::Methodref:
+			case ConstantType::FieldRef:
+			case ConstantType::MethodRef:
 				return l.classNumber < r.classNumber || ((l.classNumber == r.classNumber) && (l.nameAndTypeNumber < r.nameAndTypeNumber));
 			}
 		}

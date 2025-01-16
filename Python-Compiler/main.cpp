@@ -1,12 +1,11 @@
-#include <iostream>
-#include <string>
 #include "nodes/dot_generation.h"
 #include "semantic/semantic.h"
-using namespace std;
+#include "codeGen/codeGen.h"
 
 extern int yyparse();
 extern FILE* yyin;
 extern struct FileNode* fileRoot;
+extern map<string, Class*> classesList;
 
 int main(int argc, const char* argv[])
 {
@@ -34,8 +33,16 @@ int main(int argc, const char* argv[])
 	
 	// SEMANTIC
 	transformTree(fileRoot);
+	fillTable(fileRoot);
+
+	// CODE GENERATION
+	cout << "\n\n==== __PROGRAM__ CONTENT ====" << endl;
+	generate(fileRoot, classesList);
+	system("javap -verbose __PROGRAM__");
+	system("java __PROGRAM__");
 
 	// DOT GENERATION
+/*
 #ifdef  _DEBUG
 	string parseRes = "digraph G {\n" + generateDotFromRoot(fileRoot) + "}";
 	FILE* dotFile;
@@ -56,4 +63,5 @@ int main(int argc, const char* argv[])
 	fprintf(dotFile, parseRes.c_str());
 	fclose(dotFile);
 #endif
+*/
 }
