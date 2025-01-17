@@ -142,14 +142,16 @@ void defineAccessModifier(StmtNode* stmt);
 
 // Функции для определния ошибок
 void checkCompoundAssignForErrors(StmtNode* stmt);
+void checkReturnValue(Class* clazz, Method* method, ExprNode* expr);
 
 // Функции для заполнения таблиц
 void fillTable(FileNode* program);
 void fillTable(ClassNode* classDef);
 void fillTable(Class* clazz, FuncNode* funcDef);
-void fillTable(Class* clazz, Method* method, StmtsListNode* suite);
+void fillTable(Class* clazz, Method* method, StmtsListNode* stmts);
 void fillTable(Class* clazz, Method* method, StmtNode* stmt);
 void fillTable(Class* clazz, Method* method, ExprNode* expr);
 
 // Вспомогательные функции для заполнения таблиц
 string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor);
+string defineMethodReturnType(Method* method);

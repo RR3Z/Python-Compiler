@@ -11,6 +11,8 @@ void fillTable(FileNode* program) {
 	// Создание класса, как точки входа в программу
 	Class* entryClass = new Class();
 	entryClass->name = "__PROGRAM__";
+	// Добавление класса в глобальную таблицу
+	classesList[entryClass->name] = entryClass;
 
 	// Добавление констант класса
 	entryClass->pushOrFindConstant(*Constant::UTF8("Code")); // По идее добавляется, так как у нас будет конструктор по умолчанию
@@ -31,6 +33,8 @@ void fillTable(FileNode* program) {
 	mainMethod->localVars.push_back("args");
 	// Тело метода (изначально пустое)
 	mainMethod->suite = nullptr;
+	// Добавление main в таблицу методов entryClass
+	entryClass->methods[mainMethod->name] = mainMethod;
 
 	// Разбор кода программы
 	if (program != nullptr && program->elementsList != nullptr) {
@@ -43,9 +47,13 @@ void fillTable(FileNode* program) {
 					//fillTable(programElement->classDef);
 					break;
 				case _FUNC_DEF:
-					//fillTable(entryClass, programElement->funcDef);
+					fillTable(entryClass, programElement->funcDef);
 					break;
 				case _STMT:
+					/*
+					В Python нет явной точки входа в программу. В таком случае, у нас код выполняется сверху вниз.
+					Это значит, что если у нас встречается что-то в глобальной области видимости кроме funcDef и classDef идет сразу в main метод.
+					*/
 					if (mainMethod->suite == nullptr) mainMethod->suite = new StmtsListNode();
 
 					if (mainMethod->suite->first != nullptr) {
@@ -66,11 +74,6 @@ void fillTable(FileNode* program) {
 			programElement = programElement->next;
 		}
 	}
-
-	// Добавление класса в глобальную таблицу
-	classesList[entryClass->name] = entryClass;
-	// Добавление main в таблицу методов entryClass
-	entryClass->methods[mainMethod->name] = mainMethod;
 }
 
 // TODO: классы
@@ -124,18 +127,16 @@ void fillTable(Class* clazz, FuncNode* funcDef) {
 	Method* method = new Method();
 	method->name = funcDef->identifier->identifier;
 	method->nameNumber = clazz->pushOrFindConstant(*Constant::UTF8(method->name));
-	// Модификатор доступа - AccessModifier -> AccessFlag 
+	// Модификатор доступа - AccessModifier -> AccessFlag
 	switch (funcDef->accessModifier)
 	{
-		case _UNKNOWN:
-			// Ничего не делать
-			break;
 		case _PRIVATE:
 			method->accessModifier = PRIVATE;
 			break;
 		case _PROTECTED:
 			method->accessModifier = PROTECTED;
 			break;
+		case _UNKNOWN: // Если нет модификатора доступа, то по дефолту public.
 		case _PUBLIC:
 			method->accessModifier = PUBLIC;
 			break;
@@ -170,22 +171,25 @@ void fillTable(Class* clazz, FuncNode* funcDef) {
 		*/
 	}
 
-	string methodDescriptor = generateMethodDescriptor(paramsCounter, "L__BASE__"); // TODO: не всегда должен возвращать __BASE__, а надо смотреть что за объект возвращается
+	method->suite = funcDef->suite;
+	fillTable(clazz, method, method->suite);
+
+	// Составление дескриптора
+	//string methodReturnType = defineMethodReturnType(funcDef);
+	string methodDescriptor = generateMethodDescriptor(paramsCounter, "L__BASE__"); // TODO: параметры не всегда должны быть только __BASE__
 	method->descriptorNumber = clazz->pushOrFindConstant(*Constant::UTF8(methodDescriptor));
+
 	method->number = clazz->pushOrFindMethodRef(clazz->name, method->name, methodDescriptor);
 	funcDef->idSemantic = method->number;
-	method->suite = funcDef->suite;
 	// Ссылки на super класс __BASE__
 	method->baseClassNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 	method->baseConstructorNumber = clazz->pushOrFindMethodRef("__BASE__", "<init>", "()V");
 	clazz->methods[method->name] = method;
-
-	fillTable(clazz, method, method->suite);
 }
 
-void fillTable(Class* clazz, Method* method, StmtsListNode* suite) {
-	if (suite != nullptr) {
-		StmtNode* stmt = suite->first;
+void fillTable(Class* clazz, Method* method, StmtsListNode* stmts) {
+	if (stmts != nullptr) {
+		StmtNode* stmt = stmts->first;
 		while (stmt != nullptr) {
 			fillTable(clazz, method, stmt);
 			stmt = stmt->next;
@@ -221,6 +225,16 @@ void fillTable(Class* clazz, Method* method, StmtNode* stmt) {
 		case _WHILE:
 			break;
 		case _RETURN:
+			// TODO: множественное возвращение
+			if (stmt->list != nullptr) {
+				ExprNode* expr = stmt->list->first;
+				//while (expr != nullptr) {
+				//	fillTable(clazz, method, expr);
+				//	expr = expr->next;
+				//}
+				checkReturnValue(clazz, method, expr);
+				fillTable(clazz, method, expr);
+			}
 			break;
 		case _EXPR_STMT:
 			break;
@@ -257,8 +271,29 @@ void fillTable(Class* clazz, Method* method, ExprNode* expr) {
 	}
 }
 
+// Функции проверки
+
+void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
+	if (expr != nullptr) {
+		switch (expr->exprType)
+		{
+			case _IDENTIFIER:
+				// Main Method local vars
+				vector<string> mainMethodLocalVars = classesList["__PROGRAM__"]->methods["main"]->localVars;
+				if (find(mainMethodLocalVars.begin(), mainMethodLocalVars.end(), expr->identifier) != mainMethodLocalVars.end()) return;
+				// Method local vars
+				if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) return;
+				// Fields
+				if (clazz->fields.find(expr->identifier) != clazz->fields.end()) return;
+
+				throw runtime_error("S: ERROR -> local variable " + expr->identifier + " is not defined");
+		}
+	}
+}
+
 // Вспомогательные функции
 
+// TODO: в качестве параметров могут передаваться и другие классы, для которых будет другой дескриптор
 string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor) {
 	string descriptor = "(";
 	
@@ -270,4 +305,36 @@ string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor) 
 	descriptor += ")" + returnValueDescriptor + ";";
 
 	return descriptor;
+}
+
+// TODO: реализовать множественное возвращение (сейчас можно вернуть только один элемент)
+string defineMethodReturnType(Method* method) {
+	vector<ExprNode*> returnValues = {};
+
+	StmtNode* lastStmt = method->suite->last;
+	if (lastStmt->stmtType == _RETURN) {
+		if (lastStmt->list != nullptr) {
+			ExprNode* expr = lastStmt->list->first;
+
+			switch (expr->exprType)
+			{
+				case _STRING_CONST:
+				case _INT_CONST:
+				case _FLOAT_CONST:
+					return "L__BASE__";
+				case _IDENTIFIER:
+					if (!expr->identifier.empty()) {
+						if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
+							if (classesList.find(expr->identifier) != classesList.end()) return "L" + expr->identifier;
+						}
+						// TODO: проверка локальных переменных
+						//else throw runtime_error("S: ERROR -> Something went wrong...");
+					}
+					return "";
+			}
+		}
+	}
+
+	//throw runtime_error("S: ERROR -> Unsupported type in Return Stmt");
+	return "";
 }
