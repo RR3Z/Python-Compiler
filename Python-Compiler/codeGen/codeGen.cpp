@@ -350,6 +350,28 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
+
+		case _STRING_CONST:
+		case _FLOAT_CONST:
+
+			result.push_back((char)Command::_new);
+
+			bytes = intToBytes(expr->classNumber, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+
+			result.push_back((char)Command::dup);
+
+			result.push_back((char)Command::ldc_w);
+			bytes = intToBytes(expr->valueNumber, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+
+			result.push_back((char)Command::invokespecial);
+			bytes = intToBytes(expr->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
 	}
 
 	return result;
