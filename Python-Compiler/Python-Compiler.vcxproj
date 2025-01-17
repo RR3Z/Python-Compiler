@@ -44,6 +44,7 @@
   <ItemGroup>
     <ClInclude Include="codeGen\AccessFlag.h" />
     <ClInclude Include="codeGen\codeGen.h" />
+    <ClInclude Include="codeGen\Command.h" />
     <ClInclude Include="nodes\AccessModifier.h" />
     <ClInclude Include="nodes\ClassElementType.h" />
     <ClInclude Include="nodes\DotHelpers.h" />

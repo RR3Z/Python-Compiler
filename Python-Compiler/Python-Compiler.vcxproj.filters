@@ -125,5 +125,8 @@
     <ClInclude Include="semantic\Constant.h">
       <Filter>Файлы заголовков\semantic</Filter>
     </ClInclude>
+    <ClInclude Include="codeGen\Command.h">
+      <Filter>Файлы заголовков\codeGen</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

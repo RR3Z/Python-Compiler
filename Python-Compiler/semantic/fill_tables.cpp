@@ -6,14 +6,11 @@ using namespace std;
 // Самая верхоуровневая таблица классов
 std::map<std::string, Class*> classesList;
 
-// Заполнение таблиц
+// Заполнение таблиц (стартовая функция)
 void fillTable(FileNode* program) {
 	// Создание класса, как точки входа в программу
 	Class* entryClass = new Class();
 	entryClass->name = "__PROGRAM__";
-
-	// Добавление класса в глобальную таблицу
-	classesList[entryClass->name] = entryClass;
 
 	// Добавление констант класса
 	entryClass->pushOrFindConstant(*Constant::UTF8("Code")); // По идее добавляется, так как у нас будет конструктор по умолчанию
@@ -23,18 +20,18 @@ void fillTable(FileNode* program) {
 	int parentClassName = entryClass->pushOrFindConstant(*Constant::UTF8("java/lang/Object"));
 	entryClass->parentNumber = entryClass->pushOrFindConstant(*Constant::Class(parentClassName));
 
-	// Создание функции, как точки входа в программу - ПО ИДЕЕ НЕ НУЖНА ЗДЕСЬ
-	/*Method* mainMethod = new Method();
+	// Создание функции, как точки входа в программу
+	Method* mainMethod = new Method();
 	mainMethod->name = "main";
 	// Добавление констант метода
 	mainMethod->nameNumber = entryClass->pushOrFindConstant(*Constant::UTF8(mainMethod->name));
-	mainMethod->descriptorNumber = entryClass->pushOrFindConstant(*Constant::UTF8("()V"));
-	mainMethod->number = entryClass->pushOrFindMethodRef(entryClass->name, mainMethod->name, "()V");
+	mainMethod->descriptorNumber = entryClass->pushOrFindConstant(*Constant::UTF8("([Ljava/lang/String;)V"));
+	mainMethod->number = entryClass->pushOrFindMethodRef(entryClass->name, mainMethod->name, "([Ljava/lang/String;)V");
+	// Добавление локальной переменной (в собственную таблицу локальных переменных)
+	mainMethod->localVars.push_back("args");
 	// Тело метода (изначально пустое)
 	mainMethod->suite = nullptr;
-	// Добавление main в таблицу методов entryClass
-	entryClass->methods[mainMethod->name] = mainMethod;*/
-	
+
 	// Разбор кода программы
 	if (program != nullptr && program->elementsList != nullptr) {
 		FileElementNode* programElement = program->elementsList->first;
@@ -43,13 +40,25 @@ void fillTable(FileNode* program) {
 			switch (programElement->elementType)
 			{
 				case _CLASS_DEF:
-					// TODO
+					//fillTable(programElement->classDef);
 					break;
 				case _FUNC_DEF:
-					fillTable(entryClass, programElement->funcDef);
+					//fillTable(entryClass, programElement->funcDef);
 					break;
 				case _STMT:
-					// TODO
+					if (mainMethod->suite == nullptr) mainMethod->suite = new StmtsListNode();
+
+					if (mainMethod->suite->first != nullptr) {
+						mainMethod->suite->last = programElement->stmt; 
+						mainMethod->suite->first->next = programElement->stmt;
+					}
+					else { 
+						mainMethod->suite->first = programElement->stmt; 
+						mainMethod->suite->last = programElement->stmt; 
+					}
+
+					fillTable(entryClass, mainMethod, programElement->stmt);
+
 					break;
 			}
 
@@ -58,21 +67,13 @@ void fillTable(FileNode* program) {
 		}
 	}
 
-	// Создание конструктора по умолчанию для __PROGRAM__ - ПО ИДЕЕ ТОЖЕ НАХЕР НЕ НУЖЕН
-	/*Method* constructor = new Method();
-	constructor->name = "<init>";
-	constructor->accessModifier = PUBLIC;
-	constructor->nameNumber = entryClass->pushOrFindConstant(*Constant::UTF8(constructor->name));
-	constructor->descriptorNumber = entryClass->pushOrFindConstant(*Constant::UTF8("()V"));
-	constructor->localVars.push_back("this");
-	constructor->suite = nullptr;
-	constructor->number = entryClass->pushOrFindMethodRef(entryClass->name, constructor->name, "()V");
-	constructor->selfMethodRef = entryClass->pushOrFindMethodRef("java/lang/Object", constructor->name, "()V"); // Как я понял, нам надо создать объект нашего языка на основе Java объекта
-	// Добавление __init__ в таблицу методов entryClass
-	entryClass->methods[constructor->name] = constructor;*/
+	// Добавление класса в глобальную таблицу
+	classesList[entryClass->name] = entryClass;
+	// Добавление main в таблицу методов entryClass
+	entryClass->methods[mainMethod->name] = mainMethod;
 }
 
-// TODO
+// TODO: классы
 void fillTable(ClassNode* classDef) {
 	// Создание нового класса
 	Class* newClass = new Class();
@@ -89,7 +90,6 @@ void fillTable(ClassNode* classDef) {
 			newClass->parent = classesList[classDef->base->stringVal];
 		}
 		else {
-			// ERROR
 			throw runtime_error("S: ERROR -> parent class " + classDef->base->stringVal + " for class " + classDef->identifier->stringVal + " not found");
 		}
 	}
@@ -104,7 +104,10 @@ void fillTable(ClassNode* classDef) {
 					fillTable(newClass, classElement->funcDef);
 					break;
 				case _STMT_NODE:
-					// TODO
+					// TODO: если это явное присвоение значения -> добавляем в таблицу полей
+					//if (classElement->stmt->stmtType == _ASSIGN || classElement->stmt->stmtType == _COMPOUND_ASSIGN) fillFieldTable(newClass, classElement->stmt);
+					//		 если же какой-то код рандомный (цикл for или что бы то ни было) -> идет в main функцию
+					//else fillTable(classesList.find("__PROGRAM__")->second, classesList.find("__PROGRAM__")->second->methods.find("main")->second, classElement->stmt);
 					break;
 			}
 
@@ -112,11 +115,11 @@ void fillTable(ClassNode* classDef) {
 		}
 	}
 
-	// TODO: Конструктор по умолчанию
+	// TODO: Конструктор по умолчанию (от java/lang/Object)
 	//newClass->pushOrFindConstant(*Constant::UTF8("<init>"));
 }
 
-// TODO: именованные аргументы
+// TODO: именованные аргументы + дескриптор
 void fillTable(Class* clazz, FuncNode* funcDef) {
 	Method* method = new Method();
 	method->name = funcDef->identifier->identifier;
@@ -167,10 +170,7 @@ void fillTable(Class* clazz, FuncNode* funcDef) {
 		*/
 	}
 
-	string methodDescriptor = "";
-	if (method->name == "main") methodDescriptor = generateMethodDescriptor(paramsCounter, "V");
-	else methodDescriptor = generateMethodDescriptor(paramsCounter, "L__BASE__");
-
+	string methodDescriptor = generateMethodDescriptor(paramsCounter, "L__BASE__"); // TODO: не всегда должен возвращать __BASE__, а надо смотреть что за объект возвращается
 	method->descriptorNumber = clazz->pushOrFindConstant(*Constant::UTF8(methodDescriptor));
 	method->number = clazz->pushOrFindMethodRef(clazz->name, method->name, methodDescriptor);
 	funcDef->idSemantic = method->number;
@@ -198,6 +198,8 @@ void fillTable(Class* clazz, Method* method, StmtNode* stmt) {
 	switch (stmt->stmtType)
 	{
 		case _ASSIGN:
+			if (!stmt->leftExpr->identifier.empty()) method->localVars.push_back(stmt->leftExpr->identifier);
+
 			fillTable(clazz, method, stmt->leftExpr);
 			fillTable(clazz, method, stmt->rightExpr);
 			break;
@@ -246,20 +248,17 @@ void fillTable(Class* clazz, Method* method, ExprNode* expr) {
 			expr->classNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 			expr->number = clazz->pushOrFindMethodRef("__BASE__", "<init>", "(F)V");
 			break;
+		case _IDENTIFIER:
+			expr->valueNumber = clazz->pushOrFindConstant(*Constant::String(clazz->pushOrFindConstant(*Constant::UTF8(expr->identifier))));
+			expr->classNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "<init>", "([Ljava/lang/String;)V");
+			expr->paramLocalVarNum = method->localVars.size() - 1;
+			break;
 	}
 }
 
 // Вспомогательные функции
 
-/*
-TODO
-	Егор:
-	Разве всегда __BASE__ должен возвращать?
-	Например, если я делаю return самописного класса (myClass) и внутри него будут определены какие-то собственные методы, то
-	если у нас будет __BASE__ без явного каста в этот класс обратиться к методам класса (myClass) не получится.
-
-	Короче, при нахождении returnStmt надо изменять дескриптор.
-*/
 string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor) {
 	string descriptor = "(";
 	

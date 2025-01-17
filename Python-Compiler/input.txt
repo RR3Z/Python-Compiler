@@ -1,15 +1,1 @@
-def foo():
-
-
-	a = 5
-
-def foo2():
-
-
-
-
-
-	b=6
-
-def foo3():
-print
+a = b = 5
