@@ -225,21 +225,30 @@ void generateAttributeCode(Method* method, Class* clazz) {
 
 	// Вычисление длины атрибута
 	vector<char> codeBytes, stmtBytes = {};
-	if (method->suite != nullptr && method->suite->first != nullptr) {
-		StmtNode* stmt = method->suite->first;
-		while (stmt != nullptr) {
-			stmtBytes = generateStatementCode(stmt, clazz, method);
-			codeBytes.insert(codeBytes.end(), stmtBytes.begin(), stmtBytes.end());
-			stmt = stmt->next;
+	if (method->suite != nullptr) {
+		if (method->suite->first != nullptr) {
+			StmtNode* stmt = method->suite->first;
+			while (stmt != nullptr) {
+				stmtBytes = generateStatementCode(stmt, clazz, method);
+				codeBytes.insert(codeBytes.end(), stmtBytes.begin(), stmtBytes.end());
+				stmt = stmt->next;
+			}
+		}
+
+		if (method->suite->last->stmtType != _RETURN) {
+			// Генерирую return void (для корректной работы JVM)
+			bytes.clear();
+			bytes.push_back((char)Command::_return);
+			codeBytes.insert(codeBytes.end(), bytes.begin(), bytes.end());
 		}
 	}
-	// Добавляем return в тело функции (если)
-	if (method->suite->last->stmtType != _RETURN) {
+	else {
+		// Генерирую return void (для корректной работы JVM)
 		bytes.clear();
 		bytes.push_back((char)Command::_return);
 		codeBytes.insert(codeBytes.end(), bytes.begin(), bytes.end());
 	}
-
+	
 	// attribute_length (u4)
 	bytes = intToFourBytes(12 + codeBytes.size());
 	fprintf(fileClass, "%c%c%c%c", bytes[0], bytes[1], bytes[2], bytes[3]);
@@ -384,5 +393,3 @@ vector<char> floatToBytes(float value)
 bool compare(pair<Constant, int>& a, pair<Constant, int>& b) {
 	return a.second < b.second;
 }
-
-
