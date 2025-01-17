@@ -5,6 +5,7 @@ enum Command {
 	
 	istore = 0x36,
 	astore = 0x3A,
+	aload = 0x19,
 
 	sipush = 0x11,
 

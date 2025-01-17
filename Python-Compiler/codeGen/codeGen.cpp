@@ -298,6 +298,16 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 				}
 			}
 			break;
+		case _RETURN:
+			if (stmt->list->first != nullptr) {
+				bytes = generateExpressionCode(stmt->list->first, clazz, method);
+				result.insert(result.end(), bytes.begin(), bytes.end());
+				result.push_back((char)Command::areturn);
+			}
+			else {
+				result.push_back((char)Command::_return);
+			}
+			break;
 	}
 
 	return result;
@@ -320,6 +330,8 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 // TODO
 vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method) {
 	vector<char> result, bytes = {};
+
+	ExprNode* exprCounter = nullptr;
 
 	switch (expr->exprType)
 	{
@@ -367,6 +379,25 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 
+			result.push_back((char)Command::invokespecial);
+			bytes = intToBytes(expr->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
+		case _IDENTIFIER:
+			result.push_back((char)Command::aload);
+			bytes = intToBytes(expr->paramLocalVarNum, 1);
+			result.push_back(bytes[0]);
+			break;
+		case _METHOD_CALL:
+			if (expr->list != nullptr) {
+				exprCounter = expr->list->first;
+				while (exprCounter != nullptr) {
+					bytes = generateExpressionCode(exprCounter, clazz, method);
+					result.insert(result.end(), bytes.begin(), bytes.end());
+					exprCounter = exprCounter->next;
+				}
+			}
 			result.push_back((char)Command::invokespecial);
 			bytes = intToBytes(expr->number, 2);
 			result.push_back(bytes[0]);
