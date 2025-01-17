@@ -40,7 +40,7 @@ int main(int argc, const char* argv[])
 	generate(fileRoot, classesList);
 	system("javap -verbose __PROGRAM__");
 	cout << "\n\n========= __PROGRAM__ CALL =========" << endl;
-	system("java __PROGRAM__");
+	system("java -cp . __PROGRAM__");
 
 	// DOT GENERATION
 /*
