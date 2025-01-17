@@ -38,7 +38,7 @@ int main(int argc, const char* argv[])
 	// CODE GENERATION
 	cout << "\n\n========= CODE GENERATION =========" << endl;
 	generate(fileRoot, classesList);
-	system("javap -verbose __PROGRAM__");
+	system("javap -verbose __PROGRAM__.class");
 	cout << "\n\n========= __PROGRAM__ CALL =========" << endl;
 	system("java -cp . __PROGRAM__");
 
