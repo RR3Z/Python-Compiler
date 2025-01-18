@@ -1,5 +1,3 @@
-b = 15
-
-def a():
-	b = 1
-	return b
+def b():
+	c = 5 < 5.0
+	return c
