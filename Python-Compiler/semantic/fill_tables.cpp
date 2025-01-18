@@ -287,7 +287,7 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			expr->valueNumber = clazz->pushOrFindConstant(*Constant::String(clazz->pushOrFindConstant(*Constant::UTF8(expr->identifier))));
 			expr->classNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 			expr->number = clazz->pushOrFindMethodRef("__BASE__", "<init>", "(Ljava/lang/String;)V");
-			expr->paramLocalVarNum = method->localVars.size() - 1;
+			expr->paramLocalVarNum = findElementIndexInVector(method->localVars, expr->identifier);
 			break;
 		case _PLUS:
 			fillMethodTable(clazz, method, expr->left);
