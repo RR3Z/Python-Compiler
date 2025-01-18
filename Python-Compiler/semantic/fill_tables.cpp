@@ -3,11 +3,12 @@
 #include <iostream>
 using namespace std;
 
-// Самая верхоуровневая таблица классов
 std::map<std::string, Class*> classesList;
 
+// ========= Заполнение таблиц =========
+
 // Заполнение таблиц (стартовая функция)
-void fillTable(FileNode* program) {
+void fillTables(FileNode* program) {
 	// Создание класса, как точки входа в программу
 	Class* entryClass = new Class();
 	entryClass->name = "__PROGRAM__";
@@ -47,26 +48,33 @@ void fillTable(FileNode* program) {
 					//fillTable(programElement->classDef);
 					break;
 				case _FUNC_DEF:
-					fillTable(entryClass, programElement->funcDef);
+					fillMethodTable(entryClass, programElement->funcDef);
 					break;
 				case _STMT:
 					/*
-					В Python нет явной точки входа в программу. В таком случае, у нас код выполняется сверху вниз.
-					Это значит, что если у нас встречается что-то в глобальной области видимости кроме funcDef и classDef идет сразу в main метод.
+						В Python нет явной точки входа в программу. В таком случае, у нас код выполняется сверху вниз.
+						Это значит, что если у нас встречается что-то в глобальной области видимости кроме funcDef, classDef 
+						и assignStmt(пойдет в поля класса) идет сразу в main метод.
 					*/
-					if (mainMethod->suite == nullptr) mainMethod->suite = new StmtsListNode();
 
+					// Если Assign Stmt, то переменная заносится в таблицу полей
+					if (programElement->stmt->stmtType == _COMPOUND_ASSIGN && programElement->stmt->stmtsList != nullptr) {
+						fillFieldTable(entryClass, programElement->stmt->stmtsList);
+					}
+
+					// Обновление тела main метода
+					if (mainMethod->suite == nullptr) mainMethod->suite = new StmtsListNode();
 					if (mainMethod->suite->first != nullptr) {
-						mainMethod->suite->last = programElement->stmt; 
+						mainMethod->suite->last = programElement->stmt;
 						mainMethod->suite->first->next = programElement->stmt;
 					}
-					else { 
-						mainMethod->suite->first = programElement->stmt; 
-						mainMethod->suite->last = programElement->stmt; 
+					else {
+						mainMethod->suite->first = programElement->stmt;
+						mainMethod->suite->last = programElement->stmt;
 					}
 
-					fillTable(entryClass, mainMethod, programElement->stmt);
-
+					fillMethodTable(entryClass, mainMethod, programElement->stmt);
+					
 					break;
 			}
 
@@ -77,7 +85,7 @@ void fillTable(FileNode* program) {
 }
 
 // TODO: классы
-void fillTable(ClassNode* classDef) {
+void fillTables(ClassNode* classDef) {
 	// Создание нового класса
 	Class* newClass = new Class();
 	// Добавление класса в глобальную таблицу
@@ -104,7 +112,7 @@ void fillTable(ClassNode* classDef) {
 			switch (classElement->elementType)
 			{
 				case _FUNCTION_DEF:
-					fillTable(newClass, classElement->funcDef);
+					fillMethodTable(newClass, classElement->funcDef);
 					break;
 				case _STMT_NODE:
 					// TODO: если это явное присвоение значения -> добавляем в таблицу полей
@@ -122,8 +130,10 @@ void fillTable(ClassNode* classDef) {
 	//newClass->pushOrFindConstant(*Constant::UTF8("<init>"));
 }
 
+// ========= Заполнение таблиц методов =========
+
 // TODO: именованные аргументы + дескриптор
-void fillTable(Class* clazz, FuncNode* funcDef) {
+void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 	Method* method = new Method();
 	method->name = funcDef->identifier->identifier;
 	method->nameNumber = clazz->pushOrFindConstant(*Constant::UTF8(method->name));
@@ -172,7 +182,7 @@ void fillTable(Class* clazz, FuncNode* funcDef) {
 	}
 
 	method->suite = funcDef->suite;
-	fillTable(clazz, method, method->suite);
+	fillMethodTable(clazz, method, method->suite);
 
 	// Составление дескриптора
 	//string methodReturnType = defineMethodReturnType(funcDef);
@@ -187,31 +197,34 @@ void fillTable(Class* clazz, FuncNode* funcDef) {
 	clazz->methods[method->name] = method;
 }
 
-void fillTable(Class* clazz, Method* method, StmtsListNode* stmts) {
+void fillMethodTable(Class* clazz, Method* method, StmtsListNode* stmts) {
 	if (stmts != nullptr) {
 		StmtNode* stmt = stmts->first;
 		while (stmt != nullptr) {
-			fillTable(clazz, method, stmt);
+			fillMethodTable(clazz, method, stmt);
 			stmt = stmt->next;
 		}
 	}
 }
 
 // TODO
-void fillTable(Class* clazz, Method* method, StmtNode* stmt) {
+void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 	switch (stmt->stmtType)
 	{
 		case _ASSIGN:
-			if (!stmt->leftExpr->identifier.empty()) method->localVars.push_back(stmt->leftExpr->identifier);
+			// Если переменная не является полем класса, добавляем ее в качестве локальной переменной и загружаем ее имя в constant pool класса
+			if (!stmt->leftExpr->identifier.empty() && clazz->fields.find(stmt->leftExpr->identifier) == clazz->fields.end()) {
+				method->localVars.push_back(stmt->leftExpr->identifier);
+				fillMethodTable(clazz, method, stmt->leftExpr);
+			}
 
-			fillTable(clazz, method, stmt->leftExpr);
-			fillTable(clazz, method, stmt->rightExpr);
+			fillMethodTable(clazz, method, stmt->rightExpr);
 			break;
 		case _COMPOUND_ASSIGN:
 			if (stmt->stmtsList != nullptr) {
 				StmtNode* assignStmt = stmt->stmtsList->first;
 				while (assignStmt != nullptr) {
-					fillTable(clazz, method, assignStmt);
+					fillMethodTable(clazz, method, assignStmt);
 					assignStmt = assignStmt->next;
 				}
 			}
@@ -233,7 +246,7 @@ void fillTable(Class* clazz, Method* method, StmtNode* stmt) {
 				//	expr = expr->next;
 				//}
 				checkReturnValue(clazz, method, expr);
-				fillTable(clazz, method, expr);
+				fillMethodTable(clazz, method, expr);
 			}
 			break;
 		case _EXPR_STMT:
@@ -244,7 +257,7 @@ void fillTable(Class* clazz, Method* method, StmtNode* stmt) {
 }
 
 // TODO
-void fillTable(Class* clazz, Method* method, ExprNode* expr) {
+void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 	switch (expr->exprType)
 	{
 		case _INT_CONST:
@@ -271,16 +284,61 @@ void fillTable(Class* clazz, Method* method, ExprNode* expr) {
 	}
 }
 
-// Функции проверки
+// ========= Заполнение таблиц полей =========
+
+void fillFieldTable(Class* clazz, StmtsListNode* compoundAssign) {
+	if (compoundAssign->first != nullptr) {
+		StmtNode* assignStmt = compoundAssign->first;
+		while (assignStmt != nullptr) {
+			fillFieldTable(clazz, assignStmt);
+			assignStmt = assignStmt->next;
+		}
+	}
+}
+
+void fillFieldTable(Class* clazz, StmtNode* assignStmt) {
+	Field* field = new Field();
+
+	// Имя
+	field->name = assignStmt->leftExpr->identifier;
+	field->nameNumber = clazz->pushOrFindConstant(*Constant::UTF8(field->name));
+
+	// Модификатор доступа - AccessModifier -> AccessFlag
+	switch (assignStmt->accessModifier) {
+	case _PRIVATE:
+		field->accessModifier = PRIVATE;
+		break;
+	case _PROTECTED:
+		field->accessModifier = PROTECTED;
+		break;
+	case _UNKNOWN: // Если нет модификатора доступа, то по умолчанию public.
+	case _PUBLIC:
+		field->accessModifier = PUBLIC;
+		break;
+	}
+
+	// Дескриптор
+	field->descriptor = "L__BASE__;";
+	field->descriptorNumber = clazz->pushOrFindConstant(*Constant::UTF8(field->descriptor));
+
+	// FieldRef
+	field->number = clazz->pushOrFindFieldRef(clazz->name, field->name, field->descriptor);
+	assignStmt->number = field->number;
+
+	clazz->fields[field->name] = field;
+}
+
+// ========= Функции проверки =========
 
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
 	if (expr != nullptr) {
 		switch (expr->exprType)
 		{
 			case _IDENTIFIER:
-				// Main Method local vars
-				vector<string> mainMethodLocalVars = classesList["__PROGRAM__"]->methods["main"]->localVars;
-				if (find(mainMethodLocalVars.begin(), mainMethodLocalVars.end(), expr->identifier) != mainMethodLocalVars.end()) return;
+				// Main Method local vars - TODO: по идее не надо проверять (логически)
+				//vector<string> mainMethodLocalVars = classesList["__PROGRAM__"]->methods["main"]->localVars;
+				//if (find(mainMethodLocalVars.begin(), mainMethodLocalVars.end(), expr->identifier) != mainMethodLocalVars.end()) return;
+
 				// Method local vars
 				if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) return;
 				// Fields
@@ -291,7 +349,7 @@ void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
 	}
 }
 
-// Вспомогательные функции
+// ========= Вспомогательные функции =========
 
 // TODO: в качестве параметров могут передаваться и другие классы, для которых будет другой дескриптор
 string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor) {

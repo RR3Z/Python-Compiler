@@ -15,10 +15,10 @@ void generate(FileNode* program, const map<string, Class*>& classesList);
 void generateConstantCode(Constant constant);
 
 void generateMainCode(Method* mainMethod, Class* clazz);
-
 void generateMethodCode(Method* method, Class* clazz);
-
 void generateAttributeCode(Method* method, Class* clazz);
+
+void generateFieldCode(Field* field, Class* clazz);
 
 vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method);
 vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Method* method);

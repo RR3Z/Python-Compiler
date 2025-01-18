@@ -18,4 +18,7 @@ enum Command {
 	ireturn = 0xAC,
 	areturn = 0xB0,
 	_return = 0xB1,
+
+	getstatic = 0xB2,
+	putstatic = 0xB3,
 };

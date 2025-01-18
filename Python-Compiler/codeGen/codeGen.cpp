@@ -52,15 +52,16 @@ void generate(FileNode* program, const map<string, Class*>& classesList) {
 		// interfaces count (u2) - не реализую
 		fprintf(fileClass, "%c%c", 0x00, 0x00);
 
-		// ========= FIELDS ========= TODO
+		// ========= FIELDS =========
 		// fields count (u2)
-		//bytes = intToFourBytes(clazz.second->fields.size());
-		//fprintf(fileClass, "%c%c", bytes[2], bytes[3]);
-		fprintf(fileClass, "%c%c", 0x00, 0x00);
+		bytes = intToFourBytes(clazz.second->fields.size());
+		fprintf(fileClass, "%c%c", bytes[2], bytes[3]);
 		// fields pool TODO
-		//fprintf(fileClass, "%c%c", 0x00, 0x00);
+		for (auto it = clazz.second->fields.begin(); it != clazz.second->fields.end(); it++) {
+			generateFieldCode(it->second, clazz.second);
+		}
 
-		// ========= METHODS ========= TODO
+		// ========= METHODS =========
 		// methods count (u2)
 		bytes = intToFourBytes(clazz.second->methods.size());
 		fprintf(fileClass, "%c%c", bytes[2], bytes[3]);
@@ -201,7 +202,7 @@ void generateMainCode(Method* mainMethod, Class* clazz) {
 
 void generateMethodCode(Method* method, Class* clazz) {
 	// access flags (u2)
-	fprintf(fileClass, "%c%c", 0x00, method->accessModifier);
+	fprintf(fileClass, "%c%c", 0x00, (char)(method->accessModifier));
 
 	// name index (u2)
 	vector<char> bytes = intToFourBytes(method->nameNumber);
@@ -266,7 +267,6 @@ void generateAttributeCode(Method* method, Class* clazz) {
 	fprintf(fileClass, "%c%c%c%c", bytes[0], bytes[1], bytes[2], bytes[3]);
 
 	// code (code_length)
-	int size = codeBytes.size();
 	for (int i = 0; i < codeBytes.size(); i++) {
 		fprintf(fileClass, "%c", codeBytes[i]);
 	}
@@ -275,6 +275,23 @@ void generateAttributeCode(Method* method, Class* clazz) {
 	fprintf(fileClass, "%c%c", 0x00, 0x00);
 
 	// attributes_count (u2)
+	fprintf(fileClass, "%c%c", 0x00, 0x00);
+}
+
+void generateFieldCode(Field* field, Class* clazz) {
+	// access flags (u2)
+	if (clazz->name == "__PROGRAM__") fprintf(fileClass, "%c%c", 0x00, (char)AccessFlag::STATIC); // ѕоле класса __PROGRAM__ всегда делаю static
+	else fprintf(fileClass, "%c%c", 0x00, (char)(field->accessModifier)); // ѕол€ других классов уже имеют соответствующий модификатор доступа
+
+	// name index (u2)
+	vector<char> bytes = intToBytes(field->nameNumber, 2);
+	fprintf(fileClass, "%c%c", bytes[0], bytes[1]);
+
+	// descriptor index (u2)
+	bytes = intToBytes(field->descriptorNumber, 2);
+	fprintf(fileClass, "%c%c", bytes[0], bytes[1]);
+
+	// attributes count (u2) - дл€ пол€ не задаем атрибутов
 	fprintf(fileClass, "%c%c", 0x00, 0x00);
 }
 
@@ -319,12 +336,27 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 	// Byte код дл€ значени€ (value)
 	bytes = generateExpressionCode(assignStmt->rightExpr, clazz, method);
 	result.insert(result.end(), bytes.begin(), bytes.end());
+	
+	// если €вл€етс€ полем класс, задаем ему значение
+	if (clazz->fields.find(assignStmt->leftExpr->identifier) != clazz->fields.end()) {
+		if (clazz->name == "__PROGRAM__") {
+			// –азмещение элемента
+			result.push_back((char)Command::putstatic);
+			bytes = intToBytes(assignStmt->number, 2);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			return result;
+		}
+	}
 
-	// Byte код дл€ источника (identifier)
-	result.push_back((char)Command::astore);
-	result.push_back(assignStmt->leftExpr->paramLocalVarNum);
+	// если €вл€етс€ локальной переменной метода
+	if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()){
+		// Byte код дл€ источника (identifier)
+		result.push_back((char)Command::astore);
+		result.push_back(assignStmt->leftExpr->paramLocalVarNum);
+		return result;
+	}
 
-	return result;
+	throw runtime_error("CodeGen: ERROR -> Trying assign value to unknown identifier");
 }
 
 // TODO
@@ -362,10 +394,8 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
-
 		case _STRING_CONST:
 		case _FLOAT_CONST:
-
 			result.push_back((char)Command::_new);
 
 			bytes = intToBytes(expr->classNumber, 2);
@@ -390,6 +420,7 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[0]);
 			break;
 		case _METHOD_CALL:
+			if (method == nullptr) throw runtime_error("CodeGen: ERROR -> Trying call method which is unknown (nullptr).");
 			if (expr->list != nullptr) {
 				exprCounter = expr->list->first;
 				while (exprCounter != nullptr) {

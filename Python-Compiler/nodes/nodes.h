@@ -124,6 +124,10 @@ struct StmtNode {
 
 	// ТОЛЬКО ДЛЯ STMTSLIST
 	StmtNode* next = nullptr;
+
+
+	// SEMANTIC
+	int number = -1;
 };
 
 /* ========== STATEMENTS LIST ========== */

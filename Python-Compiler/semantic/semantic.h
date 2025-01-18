@@ -9,12 +9,14 @@ using namespace std;
 
 struct Field {
 	int number = -1;	// Номер поля
+
+	int nameNumber = -1; // Номер навзвания поля
 	string name = "";	// Название поля
 	
-	// Дескриптор не нужен (динамическая типизация - у нас будет всегда один и тот же super класс)
+	int descriptorNumber = -1; // Номер дескриптора
+	string descriptor = ""; // Дескриптор (тип переменной)
 	 
-	// Модификатор доступа
-	AccessFlag accessModifier;
+	AccessFlag accessModifier; // Модификатор доступа
 };
 
 struct Method {
@@ -81,19 +83,6 @@ public:
 		return iter->second;
 	}
 
-	void pushField(const string& fieldName, const string& type) {
-		// Ищем/добавляем номер поля в таблице констант
-		int number = pushOrFindFieldRef(fieldName, type);
-
-		// Если поле отсутствует в таблице полей, то добавляем в таблицу
-		if (fields.find(fieldName) == fields.end()) {
-			Field* field = new Field();
-			field->name = fieldName;
-			field->number = number;
-			fields[fieldName] = field;
-		}
-	}
-
 	int pushOrFindFieldRef(const string& className, const string& fieldName, const string& type) {
 		int nameNumber = pushOrFindConstant(*Constant::UTF8(fieldName));
 		int typeNumber = pushOrFindConstant(*Constant::UTF8(type));
@@ -145,12 +134,16 @@ void checkCompoundAssignForErrors(StmtNode* stmt);
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr);
 
 // Функции для заполнения таблиц
-void fillTable(FileNode* program);
-void fillTable(ClassNode* classDef);
-void fillTable(Class* clazz, FuncNode* funcDef);
-void fillTable(Class* clazz, Method* method, StmtsListNode* stmts);
-void fillTable(Class* clazz, Method* method, StmtNode* stmt);
-void fillTable(Class* clazz, Method* method, ExprNode* expr);
+void fillTables(FileNode* program);
+void fillTables(ClassNode* classDef);
+// Таблица методов
+void fillMethodTable(Class* clazz, FuncNode* funcDef);
+void fillMethodTable(Class* clazz, Method* method, StmtsListNode* stmts);
+void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt);
+void fillMethodTable(Class* clazz, Method* method, ExprNode* expr);
+// Таблица полей
+void fillFieldTable(Class* clazz, StmtsListNode* compoundAssign);
+void fillFieldTable(Class* clazz, StmtNode* assignStmt);
 
 // Вспомогательные функции для заполнения таблиц
 string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor);
