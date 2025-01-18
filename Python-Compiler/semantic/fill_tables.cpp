@@ -369,8 +369,24 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 				}
 			}
 
-			if (expr->left->identifier == "print") expr->number = clazz->pushOrFindMethodRef("__BASE__", "print", "(L__BASE__;)V");
-			else if (expr->left->identifier == "input") expr->number = clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
+			// Определяем функцию (RTL или обычная)
+			if (expr->left->identifier == "print") {
+				if (expr->funcArgs != nullptr) {
+					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) {
+						throw runtime_error("S: ERROR -> Wrong amount of args in function call with name: " + expr->left->identifier);
+					}
+					expr->number = clazz->pushOrFindMethodRef("__BASE__", "print", "(L__BASE__;)V");
+				} else expr->number = clazz->pushOrFindMethodRef("__BASE__", "print", "()V");
+			}
+			else if (expr->left->identifier == "input") {
+				if (expr->funcArgs != nullptr) {
+					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) {
+						throw runtime_error("S: ERROR -> Wrong amount of args in function call with name: " + expr->left->identifier);
+					}
+					expr->number = clazz->pushOrFindMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
+				}
+				else expr->number = clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
+			}
 			else expr->number = clazz->pushOrFindMethodRef(clazz->name, expr->left->identifier, clazz->methods[expr->left->identifier]->descriptor);
 			
 			break;
@@ -429,14 +445,20 @@ void addRTLToClass(Class* clazz) {
 	clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"));
 	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 	clazz->pushOrFindMethodRef("__BASE__", "print", "(L__BASE__;)V");
+	clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"));
+	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+	clazz->pushOrFindMethodRef("__BASE__", "print", "()V");
 
 	// Метод для получения данных из консоли
 	clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"));
 	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
-	clazz->pushOrFindMethodRef("__BASE__", "__get__", "()L__BASE__;");
+	clazz->pushOrFindMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
+	clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"));
+	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+	clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
 }
 
-// ========= Функции проверки =========
+// ========= Функции проверок =========
 
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
 	if (expr != nullptr) {
@@ -465,6 +487,10 @@ void checkMethodForErrors(FuncNode* funcDef) {
 
 		if (funcDef->identifier->identifier == "input") {
 			throw runtime_error("S: ERROR -> Changes to the signature of the \"input\" function!");
+		}
+
+		if (funcDef->identifier->identifier == "main") {
+			throw runtime_error("S: ERROR -> Changes to the signature of the \"main\" function!");
 		}
 	}
 }
