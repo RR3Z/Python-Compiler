@@ -441,20 +441,16 @@ void fillFieldTable(Class* clazz, StmtNode* assignStmt) {
 // ========= RTL =========
 
 void addRTLToClass(Class* clazz) {
-	// Метод для вывода данных в консоль
+	// Загрузка базового класса
 	clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"));
 	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+
+	// Методы для вывода данных в консоль
 	clazz->pushOrFindMethodRef("__BASE__", "print", "(L__BASE__;)V");
-	clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"));
-	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 	clazz->pushOrFindMethodRef("__BASE__", "print", "()V");
 
-	// Метод для получения данных из консоли
-	clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"));
-	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+	// Методы для получения данных из консоли
 	clazz->pushOrFindMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
-	clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"));
-	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 	clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
 }
 
