@@ -462,6 +462,7 @@ public class __BASE__ {
 
         throw new UnsupportedOperationException("split() isn't support operation for type: " + this.__type);
     }
+
     @Override
     public boolean equals(Object obj) {
         __BASE__ o = (__BASE__) obj;

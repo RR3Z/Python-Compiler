@@ -13,6 +13,7 @@ enum Command {
 
 	invokevirtual = 0xB6,
 	invokespecial = 0xB7,
+	invokestatic = 0xB8,
 
 	dup = 0x59,
 

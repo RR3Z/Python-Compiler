@@ -4,7 +4,7 @@
 
 FILE* fileClass;
 
-/* ========= ������� ��������� ���� ���� ========= */
+/* ========= Генерация байт кода ========= */
 
 /*
 	��� ���������, ��� �� ����� ��. class file format � ������������ JVM ��� � ���������.
@@ -12,10 +12,10 @@ FILE* fileClass;
 */
 void generate(FileNode* program, const map<string, Class*>& classesList) {
 	for (auto clazz : classesList) {
-		// ��� constant pool count � ���������� � 1, � �� � ���� (������� +1)
+		// количество элементов в constantPool + 1
 		vector<char> constantPoolCount = intToFourBytes(clazz.second->constants.size() + 1);
 
-		// ���� ��� ����������
+		// Файл для класса
 		string fileName = clazz.second->name + ".class";
 		fopen_s(&fileClass, fileName.c_str(), "wb");
 
@@ -49,7 +49,7 @@ void generate(FileNode* program, const map<string, Class*>& classesList) {
 		bytes = intToFourBytes(clazz.second->parentNumber);
 		fprintf(fileClass, "%c%c", bytes[2], bytes[3]);
 
-		// interfaces count (u2) - �� ��������
+		// interfaces count (u2) - не реализуем
 		fprintf(fileClass, "%c%c", 0x00, 0x00);
 
 		// ========= FIELDS =========
@@ -67,14 +67,13 @@ void generate(FileNode* program, const map<string, Class*>& classesList) {
 		fprintf(fileClass, "%c%c", bytes[2], bytes[3]);
 		// methods pool
 		for (auto it = clazz.second->methods.begin(); it != clazz.second->methods.end(); it++) {
-			if (it->second->name != "main") generateMethodCode(it->second, clazz.second);
-			else  generateMainCode(it->second, clazz.second);
+			if (it->second->name == "main") generateMainCode(it->second, clazz.second);
+			else generateMethodCode(it->second, clazz.second);
 		}
 
-		// attributes count (u2) - �� ����� �� ������ ������
+		// attributes count (u2) - для класса не используется
 		fprintf(fileClass, "%c%c", 0x00, 0x00);
 
-		// ������� ����
 		fclose(fileClass);
 	}
 }
@@ -225,7 +224,7 @@ void generateAttributeCode(Method* method, Class* clazz) {
 	vector<char> bytes = intToFourBytes(clazz->pushOrFindConstant(*Constant::UTF8("Code")));
 	fprintf(fileClass, "%c%c", bytes[2], bytes[3]);
 
-	// ���������� ����� ��������
+	// Подсчитываю кол-во байт в коде
 	vector<char> codeBytes, stmtBytes = {};
 	if (method->suite != nullptr) {
 		if (method->suite->first != nullptr) {
@@ -302,7 +301,7 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 	switch (stmt->stmtType)
 	{
 		case _EXPR_STMT:
-			generateExpressionCode(stmt->expr, clazz, method);
+			bytes = generateExpressionCode(stmt->expr, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			break;
 		case _ASSIGN:
@@ -380,15 +379,15 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 	switch (expr->exprType)
 	{
 		case _INT_CONST:
-			result.push_back((char)Command::_new); // ������� ������
+			result.push_back((char)Command::_new);
 
-			bytes = intToBytes(expr->classNumber, 2); // ��������� ������� �����
+			bytes = intToBytes(expr->classNumber, 2);
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 
-			result.push_back((char)Command::dup); // �������� ������ �� ������� �����
+			result.push_back((char)Command::dup);
 
-			bytes = intToBytes(expr->intVal, 2); // ��������� �����
+			bytes = intToBytes(expr->intVal, 2);
 			if (expr->intVal >= -32768 && expr->intVal <= 32767) {
 				result.push_back((char)Command::sipush);
 				result.push_back(bytes[0]);
@@ -436,7 +435,6 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 						break;
 					}
 
-					Field* test = clazz->fields[expr->identifier];
 					result.push_back((char)Command::getstatic);
 					bytes = intToBytes(clazz->fields[expr->identifier]->number, 2);
 					result.push_back(bytes[0]);
@@ -444,7 +442,7 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 					break;
 				}
 
-				// TODO: �������� ��� ��� ������ ��� ����������� �����
+				// TODO: Сделать для обычных классов
 			}
 			if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
 				result.push_back((char)Command::aload);
@@ -455,7 +453,6 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 
 			break;
 		case _METHOD_CALL:
-			if (method == nullptr) throw runtime_error("CodeGen: ERROR -> Trying call method which is unknown (nullptr).");
 			if (expr->list != nullptr) {
 				exprCounter = expr->list->first;
 				while (exprCounter != nullptr) {
@@ -465,6 +462,22 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 				}
 			}
 			result.push_back((char)Command::invokespecial);
+			bytes = intToBytes(expr->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
+		case _FUNCTION_CALL:
+			if (expr->funcArgs != nullptr) {
+				exprCounter = expr->funcArgs->exprList->first;
+				while (exprCounter != nullptr) {
+					bytes = generateExpressionCode(exprCounter, clazz, method);
+					result.insert(result.end(), bytes.begin(), bytes.end());
+					exprCounter = exprCounter->next;
+				}
+			}
+			if(clazz->name == "__PROGRAM__") result.push_back((char)Command::invokestatic);
+			else result.push_back((char)Command::invokevirtual);
+
 			bytes = intToBytes(expr->number, 2);
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);

@@ -19,6 +19,9 @@ void fillTables(FileNode* program) {
 	entryClass->pushOrFindConstant(*Constant::UTF8("Code")); // По идее добавляется, так как у нас будет конструктор по умолчанию
 	entryClass->number = entryClass->pushOrFindConstant(*Constant::Class(entryClass->pushOrFindConstant(*Constant::UTF8(entryClass->name))));
 
+	// Добавление RTL в класс
+	addRTLToClass(entryClass);
+
 	// Добавление родительского класса
 	int parentClassName = entryClass->pushOrFindConstant(*Constant::UTF8("java/lang/Object"));
 	entryClass->parentNumber = entryClass->pushOrFindConstant(*Constant::Class(parentClassName));
@@ -26,6 +29,7 @@ void fillTables(FileNode* program) {
 	// Создание функции, как точки входа в программу
 	Method* mainMethod = new Method();
 	mainMethod->name = "main";
+	mainMethod->descriptor = "([Ljava/lang/String;)V";
 	// Добавление констант метода
 	mainMethod->nameNumber = entryClass->pushOrFindConstant(*Constant::UTF8(mainMethod->name));
 	mainMethod->descriptorNumber = entryClass->pushOrFindConstant(*Constant::UTF8("([Ljava/lang/String;)V"));
@@ -92,9 +96,13 @@ void fillTables(ClassNode* classDef) {
 	// Добавление класса в глобальную таблицу
 	newClass->name = classDef->identifier->stringVal;
 	classesList[newClass->name] = newClass;
+
 	// Добавление констант в класс
 	newClass->pushOrFindConstant(*Constant::UTF8("Code"));
-	newClass->pushOrFindConstant(*Constant::Class(newClass->pushOrFindConstant(*Constant::UTF8(newClass->name))));
+	newClass->number = newClass->pushOrFindConstant(*Constant::Class(newClass->pushOrFindConstant(*Constant::UTF8(newClass->name))));
+
+	// Добавление RTL в класс
+	addRTLToClass(newClass);
 
 	// Родительский класс (одиночное наследование)
 	if (classDef->base != nullptr) {
@@ -113,13 +121,9 @@ void fillTables(ClassNode* classDef) {
 			switch (classElement->elementType)
 			{
 				case _FUNCTION_DEF:
-					fillMethodTable(newClass, classElement->funcDef);
+					//fillMethodTable(newClass, classElement->funcDef);
 					break;
 				case _STMT_NODE:
-					// TODO: если это явное присвоение значения -> добавляем в таблицу полей
-					//if (classElement->stmt->stmtType == _ASSIGN || classElement->stmt->stmtType == _COMPOUND_ASSIGN) fillFieldTable(newClass, classElement->stmt);
-					//		 если же какой-то код рандомный (цикл for или что бы то ни было) -> идет в main функцию
-					//else fillTable(classesList.find("__PROGRAM__")->second, classesList.find("__PROGRAM__")->second->methods.find("main")->second, classElement->stmt);
 					break;
 			}
 
@@ -135,6 +139,8 @@ void fillTables(ClassNode* classDef) {
 
 // TODO: именованные аргументы + дескриптор
 void fillMethodTable(Class* clazz, FuncNode* funcDef) {
+	checkMethodForErrors(funcDef);
+
 	Method* method = new Method();
 	method->name = funcDef->identifier->identifier;
 	method->nameNumber = clazz->pushOrFindConstant(*Constant::UTF8(method->name));
@@ -155,7 +161,7 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 
 	// Аргументы метода
 	int paramsCounter = 0;
-	method->localVars.push_back(clazz->name); // Внутри тела любой функции, первым аргументом должен идти this (ссылка на класс, внутри которого реализована функция), если она нестатическая
+	//method->localVars.push_back(clazz->name); // Внутри тела любой функции, первым аргументом должен идти this (ссылка на класс, внутри которого реализована функция), если она нестатическая
 	if (funcDef->args != nullptr) {
 		// Обычные аргументы (a,b,c,...)
 		ExprNode* arg = funcDef->args->exprList->first;
@@ -185,8 +191,9 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 	fillMethodTable(clazz, method, method->suite);
 
 	// Составление дескриптора
-	//string methodReturnType = defineMethodReturnType(funcDef);
-	string methodDescriptor = generateMethodDescriptor(paramsCounter, "L__BASE__"); // TODO: параметры не всегда должны быть только __BASE__
+	string methodReturnType = defineMethodReturnType(method);
+	string methodDescriptor = generateMethodDescriptor(paramsCounter, methodReturnType);
+	method->descriptor = methodDescriptor;
 	method->descriptorNumber = clazz->pushOrFindConstant(*Constant::UTF8(methodDescriptor));
 
 	method->number = clazz->pushOrFindMethodRef(clazz->name, method->name, methodDescriptor);
@@ -205,7 +212,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtsListNode* stmts) {
 
 			if (stmt->stmtType == StmtType::_RETURN) {
 				stmt->next = nullptr;
-				method->suite->last = stmt;
+				if(method->suite == stmts) method->suite->last = stmt;
 			}
 			
 			stmt = stmt->next;
@@ -353,6 +360,20 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			fillMethodTable(clazz, method, expr->right);
 			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__unary_minus__", "()L__BASE__;");
 			break;
+		case _FUNCTION_CALL:
+			if (expr->funcArgs != nullptr) {
+				ExprNode* arg = expr->funcArgs->exprList->first;
+				while (arg != nullptr) {
+					fillMethodTable(clazz, method, arg);
+					arg = arg->next;
+				}
+			}
+
+			if (expr->left->identifier == "print") expr->number = clazz->pushOrFindMethodRef("__BASE__", "print", "(L__BASE__;)V");
+			else if (expr->left->identifier == "input") expr->number = clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
+			else expr->number = clazz->pushOrFindMethodRef(clazz->name, expr->left->identifier, clazz->methods[expr->left->identifier]->descriptor);
+			
+			break;
 	}
 }
 
@@ -401,6 +422,20 @@ void fillFieldTable(Class* clazz, StmtNode* assignStmt) {
 	clazz->fields[field->name] = field;
 }
 
+// ========= RTL =========
+
+void addRTLToClass(Class* clazz) {
+	// Метод для вывода данных в консоль
+	clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"));
+	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+	clazz->pushOrFindMethodRef("__BASE__", "print", "(L__BASE__;)V");
+
+	// Метод для получения данных из консоли
+	clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"));
+	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+	clazz->pushOrFindMethodRef("__BASE__", "__get__", "()L__BASE__;");
+}
+
 // ========= Функции проверки =========
 
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
@@ -422,6 +457,18 @@ void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
 	}
 }
 
+void checkMethodForErrors(FuncNode* funcDef) {
+	if (funcDef != nullptr) {
+		if (funcDef->identifier->identifier == "print") {
+			throw runtime_error("S: ERROR -> Changes to the signature of the \"print\" function!");
+		}
+
+		if (funcDef->identifier->identifier == "input") {
+			throw runtime_error("S: ERROR -> Changes to the signature of the \"input\" function!");
+		}
+	}
+}
+
 // ========= Вспомогательные функции =========
 
 // TODO: в качестве параметров могут передаваться и другие классы, для которых будет другой дескриптор
@@ -433,7 +480,7 @@ string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor) 
 		descriptor += "L__BASE__;";
 	}
 	// Возвращаемое значение
-	descriptor += ")" + returnValueDescriptor + ";";
+	descriptor += ")" + returnValueDescriptor;
 
 	return descriptor;
 }
@@ -442,32 +489,20 @@ string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor) 
 string defineMethodReturnType(Method* method) {
 	vector<ExprNode*> returnValues = {};
 
-	StmtNode* lastStmt = method->suite->last;
-	if (lastStmt->stmtType == _RETURN) {
-		if (lastStmt->list != nullptr) {
-			ExprNode* expr = lastStmt->list->first;
+	if (method->suite == nullptr) return "V";
 
-			switch (expr->exprType)
-			{
-				case _STRING_CONST:
-				case _INT_CONST:
-				case _FLOAT_CONST:
-					return "L__BASE__";
-				case _IDENTIFIER:
-					if (!expr->identifier.empty()) {
-						if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
-							if (classesList.find(expr->identifier) != classesList.end()) return "L" + expr->identifier;
-						}
-						// TODO: проверка локальных переменных
-						//else throw runtime_error("S: ERROR -> Something went wrong...");
-					}
-					return "";
-			}
+	StmtNode* suiteStmt = method->suite->first;
+	while (suiteStmt != nullptr) {
+		switch (suiteStmt->stmtType)
+		{
+			case _RETURN:
+				return "L__BASE__;";
 		}
+
+		suiteStmt = suiteStmt->next;
 	}
 
-	//throw runtime_error("S: ERROR -> Unsupported type in Return Stmt");
-	return "";
+	return "V";
 }
 
 int findElementIndexInVector(vector<string> vec, string element) {

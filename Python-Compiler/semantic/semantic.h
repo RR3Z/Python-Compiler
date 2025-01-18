@@ -28,6 +28,7 @@ struct Method {
 	int nameNumber = -1;
 
 	// Дескриптор нужен для корректной работы JVM
+	string descriptor = "";
 	int descriptorNumber = -1;
 
 	// Для локальных переменных (TODO: почему строки, а не int?)
@@ -133,6 +134,7 @@ void defineAccessModifier(StmtNode* stmt);
 // Функции для определния ошибок
 void checkCompoundAssignForErrors(StmtNode* stmt);
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr);
+void checkMethodForErrors(FuncNode* funcDef);
 
 // Функции для заполнения таблиц
 void fillTables(FileNode* program);
@@ -145,6 +147,9 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr);
 // Таблица полей
 void fillFieldTable(Class* clazz, StmtsListNode* compoundAssign);
 void fillFieldTable(Class* clazz, StmtNode* assignStmt);
+
+// RTL
+void addRTLToClass(Class* clazz);
 
 // Вспомогательные функции для заполнения таблиц
 string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor);
