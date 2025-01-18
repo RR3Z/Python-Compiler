@@ -202,8 +202,9 @@ void generateMainCode(Method* mainMethod, Class* clazz) {
 
 void generateMethodCode(Method* method, Class* clazz) {
 	// access flags (u2)
-	fprintf(fileClass, "%c%c", 0x00, (char)(method->accessModifier));
-
+	if(clazz->name == "__PROGRAM__") fprintf(fileClass, "%c%c", 0x00, 0x09);
+	else fprintf(fileClass, "%c%c", 0x00, (char)(method->accessModifier));
+	
 	// name index (u2)
 	vector<char> bytes = intToFourBytes(method->nameNumber);
 	fprintf(fileClass, "%c%c", bytes[2], bytes[3]);
