@@ -202,6 +202,12 @@ void fillMethodTable(Class* clazz, Method* method, StmtsListNode* stmts) {
 		StmtNode* stmt = stmts->first;
 		while (stmt != nullptr) {
 			fillMethodTable(clazz, method, stmt);
+
+			if (stmt->stmtType == StmtType::_RETURN) {
+				stmt->next = nullptr;
+				method->suite->last = stmt;
+			}
+			
 			stmt = stmt->next;
 		}
 	}

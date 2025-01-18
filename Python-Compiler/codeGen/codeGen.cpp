@@ -237,14 +237,14 @@ void generateAttributeCode(Method* method, Class* clazz) {
 		}
 
 		if (method->suite->last->stmtType != _RETURN) {
-			// ��������� return void (��� ���������� ������ JVM)
+			// return void для корректной работы JVM
 			bytes.clear();
 			bytes.push_back((char)Command::_return);
 			codeBytes.insert(codeBytes.end(), bytes.begin(), bytes.end());
 		}
 	}
 	else {
-		// ��������� return void (��� ���������� ������ JVM)
+		// return void для корректной работы JVM
 		bytes.clear();
 		bytes.push_back((char)Command::_return);
 		codeBytes.insert(codeBytes.end(), bytes.begin(), bytes.end());
@@ -271,7 +271,7 @@ void generateAttributeCode(Method* method, Class* clazz) {
 		fprintf(fileClass, "%c", codeBytes[i]);
 	}
 
-	// exception_table_length (u2) - TODO: ������� ���������� (https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.3)
+	// exception_table_length (u2) - TODO: исключения (https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.3)
 	fprintf(fileClass, "%c%c", 0x00, 0x00);
 
 	// attributes_count (u2)
@@ -357,7 +357,7 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 			return result;
 		}
 
-		// TODO: �������� ��� ��� ������ ��� ����������� �����
+		// TODO: Добавить для обычных классов
 	} 
 	// ���� �������� ��������� ���������� ������
 	else if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
@@ -501,7 +501,7 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 	return result;
 }
 
-/* ========= ��������������� ������� ========= */
+/* ========= Вспомогательные функции ========= */
 
 vector <char> intToFourBytes(int value) {
 	// int = 4 bytes
