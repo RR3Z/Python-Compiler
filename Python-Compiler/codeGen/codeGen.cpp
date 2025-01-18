@@ -283,6 +283,10 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 
 	switch (stmt->stmtType)
 	{
+		case _EXPR_STMT:
+			generateExpressionCode(stmt->expr, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			break;
 		case _ASSIGN:
 			bytes = generateAssignStatementCode(stmt, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
@@ -400,6 +404,25 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			}
 			result.push_back((char)Command::invokespecial);
 			bytes = intToBytes(expr->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
+		case _PLUS:
+		case _MINUS:
+		case _MUL:
+		case _DIV:
+		case _EQUAL:
+		case _NOT_EQUAL:
+		case _LESS:
+		case _LESS_EQUAL:
+		case _GREAT:
+		case _GREAT_EQUAL:
+			bytes = generateExpressionCode(expr->left, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			bytes = generateExpressionCode(expr->right, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			result.push_back((char)Command::invokevirtual);
+			bytes = intToBytes(expr->id, 2);
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;

@@ -11,6 +11,7 @@ enum Command {
 
 	ldc_w = 0x13,
 
+	invokevirtual = 0xB6,
 	invokespecial = 0xB7,
 
 	dup = 0x59,
