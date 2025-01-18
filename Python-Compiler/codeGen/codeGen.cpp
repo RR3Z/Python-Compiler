@@ -303,7 +303,7 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 			}
 			break;
 		case _RETURN:
-			if (stmt->list->first != nullptr) {
+			if (stmt->list != nullptr) {
 				bytes = generateExpressionCode(stmt->list->first, clazz, method);
 				result.insert(result.end(), bytes.begin(), bytes.end());
 				result.push_back((char)Command::areturn);
@@ -423,6 +423,15 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			result.push_back((char)Command::invokevirtual);
 			bytes = intToBytes(expr->id, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
+		case _U_PLUS:
+		case _U_MINUS:
+			bytes = generateExpressionCode(expr->right, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			result.push_back((char)Command::invokevirtual);
+			bytes = intToBytes(expr -> id, 2);
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;

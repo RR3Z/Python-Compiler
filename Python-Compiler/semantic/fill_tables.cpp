@@ -319,6 +319,14 @@ void fillTable(Class* clazz, Method* method, ExprNode* expr) {
 			fillTable(clazz, method, expr->right);
 			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__greater_or_eql__", "(L__BASE__;)L__BASE__;");
 			break;
+		case _U_PLUS:
+			fillTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__unary_plus__", "()L__BASE__;");
+			break;
+		case _U_MINUS:
+			fillTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__unary_minus__", "()L__BASE__;");
+			break;
 	}
 }
 
