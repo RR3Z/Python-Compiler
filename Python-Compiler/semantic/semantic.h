@@ -12,6 +12,7 @@ struct Field {
 
 	int nameNumber = -1; // Номер навзвания поля
 	string name = "";	// Название поля
+	ExprNode* nameNode = nullptr; // Узел с названием
 	
 	int descriptorNumber = -1; // Номер дескриптора
 	string descriptor = ""; // Дескриптор (тип переменной)
@@ -148,3 +149,4 @@ void fillFieldTable(Class* clazz, StmtNode* assignStmt);
 // Вспомогательные функции для заполнения таблиц
 string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor);
 string defineMethodReturnType(Method* method);
+int findElementIndexInVector(vector<string> vec, string element);

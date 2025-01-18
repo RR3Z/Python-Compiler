@@ -64,9 +64,10 @@ void fillTables(FileNode* program) {
 
 					// Обновление тела main метода
 					if (mainMethod->suite == nullptr) mainMethod->suite = new StmtsListNode();
+
 					if (mainMethod->suite->first != nullptr) {
+						mainMethod->suite->last->next = programElement->stmt;
 						mainMethod->suite->last = programElement->stmt;
-						mainMethod->suite->first->next = programElement->stmt;
 					}
 					else {
 						mainMethod->suite->first = programElement->stmt;
@@ -154,14 +155,13 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 
 	// Аргументы метода
 	int paramsCounter = 0;
+	method->localVars.push_back(clazz->name); // Внутри тела любой функции, первым аргументом должен идти this (ссылка на класс, внутри которого реализована функция), если она нестатическая
 	if (funcDef->args != nullptr) {
 		// Обычные аргументы (a,b,c,...)
 		ExprNode* arg = funcDef->args->exprList->first;
 		while (arg != nullptr) {
 			paramsCounter++;
-
 			method->localVars.push_back(arg->identifier);
-			arg->paramLocalVarNum = method->localVars.size() - 1;
 
 			arg = arg->next;
 		}
@@ -212,10 +212,20 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 	switch (stmt->stmtType)
 	{
 		case _ASSIGN:
-			// Если переменная не является полем класса, добавляем ее в качестве локальной переменной и загружаем ее имя в constant pool класса
-			if (!stmt->leftExpr->identifier.empty() && clazz->fields.find(stmt->leftExpr->identifier) == clazz->fields.end()) {
-				method->localVars.push_back(stmt->leftExpr->identifier);
-				fillMethodTable(clazz, method, stmt->leftExpr);
+			if (!stmt->leftExpr->identifier.empty()) {
+				if (find(method->localVars.begin(), method->localVars.end(), stmt->leftExpr->identifier) != method->localVars.end()) {
+					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
+				}
+
+				// Если переменная не является полем класса, добавляем ее в качестве локальной переменной и загружаем ее имя в constant pool класса
+				if (clazz->fields.find(stmt->leftExpr->identifier) == clazz->fields.end()) {
+					method->localVars.push_back(stmt->leftExpr->identifier);
+					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
+					fillMethodTable(clazz, method, stmt->leftExpr);
+				}
+				else {
+					stmt->number = clazz->fields[stmt->leftExpr->identifier]->number;
+				}
 			}
 
 			fillMethodTable(clazz, method, stmt->rightExpr);
@@ -241,10 +251,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			// TODO: множественное возвращение
 			if (stmt->list != nullptr) {
 				ExprNode* expr = stmt->list->first;
-				//while (expr != nullptr) {
-				//	fillTable(clazz, method, expr);
-				//	expr = expr->next;
-				//}
+
 				checkReturnValue(clazz, method, expr);
 				fillMethodTable(clazz, method, expr);
 			}
@@ -302,6 +309,7 @@ void fillFieldTable(Class* clazz, StmtNode* assignStmt) {
 	// Имя
 	field->name = assignStmt->leftExpr->identifier;
 	field->nameNumber = clazz->pushOrFindConstant(*Constant::UTF8(field->name));
+	field->nameNode = assignStmt->leftExpr;
 
 	// Модификатор доступа - AccessModifier -> AccessFlag
 	switch (assignStmt->accessModifier) {
@@ -395,4 +403,14 @@ string defineMethodReturnType(Method* method) {
 
 	//throw runtime_error("S: ERROR -> Unsupported type in Return Stmt");
 	return "";
+}
+
+int findElementIndexInVector(vector<string> vec, string element) {
+	for (int i = 0; i < vec.size(); i++) {
+		if (vec[i] == element) {
+			return i;
+		}
+	}
+
+	return -1;
 }

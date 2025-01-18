@@ -316,7 +316,7 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 			}
 			break;
 		case _RETURN:
-			if (stmt->list->first != nullptr) {
+			if (stmt->list != nullptr && stmt->list->first != nullptr) {
 				bytes = generateExpressionCode(stmt->list->first, clazz, method);
 				result.insert(result.end(), bytes.begin(), bytes.end());
 				result.push_back((char)Command::areturn);
@@ -336,20 +336,27 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 	// Byte êîä äëÿ çíà÷åíèÿ (value)
 	bytes = generateExpressionCode(assignStmt->rightExpr, clazz, method);
 	result.insert(result.end(), bytes.begin(), bytes.end());
-	
+
 	// åñëè ÿâëÿåòñÿ ïîëåì êëàññ, çàäàåì åìó çíà÷åíèå
 	if (clazz->fields.find(assignStmt->leftExpr->identifier) != clazz->fields.end()) {
 		if (clazz->name == "__PROGRAM__") {
+			if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
+				// Byte êîä äëÿ èñòî÷íèêà (identifier)
+				result.push_back((char)Command::astore);
+				result.push_back(assignStmt->leftExpr->paramLocalVarNum);
+				return result;
+			}
 			// Ðàçìåùåíèå ýëåìåíòà
 			result.push_back((char)Command::putstatic);
 			bytes = intToBytes(assignStmt->number, 2);
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			return result;
 		}
-	}
 
+		// TODO: ÍÀÏÈÑÀÒÜ ÊÎÄ ÄËß ÊËÀÑÑÀ ÁÅÇ ÑÒÀÒÈ×ÅÑÊÈÕ ÏÎËÅÉ
+	} 
 	// åñëè ÿâëÿåòñÿ ëîêàëüíîé ïåðåìåííîé ìåòîäà
-	if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()){
+	else if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
 		// Byte êîä äëÿ èñòî÷íèêà (identifier)
 		result.push_back((char)Command::astore);
 		result.push_back(assignStmt->leftExpr->paramLocalVarNum);
@@ -415,9 +422,32 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[1]);
 			break;
 		case _IDENTIFIER:
-			result.push_back((char)Command::aload);
-			bytes = intToBytes(expr->paramLocalVarNum, 1);
-			result.push_back(bytes[0]);
+			if (clazz->fields.find(expr->identifier) != clazz->fields.end()) {
+				if (clazz->name == "__PROGRAM__") {
+					if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
+						result.push_back((char)Command::aload);
+						bytes = intToBytes(expr->paramLocalVarNum, 1);
+						result.push_back(bytes[0]);
+						break;
+					}
+
+					Field* test = clazz->fields[expr->identifier];
+					result.push_back((char)Command::getstatic);
+					bytes = intToBytes(clazz->fields[expr->identifier]->number, 2);
+					result.push_back(bytes[0]);
+					result.push_back(bytes[1]);
+					break;
+				}
+
+				// TODO: ÍÀÏÈÑÀÒÜ ÊÎÄ ÄËß ÊËÀÑÑÀ ÁÅÇ ÑÒÀÒÈ×ÅÑÊÈÕ ÏÎËÅÉ
+			}
+			if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
+				result.push_back((char)Command::aload);
+				bytes = intToBytes(expr->paramLocalVarNum, 1);
+				result.push_back(bytes[0]);
+				break;
+			}
+
 			break;
 		case _METHOD_CALL:
 			if (method == nullptr) throw runtime_error("CodeGen: ERROR -> Trying call method which is unknown (nullptr).");
