@@ -260,8 +260,8 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			break;
 		case _WHILE:
 			// condition
-			fillTable(clazz, method, stmt->expr->left);
-			fillTable(clazz, method, stmt->suite);
+			fillMethodTable(clazz, method, stmt->expr->left);
+			fillMethodTable(clazz, method, stmt->suite);
 			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
 			break;
 		case _RETURN:
@@ -315,60 +315,60 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 		case _PLUS:
 			fillMethodTable(clazz, method, expr->left);
 			fillMethodTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__add__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__add__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _MINUS:
 			fillMethodTable(clazz, method, expr->left);
 			fillMethodTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__sub__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__sub__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _MUL:
 			fillMethodTable(clazz, method, expr->left);
 			fillMethodTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__mul__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__mul__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _DIV:
 			fillMethodTable(clazz, method, expr->left);
 			fillMethodTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__div__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__div__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _EQUAL:
 			fillMethodTable(clazz, method, expr->left);
 			fillMethodTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__eql__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__eql__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _NOT_EQUAL:
 			fillMethodTable(clazz, method, expr->left);
 			fillMethodTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__not_eql__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__not_eql__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _LESS:
 			fillMethodTable(clazz, method, expr->left);
 			fillMethodTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__les__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__les__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _LESS_EQUAL:
 			fillMethodTable(clazz, method, expr->left);
 			fillMethodTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__les_or_eql__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__les_or_eql__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _GREAT:
 			fillMethodTable(clazz, method, expr->left);
 			fillMethodTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__greater__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__greater__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _GREAT_EQUAL:
 			fillMethodTable(clazz, method, expr->left);
 			fillMethodTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__greater_or_eql__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__greater_or_eql__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _U_PLUS:
 			fillMethodTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__unary_plus__", "()L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__unary_plus__", "()L__BASE__;");
 			break;
 		case _U_MINUS:
 			fillMethodTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__unary_minus__", "()L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__unary_minus__", "()L__BASE__;");
 			break;
 		case _FUNCTION_CALL:
 			if (expr->funcArgs != nullptr) {
