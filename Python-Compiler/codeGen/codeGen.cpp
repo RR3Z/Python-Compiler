@@ -497,6 +497,8 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 
 	ExprNode* exprCounter = nullptr;
 
+	int counter = 0;
+
 	switch (expr->exprType)
 	{
 		case _INT_CONST:
@@ -645,7 +647,62 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			bytes = generateExpressionCode(expr->right, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			result.push_back((char)Command::invokevirtual);
-			bytes = intToBytes(expr -> number, 2); //TODO ID �������� ��ff number
+			bytes = intToBytes(expr -> number, 2); //TODO ID �������� �� number
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
+		case _LIST_CREATION:
+			result.push_back((char)Command::_new);
+			bytes = intToBytes(expr->classNumber,2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::dup);
+			result.push_back((char)Command::_new);
+			bytes = intToBytes(expr->arrayListClassNumber,2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::dup);
+			bytes = intToBytes(countExprs(expr->list), 2);
+			result.push_back((char)Command::sipush);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::anewarray);
+			bytes = intToBytes(expr->classNumber,2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::dup);
+
+			// Add elements
+			if (expr->list != nullptr) {
+				exprCounter = expr->list->first;
+				while (exprCounter != nullptr) {
+					bytes = intToBytes(counter,2);
+					result.push_back((char)Command::sipush);
+					result.push_back(bytes[0]);
+					result.push_back(bytes[1]);
+					bytes = generateExpressionCode(exprCounter, clazz,method);
+					result.insert(result.end(), bytes.begin(), bytes.end());
+					result.push_back((char)Command::aastore);
+					result.push_back((char)Command::dup);
+					++counter;
+					exprCounter = exprCounter->next;
+				}
+			}
+			// because after last element we dup data.
+			result.push_back((char)Command::pop);
+			// call Arrays.asList
+			result.push_back((char)Command::invokestatic);
+			bytes = intToBytes(expr->listConstructorMethodRef,2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+
+			// create ArrayList
+			result.push_back((char)Command::invokespecial);
+			bytes = intToBytes(expr->arrayListConstructorMethodRef,2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::invokespecial);
+			bytes = intToBytes(expr->number, 2);
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
@@ -691,4 +748,15 @@ vector<char> floatToBytes(float value)
 
 bool compare(pair<Constant, int>& a, pair<Constant, int>& b) {
 	return a.second < b.second;
+}
+
+int countExprs(ExprListNode* expr) {
+	if (expr->first == nullptr) return 0;
+	int count = 0;
+	ExprNode* countExpr = expr->first;
+	while (countExpr != nullptr) {
+		count++;
+		countExpr = countExpr->next;
+	}
+	return count;
 }

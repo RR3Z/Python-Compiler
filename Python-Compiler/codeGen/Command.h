@@ -8,6 +8,11 @@ enum Command {
 	istore = 0x36,
 	astore = 0x3A,
 	aload = 0x19,
+	pop = 0x57,
+
+
+	anewarray = 0xBD,
+	aastore = 0x53, 
 
 	sipush = 0x11,
 

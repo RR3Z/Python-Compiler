@@ -390,6 +390,26 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			expr->number = defineMethodRefByExprNode(clazz, method, expr);
 			
 			break;
+		case _LIST_CREATION:
+			if (expr->list != nullptr) {
+				ExprNode* listElement = expr->list->first;
+				while (listElement != nullptr) {
+					fillMethodTable(clazz, method, listElement);
+					listElement = listElement->next;
+				}
+			}
+			expr->arrayListClassNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("java/util/ArrayList"))));
+			expr->arrayListConstructorMethodRef = clazz->pushOrFindMethodRef("java/util/ArrayList", "<init>", "(Ljava/util/Collection;)V");
+			expr->listConstructorMethodRef = clazz->pushOrFindMethodRef("java/util/Arrays", "asList", "([Ljava/lang/Object;)Ljava/util/List;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "<init>", "(Ljava/util/ArrayList;)V");
+			expr->classNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+			break;
+		case _LIST_ACCESS:
+			cout << "test" << endl;
+			break;
+		case _LIST_COMPREHENSION:
+			cout << "test" << endl;
+			break;
 	}
 }
 

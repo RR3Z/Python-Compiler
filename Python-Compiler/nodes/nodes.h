@@ -61,6 +61,10 @@ struct ExprNode {
 	int classNumber = -1; // parent class UTF8
 	int number = -1; // MethodRef for parent class constructor
 	int argsCount = -1; // Количество переданных аргументов (ТОЛЬКО ДЛЯ FUNCTION_CALL/METHOD_CALL)
+
+	int arrayListClassNumber = -1;
+	int arrayListConstructorMethodRef = -1;
+	int listConstructorMethodRef = -1;
 };
 
 /* ========== EXPRESSION LIST ========== */
