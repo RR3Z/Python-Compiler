@@ -311,11 +311,10 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 		case _COMPOUND_ASSIGN:
 			if (stmt->stmtsList != nullptr) {
 				StmtNode* assignStmt = stmt->stmtsList->first;
-
-			while (assignStmt != nullptr) {
-				bytes = generateStatementCode(assignStmt, clazz, method);
-				result.insert(result.end(), bytes.begin(), bytes.end());
-				assignStmt = assignStmt->next;
+				while (assignStmt != nullptr) {
+					bytes = generateStatementCode(assignStmt, clazz, method);
+					result.insert(result.end(), bytes.begin(), bytes.end());
+					assignStmt = assignStmt->next;
 			}
 		}
 		break;
@@ -354,6 +353,7 @@ vector<char> generateIfStatementCode(StmtNode* stmt, Class* clazz, Method* metho
 	// condition
 	if (stmt->expr->exprType == _BRACKETS) condition = generateExpressionCode(stmt->expr->left, clazz, method);
 	else condition = generateExpressionCode(stmt->expr, clazz, method);
+
 	//suite
 	ifSuite = generateStatementListCode(stmt->suite, clazz, method);
 
@@ -653,7 +653,7 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			bytes = generateExpressionCode(expr->right, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			result.push_back((char)Command::invokevirtual);
-			bytes = intToBytes(expr -> number, 2); //TODO ID �������� ��ff number
+			bytes = intToBytes(expr->number, 2);
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
