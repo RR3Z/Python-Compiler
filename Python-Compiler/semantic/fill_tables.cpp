@@ -405,7 +405,9 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			expr->classNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 			break;
 		case _LIST_ACCESS:
-			cout << "test" << endl;
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__member_access__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _LIST_COMPREHENSION:
 			cout << "test" << endl;

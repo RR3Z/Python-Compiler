@@ -706,6 +706,16 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
+		case _LIST_ACCESS:
+			bytes = generateExpressionCode(expr->left, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			bytes = generateExpressionCode(expr->right, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			result.push_back((char)Command::invokevirtual);
+			bytes = intToBytes(expr->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
 	}
 
 	return result;
