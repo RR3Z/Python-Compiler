@@ -349,38 +349,27 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 }
 
 vector<char> generateIfStatementCode(StmtNode* stmt, Class* clazz, Method* method) {
-	vector<char> result, bytes = {};
+	vector<char> result, condition, ifSuite, bytes = {};
 
-	vector<char> condition, ifSuite = {};
-	vector<vector<char>> elifConditions, elifSuites = {};
-
+	// condition
 	if (stmt->expr->exprType == _BRACKETS) condition = generateExpressionCode(stmt->expr->left, clazz, method);
 	else condition = generateExpressionCode(stmt->expr, clazz, method);
-
+	//suite
 	ifSuite = generateStatementListCode(stmt->suite, clazz, method);
-	
-	elifConditions.push_back(condition);
-	elifSuites.push_back(ifSuite);
 
-	for (int i = elifConditions.size() - 1; i >= 0; --i) {
-		if (result.size() != 0) {
-			elifSuites[i].push_back((char)Command::goto_);
-			bytes = intToBytes(result.size() + 3,2);
-			elifSuites[i].push_back(bytes[0]);
-			elifSuites[i].push_back(bytes[1]);
-		}
+	// condition
+	result.insert(result.end(), condition.begin(), condition.end());
 
-		elifConditions[i].push_back((char)Command::getfield);
-		bytes = intToBytes(stmt->boolFieldMethodRef, 2);
-		elifConditions[i].push_back(bytes[0]);
-		elifConditions[i].push_back(bytes[1]);
-		elifConditions[i].push_back((char)Command::ifeq);
-		bytes = intToBytes(elifSuites[i].size() + 3,2);
-		elifConditions[i].push_back(bytes[0]);
-		elifConditions[i].push_back(bytes[1]);
-		result.insert(result.begin(), elifSuites[i].begin(), elifSuites[i].end());
-		result.insert(result.begin(), elifConditions[i].begin(), elifConditions[i].end());
-	}
+	result.push_back((char)Command::getfield);
+	bytes = intToBytes(stmt->boolFieldMethodRef, 2);
+	result.insert(result.end(), bytes.begin(), bytes.end());
+
+	result.push_back((char)Command::ifeq);
+	bytes = intToBytes(ifSuite.size() + 3, 2); // ofset
+	result.insert(result.end(), bytes.begin(), bytes.end());
+
+	// suite
+	result.insert(result.end(), ifSuite.begin(), ifSuite.end());
 
 	return result;
 }
@@ -419,6 +408,7 @@ vector<char> generateCompoundIfStatementCode(StmtNode* stmt, Class* clazz, Metho
 			elifSuites[i].push_back(bytes[1]);
 		}
 
+		result.insert(result.begin(), elifSuites[i].begin(), elifSuites[i].end());
 		elifConditions[i].push_back((char)Command::getfield);
 		bytes = intToBytes(stmt->boolFieldMethodRef, 2);
 		elifConditions[i].push_back(bytes[0]);
@@ -427,7 +417,6 @@ vector<char> generateCompoundIfStatementCode(StmtNode* stmt, Class* clazz, Metho
 		bytes = intToBytes(elifSuites[i].size() + 3, 2);
 		elifConditions[i].push_back(bytes[0]);
 		elifConditions[i].push_back(bytes[1]);
-		result.insert(result.begin(), elifSuites[i].begin(), elifSuites[i].end());
 		result.insert(result.begin(), elifConditions[i].begin(), elifConditions[i].end());
 	}
 
@@ -474,20 +463,17 @@ vector<char> generateWhileStatementCode(StmtNode* stmt, Class* clazz, Method* me
 vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Method* method) {
 	vector<char> result, bytes = {};
 
-	// Byte ��� ��� �������� (value)
 	bytes = generateExpressionCode(assignStmt->rightExpr, clazz, method);
 	result.insert(result.end(), bytes.begin(), bytes.end());
 
-	// ���� �������� ����� �����, ������ ��� ��������
 	if (clazz->fields.find(assignStmt->leftExpr->identifier) != clazz->fields.end()) {
 		if (clazz->name == "__PROGRAM__") {
 			if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
-				// Byte ��� ��� ��������� (identifier)
 				result.push_back((char)Command::astore);
 				result.push_back(assignStmt->leftExpr->paramLocalVarNum);
 				return result;
 			}
-			// ���������� ��������
+
 			result.push_back((char)Command::putstatic);
 			bytes = intToBytes(assignStmt->number, 2);
 			result.insert(result.end(), bytes.begin(), bytes.end());
@@ -496,9 +482,7 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 
 		// TODO: Добавить для обычных классов
 	} 
-	// ���� �������� ��������� ���������� ������
 	else if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
-		// Byte ��� ��� ��������� (identifier)
 		result.push_back((char)Command::astore);
 		result.push_back(assignStmt->leftExpr->paramLocalVarNum);
 		return result;
