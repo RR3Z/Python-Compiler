@@ -258,9 +258,9 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			// TODO
 			break;
 		case _WHILE:
-			// condition
-			fillMethodTable(clazz, method, stmt->expr->left);
-			fillMethodTable(clazz, method, stmt->suite);
+			fillMethodTable(clazz, method, stmt->expr); // condition
+			fillMethodTable(clazz, method, stmt->suite); // suite 
+
 			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
 			break;
 

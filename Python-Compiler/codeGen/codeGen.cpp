@@ -438,20 +438,28 @@ vector<char> generateStatementListCode(StmtsListNode* stmts, Class* clazz, Metho
 }
 
 vector<char> generateWhileStatementCode(StmtNode* stmt, Class* clazz, Method* method) {
-	vector<char> result, bytes,test = {};
-	vector<char> code = generateStatementListCode(stmt->suite, clazz, method);
+	vector<char> result, bytes, code = {};
 
-	bytes = generateExpressionCode(stmt->expr->left, clazz, method);
+	// condition
+	if (stmt->expr->exprType == _BRACKETS) bytes = generateExpressionCode(stmt->expr->left, clazz, method);
+	else bytes = generateExpressionCode(stmt->expr, clazz, method);
 	result.insert(result.end(), bytes.begin(), bytes.end());
+
+	code = generateStatementListCode(stmt->suite, clazz, method);
+
 	result.push_back((char)Command::getfield);
 	bytes = intToBytes(stmt->boolFieldMethodRef, 2);
 	result.push_back(bytes[0]);
 	result.push_back(bytes[1]);
+
 	result.push_back((char)Command::ifeq);
 	bytes = intToBytes(code.size() + 6, 2);
 	result.push_back(bytes[0]);
 	result.push_back(bytes[1]);
+
+	// suite
 	result.insert(result.end(), code.begin(), code.end());
+
 	bytes = intToBytes(-1 * result.size(), 2);
 	result.push_back((char)Command::goto_);
 	result.push_back(bytes[0]);
