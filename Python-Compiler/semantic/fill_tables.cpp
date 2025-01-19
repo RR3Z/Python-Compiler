@@ -518,7 +518,7 @@ void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
 		// Fields
 		if (clazz->fields.find(expr->identifier) != clazz->fields.end()) return;
 
-		throw runtime_error("S: ERROR -> local variable " + expr->identifier + " is not defined");
+		throw runtime_error("S: ERROR -> return value \"" + expr->identifier + "\" is not defined. Function name \"" + method->name + "\".");
 	}
 }
 
