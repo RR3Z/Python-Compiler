@@ -25,6 +25,9 @@ public class __BASE__ {
     public __BASE__(int value) {
         this.__iVal = value;
         this.__type = INTEGER;
+
+        if(value == 0) { this.__bVal = false; }
+        else { this.__bVal = true; }
     }
 
     public __BASE__(boolean value) {
@@ -35,11 +38,17 @@ public class __BASE__ {
     public __BASE__(float value) {
         this.__fVal = value;
         this.__type = FLOAT;
+
+        if(value == 0) { this.__bVal = false; }
+        else { this.__bVal = true; }
     }
 
     public __BASE__(String value) {
         this.__sVal = value;
         this.__type = STRING;
+
+        if(value.isEmpty()) { this.__bVal = false; }
+        else { this.__bVal = true; }
     }
 
     public __BASE__(ArrayList<__BASE__> value) {
