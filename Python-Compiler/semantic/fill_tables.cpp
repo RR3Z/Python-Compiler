@@ -372,6 +372,8 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			break;
 		case _FUNCTION_CALL:
 			if (expr->funcArgs != nullptr) {
+				checkFunctionCallParams(clazz, method, expr);
+
 				ExprNode* arg = expr->funcArgs->exprList->first;
 				while (arg != nullptr) {
 					fillMethodTable(clazz, method, arg);
@@ -449,22 +451,29 @@ void addRTLToClass(Class* clazz) {
 
 // ========= Функции проверок =========
 
-void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
-	if (expr != nullptr) {
-		switch (expr->exprType)
-		{
-			case _IDENTIFIER:
-				// Main Method local vars - TODO: по идее не надо проверять (логически)
-				//vector<string> mainMethodLocalVars = classesList["__PROGRAM__"]->methods["main"]->localVars;
-				//if (find(mainMethodLocalVars.begin(), mainMethodLocalVars.end(), expr->identifier) != mainMethodLocalVars.end()) return;
+void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
+	if (expr != nullptr && expr->exprType == _FUNCTION_CALL && expr->funcArgs != nullptr) {
+		ExprNode* arg = expr->funcArgs->exprList->first;
+		while (arg != nullptr) {
+			// Method local vars && Fields
+			if (find(method->localVars.begin(), method->localVars.end(), arg->identifier) == method->localVars.end() &&
+				clazz->fields.find(arg->identifier) == clazz->fields.end()) {
+				throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined in function call \"" + expr->left->identifier + "\"");
+			}
 
-				// Method local vars
-				if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) return;
-				// Fields
-				if (clazz->fields.find(expr->identifier) != clazz->fields.end()) return;
-
-				throw runtime_error("S: ERROR -> local variable " + expr->identifier + " is not defined");
+			arg = arg->next;
 		}
+	}
+}
+
+void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
+	if (expr != nullptr && expr->exprType == _IDENTIFIER) {
+		// Method local vars
+		if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) return;
+		// Fields
+		if (clazz->fields.find(expr->identifier) != clazz->fields.end()) return;
+
+		throw runtime_error("S: ERROR -> local variable " + expr->identifier + " is not defined");
 	}
 }
 
