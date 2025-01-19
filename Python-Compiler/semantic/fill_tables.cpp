@@ -9,39 +9,31 @@ std::map<std::string, Class*> classesList;
 
 // Стартовая функция
 void fillTables(FileNode* program) {
-	// �������� ������, ��� ����� ����� � ���������
 	Class* entryClass = new Class();
 	entryClass->name = "__PROGRAM__";
-	// ���������� ������ � ���������� �������
 	classesList[entryClass->name] = entryClass;
 
-	// ���������� �������� ������
-	entryClass->pushOrFindConstant(*Constant::UTF8("Code")); // �� ���� �����������, ��� ��� � ��� ����� ����������� �� ���������
+	entryClass->pushOrFindConstant(*Constant::UTF8("Code"));
 	entryClass->number = entryClass->pushOrFindConstant(*Constant::Class(entryClass->pushOrFindConstant(*Constant::UTF8(entryClass->name))));
 
-	// ���������� RTL � �����
+	// Добавление функций из RTL
 	addRTLToClass(entryClass);
 
-	// ���������� ������������� ������
 	int parentClassName = entryClass->pushOrFindConstant(*Constant::UTF8("java/lang/Object"));
 	entryClass->parentNumber = entryClass->pushOrFindConstant(*Constant::Class(parentClassName));
 
-	// �������� �������, ��� ����� ����� � ���������
+	// Создание main как точки входа в программу
 	Method* mainMethod = new Method();
 	mainMethod->name = "main";
 	mainMethod->descriptor = "([Ljava/lang/String;)V";
-	// ���������� �������� ������
 	mainMethod->nameNumber = entryClass->pushOrFindConstant(*Constant::UTF8(mainMethod->name));
 	mainMethod->descriptorNumber = entryClass->pushOrFindConstant(*Constant::UTF8("([Ljava/lang/String;)V"));
 	mainMethod->number = entryClass->pushOrFindMethodRef(entryClass->name, mainMethod->name, "([Ljava/lang/String;)V");
-	// ���������� ��������� ���������� (� ����������� ������� ��������� ����������)
 	mainMethod->localVars.push_back("args");
-	// ���� ������ (���������� ������)
 	mainMethod->suite = nullptr;
-	// ���������� main � ������� ������� entryClass
 	entryClass->methods[mainMethod->name] = mainMethod;
 
-	// ������ ���� ���������
+	// Разбор всех элементов программы
 	if (program != nullptr && program->elementsList != nullptr) {
 		FileElementNode* programElement = program->elementsList->first;
 
@@ -61,12 +53,10 @@ void fillTables(FileNode* program) {
 						� assignStmt(������ � ���� ������) ���� ����� � main �����.
 					*/
 
-					// ���� Assign Stmt, �� ���������� ��������� � ������� �����
 					if (programElement->stmt->stmtType == _COMPOUND_ASSIGN && programElement->stmt->stmtsList != nullptr) {
 						fillFieldTable(entryClass, programElement->stmt->stmtsList);
 					}
 
-					// ���������� ���� main ������
 					if (mainMethod->suite == nullptr) mainMethod->suite = new StmtsListNode();
 
 					if (mainMethod->suite->first != nullptr) {
@@ -83,7 +73,6 @@ void fillTables(FileNode* program) {
 					break;
 			}
 
-			// ��������� � ���������� ��������
 			programElement = programElement->next;
 		}
 	}
@@ -283,6 +272,8 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 
 // TODO
 void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
+	if (expr == nullptr) return;
+	
 	switch (expr->exprType)
 	{
 		case _INT_CONST:
@@ -371,6 +362,9 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__unary_minus__", "()L__BASE__;");
 			break;
 		case _FUNCTION_CALL:
+			// Проверка на существование метода
+			isMethodExists(clazz, expr);
+			
 			if (expr->funcArgs != nullptr) {
 				checkFunctionCallParams(clazz, method, expr);
 
@@ -455,18 +449,19 @@ void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 	if (expr != nullptr && expr->exprType == _FUNCTION_CALL && expr->funcArgs != nullptr) {
 		// 1) Сравнение количества передаваемых аргументов с количеством требуемых
 		// Для RTL функций
-		checkRTLFunctionCallParams(expr);
+		if (checkRTLFunctionCallParams(expr)) return;
 		// Для собственной функции
-		if (clazz->methods.find(expr->left->identifier) != clazz->methods.end() && expr->argsCount != clazz->methods[expr->left->identifier]->paramsCount)
-			throw runtime_error("S: ERROR -> function \"" + expr->left->identifier + "\" takes " + to_string(clazz->methods[expr->left->identifier]->paramsCount) + 
+		if (clazz->methods.find(expr->left->identifier) != clazz->methods.end() && expr->argsCount != clazz->methods[expr->left->identifier]->paramsCount) {
+			throw runtime_error("S: ERROR -> function \"" + expr->left->identifier + "\" takes " + to_string(clazz->methods[expr->left->identifier]->paramsCount) +
 				" arguments but " + to_string(expr->argsCount) + " was given");
-
+		}
+			
 		// 2) Проверка на существование передаваемых аргументов
 		ExprNode* arg = expr->funcArgs->exprList->first;
 		while (arg != nullptr) {
 			if (find(method->localVars.begin(), method->localVars.end(), arg->identifier) == method->localVars.end() &&
 				clazz->fields.find(arg->identifier) == clazz->fields.end()) {
-				throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined in function call \"" + expr->left->identifier + "\"");
+				throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\"");
 			}
 
 			arg = arg->next;
@@ -474,18 +469,53 @@ void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 	}
 }
 
-void checkRTLFunctionCallParams(ExprNode* expr) {
+bool checkRTLFunctionCallParams(ExprNode* expr) {
 	if (expr->left->identifier == "print") {
 		if (expr->argsCount > 1) {
 			throw runtime_error("S: ERROR -> function \"" + expr->left->identifier + "\" takes 1 or 0 arguments but " + to_string(expr->argsCount) + " was given");
 		}
+		return true;
 	}
 
 	if (expr->left->identifier == "input") {
 		if (expr->argsCount > 1) {
 			throw runtime_error("S: ERROR -> function \"" + expr->left->identifier + "\" takes 1 or 0 arguments but " + to_string(expr->argsCount) + " was given");
 		}
+		return true;
 	}
+
+	return false;
+}
+
+void isMethodExists(Class* clazz, ExprNode* functionCall) {
+	if (functionCall != nullptr && functionCall->exprType == _FUNCTION_CALL) {
+		if (clazz->methods.find(functionCall->left->identifier) == clazz->methods.end()) {
+			if (isRTLMethodExists(clazz, functionCall)) return;
+			throw runtime_error("S: ERROR -> trying call unknown function \"" + functionCall->left->identifier + "\"");
+		}
+	}
+} 
+
+bool isRTLMethodExists(Class* clazz, ExprNode* functionCall) {
+	if (functionCall->left->identifier == "print") {
+		int printFirstMethodRefNumber = clazz->findMethodRef("__BASE__", "print", "(L__BASE__;)V");
+		int printSecondMethodRefNumber = clazz->findMethodRef("__BASE__", "print", "()V");
+		if (printFirstMethodRefNumber == -1 && printSecondMethodRefNumber == -1) {
+			throw runtime_error("S: ERROR -> trying call unknown function " + functionCall->left->identifier);
+		}
+		return true;
+	}
+
+	if (functionCall->left->identifier == "input") {
+		int inputFirstMethodRefNumber = clazz->findMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
+		int inputSecondMethodRefNumber = clazz->findMethodRef("__BASE__", "input", "()L__BASE__;");
+		if (inputFirstMethodRefNumber == -1 && inputSecondMethodRefNumber == -1) {
+			throw runtime_error("S: ERROR -> trying call unknown function " + functionCall->left->identifier);
+		}
+		return true;
+	}
+
+	return false;
 }
 
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {

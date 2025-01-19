@@ -109,6 +109,38 @@ public:
 		return pushOrFindMethodRef(this->name, methodName, descriptor);
 	}
 
+	int findConstant(const Constant& constant) {
+		auto iter = constants.find(constant);
+		if (iter == constants.end()) return -1;
+		return iter->second;
+	}
+
+	int findFieldRef(const string& className, const string& fieldName, const string& type) {
+		int nameNumber = findConstant(*Constant::UTF8(fieldName));
+		int typeNumber = findConstant(*Constant::UTF8(type));
+		int nameAndTypeNumber = findConstant(*Constant::NameAndType(nameNumber, typeNumber));
+		int classNumber = findConstant(*Constant::Class(findConstant(*Constant::UTF8(className))));
+		int fieldRefNumber = findConstant(*Constant::FieldRef(classNumber, nameAndTypeNumber));
+		return fieldRefNumber;
+	}
+
+	int findFieldRef(const string& fieldName, const string& type) {
+		return findFieldRef(this->name, fieldName, type);
+	}
+
+	int findMethodRef(const string& className, const string& methodName, const string& descriptor) {
+		int nameNumber = findConstant(*Constant::UTF8(methodName));
+		int descriptorNumber = findConstant(*Constant::UTF8(descriptor));
+		int nameAndTypeNumber = findConstant(*Constant::NameAndType(nameNumber, descriptorNumber));
+		int classNumber = findConstant(*Constant::Class(pushOrFindConstant(*Constant::UTF8(className))));
+		int methodRefNumber = findConstant(*Constant::MethodRef(classNumber, nameAndTypeNumber));
+		return methodRefNumber;
+	}
+
+	int findMethodRef(const string& methodName, const string& descriptor) {
+		return findMethodRef(this->name, methodName, descriptor);
+	}
+
 private:
 	long long _ID = 0;
 };
@@ -136,7 +168,9 @@ void checkCompoundAssignForErrors(StmtNode* stmt);
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr);
 void checkMethodNameForErrors(FuncNode* funcDef);
 void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr);
-void checkRTLFunctionCallParams(ExprNode* expr);
+bool checkRTLFunctionCallParams(ExprNode* expr);
+void isMethodExists(Class* clazz, ExprNode* functionCall);
+bool isRTLMethodExists(Class* clazz, ExprNode* functionCall);
 
 // Функции для заполнения таблиц
 void fillTables(FileNode* program);

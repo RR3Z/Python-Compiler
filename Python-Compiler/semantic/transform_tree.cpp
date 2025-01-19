@@ -307,6 +307,12 @@ void transform(StmtNode* stmt) {
 		case _FINALLY:
 			transform(stmt->suite); // suite
 			break;
+		case _EXPR_STMT:
+			transform(stmt->expr);
+			break;
+		case _EXPR_LIST_STMT:
+			transform(stmt->list);
+			break;
 	}
 }
 
@@ -314,11 +320,11 @@ void transform(StmtNode* stmt) {
 
 void transform(ExprListNode* exprsList) {
 	if (exprsList == nullptr) {
-		cout << "S: ERROR -> ExprListNode is unavailable" << endl;
+		//cout << "S: ERROR -> ExprListNode is unavailable" << endl;
 		return;
 	}
 	if (exprsList->first == nullptr) {
-		cout << "S: ERROR -> ExprListNode (id = " << exprsList->id << ") first element in list is unavailable" << endl;
+		//cout << "S: ERROR -> ExprListNode (id = " << exprsList->id << ") first element in list is unavailable" << endl;
 		return;
 	}
 
