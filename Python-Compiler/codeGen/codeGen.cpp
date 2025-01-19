@@ -424,12 +424,13 @@ vector<char> generateCompoundIfStatementCode(StmtNode* stmt, Class* clazz, Metho
 }
 
 vector<char> generateStatementListCode(StmtsListNode* stmts, Class* clazz, Method* method) {
-	vector<char> result = {};
+	vector<char> result, bytes = {};
 
 	if (stmts != nullptr) {
 		StmtNode* stmt = stmts->first;
 		while (stmt != nullptr) {
-			result = generateStatementCode(stmt, clazz, method);
+			bytes = generateStatementCode(stmt, clazz, method);
+			result.insert(result.end(),bytes.begin(), bytes.end());
 			stmt = stmt->next;
 		}
 	}
