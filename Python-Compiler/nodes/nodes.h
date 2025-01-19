@@ -124,6 +124,9 @@ struct StmtNode {
 
 	// ТОЛЬКО ДЛЯ STMTSLIST
 	StmtNode* next = nullptr;
+
+	// Для семантики
+	int boolFieldMethodRef = -1;
 };
 
 /* ========== STATEMENTS LIST ========== */

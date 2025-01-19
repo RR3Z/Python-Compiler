@@ -223,6 +223,10 @@ void fillTable(Class* clazz, Method* method, StmtNode* stmt) {
 		case _FOR:
 			break;
 		case _WHILE:
+			// condition
+			fillTable(clazz, method, stmt->expr->left);
+			fillTable(clazz, method, stmt->suite);
+			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
 			break;
 		case _RETURN:
 			// TODO: множественное возвращение
@@ -253,6 +257,12 @@ void fillTable(Class* clazz, Method* method, ExprNode* expr) {
 			expr->classNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 			expr->number = clazz->pushOrFindMethodRef("__BASE__", "<init>", "(I)V");
 			break;
+		case _TRUE:
+		case _FALSE:
+			expr->valueNumber = clazz->pushOrFindConstant(*Constant::Integer(expr->boolVal));
+			expr->classNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "<init>", "(Z)V");
+			break;
 		case _STRING_CONST:
 			expr->valueNumber = clazz->pushOrFindConstant(*Constant::String(clazz->pushOrFindConstant(*Constant::UTF8(expr->stringVal))));
 			expr->classNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
@@ -269,63 +279,63 @@ void fillTable(Class* clazz, Method* method, ExprNode* expr) {
 			expr->number = clazz->pushOrFindMethodRef("__BASE__", "<init>", "(Ljava/lang/String;)V");
 			expr->paramLocalVarNum = method->localVars.size() - 1;
 			break;
-		case _PLUS:
+		case _PLUS: //TODO ID заменить на number
 			fillTable(clazz, method, expr->left);
 			fillTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__add__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__add__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _MINUS:
 			fillTable(clazz, method, expr->left);
 			fillTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__sub__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__sub__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _MUL:
 			fillTable(clazz, method, expr->left);
 			fillTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__mul__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__mul__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _DIV:
 			fillTable(clazz, method, expr->left);
 			fillTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__div__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__div__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _EQUAL:
 			fillTable(clazz, method, expr->left);
 			fillTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__eql__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__eql__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _NOT_EQUAL:
 			fillTable(clazz, method, expr->left);
 			fillTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__not_eql__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__not_eql__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _LESS:
 			fillTable(clazz, method, expr->left);
 			fillTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__les__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__les__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _LESS_EQUAL:
 			fillTable(clazz, method, expr->left);
 			fillTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__les_or_eql__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__les_or_eql__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _GREAT:
 			fillTable(clazz, method, expr->left);
 			fillTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__greater__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__greater__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _GREAT_EQUAL:
 			fillTable(clazz, method, expr->left);
 			fillTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__greater_or_eql__", "(L__BASE__;)L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__greater_or_eql__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _U_PLUS:
 			fillTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__unary_plus__", "()L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__unary_plus__", "()L__BASE__;");
 			break;
 		case _U_MINUS:
 			fillTable(clazz, method, expr->right);
-			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__unary_minus__", "()L__BASE__;");
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__unary_minus__", "()L__BASE__;");
 			break;
 	}
 }

@@ -283,36 +283,89 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 
 	switch (stmt->stmtType)
 	{
-		case _EXPR_STMT:
-			generateExpressionCode(stmt->expr, clazz, method);
-			result.insert(result.end(), bytes.begin(), bytes.end());
-			break;
-		case _ASSIGN:
-			bytes = generateAssignStatementCode(stmt, clazz, method);
-			result.insert(result.end(), bytes.begin(), bytes.end());
-			break;
-		case _COMPOUND_ASSIGN:
-			if (stmt->stmtsList != nullptr) {
-				StmtNode* assignStmt = stmt->stmtsList->first;
+	case _EXPR_STMT:
+		generateExpressionCode(stmt->expr, clazz, method);
+		result.insert(result.end(), bytes.begin(), bytes.end());
+		break;
+	case _ASSIGN:
+		bytes = generateAssignStatementCode(stmt, clazz, method);
+		result.insert(result.end(), bytes.begin(), bytes.end());
+		break;
+	case _COMPOUND_ASSIGN:
+		if (stmt->stmtsList != nullptr) {
+			StmtNode* assignStmt = stmt->stmtsList->first;
 
-				while (assignStmt != nullptr) {
-					bytes = generateStatementCode(assignStmt, clazz, method);
-					result.insert(result.end(), bytes.begin(), bytes.end());
-					assignStmt = assignStmt->next;
-				}
-			}
-			break;
-		case _RETURN:
-			if (stmt->list != nullptr) {
-				bytes = generateExpressionCode(stmt->list->first, clazz, method);
+			while (assignStmt != nullptr) {
+				bytes = generateStatementCode(assignStmt, clazz, method);
 				result.insert(result.end(), bytes.begin(), bytes.end());
-				result.push_back((char)Command::areturn);
+				assignStmt = assignStmt->next;
 			}
-			else {
-				result.push_back((char)Command::_return);
-			}
-			break;
+		}
+		break;
+	case _RETURN:
+		if (stmt->list != nullptr) {
+			bytes = generateExpressionCode(stmt->list->first, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			result.push_back((char)Command::areturn);
+		}
+		else {
+			result.push_back((char)Command::_return);
+		}
+		break;
+	case _WHILE:
+		bytes = generateWhileStatementCode(stmt, clazz, method);
+		result.insert(result.end(), bytes.begin(), bytes.end());
+		break;
 	}
+
+	return result;
+}
+
+
+vector<char> generateStatementListCode(StmtsListNode* stmts, Class* clazz, Method* method) {
+	vector<char> result = {};
+
+	if (stmts != nullptr) {
+		StmtNode* stmt = stmts->first;
+		while (stmt != nullptr) {
+			result = generateStatementCode(stmt, clazz, method);
+			stmt = stmt->next;
+		}
+	}
+	
+	return result;
+}
+
+vector<char> generateWhileStatementCode(StmtNode* stmt, Class* clazz, Method* method) {
+	vector<char> result, bytes,test = {};
+	vector<char> code = generateStatementListCode(stmt->suite, clazz, method);
+
+	bytes = generateExpressionCode(stmt->expr->left, clazz, method);
+	test = bytes;
+	result.insert(result.end(), bytes.begin(), bytes.end());
+	result.push_back((char)Command::getfield);
+	bytes = intToBytes(stmt->boolFieldMethodRef, 2);
+	result.push_back(bytes[0]);
+	result.push_back(bytes[1]);
+	result.push_back((char)Command::ifeq);
+
+	int offset = code.size() + test.size() + 3;
+	offset = -offset;
+
+	if (offset < 0)
+		bytes = intToBytes(offset, 2);
+	else
+		bytes = intToBytes(offset + 3, 2);
+
+	//bytes = intToBytes(code.size() + 6, 2);
+
+	result.push_back(bytes[0]);
+	result.push_back(bytes[1]);
+	result.insert(result.end(), code.begin(), code.end());
+	bytes = intToBytes(-1 * result.size(), 2);
+	result.push_back((char)Command::goto_);
+	result.push_back(bytes[0]);
+	result.push_back(bytes[1]);
 
 	return result;
 }
@@ -388,6 +441,24 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
+		case _TRUE:
+		case _FALSE:
+			result.push_back((char)Command::_new);
+			bytes = intToBytes(expr->classNumber, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::dup);
+			if (expr->boolVal == 1) {
+				result.push_back((char)Command::iconst_1);
+			}
+			else {
+				result.push_back((char)Command::iconst_0);
+			}
+			result.push_back((char)Command::invokespecial);
+			bytes = intToBytes(expr->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
 		case _IDENTIFIER:
 			result.push_back((char)Command::aload);
 			bytes = intToBytes(expr->paramLocalVarNum, 1);
@@ -422,7 +493,7 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			bytes = generateExpressionCode(expr->right, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			result.push_back((char)Command::invokevirtual);
-			bytes = intToBytes(expr->id, 2);
+			bytes = intToBytes(expr->number, 2);
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
@@ -431,7 +502,7 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			bytes = generateExpressionCode(expr->right, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			result.push_back((char)Command::invokevirtual);
-			bytes = intToBytes(expr -> id, 2);
+			bytes = intToBytes(expr -> number, 2); //TODO ID חאלוםלעü םא number
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;

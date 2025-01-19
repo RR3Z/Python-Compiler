@@ -3,6 +3,8 @@
 enum Command {
 	_new = 0xBB,
 	
+	iconst_0 = 0x3,
+	iconst_1 = 0x4,
 	istore = 0x36,
 	astore = 0x3A,
 	aload = 0x19,
@@ -10,6 +12,12 @@ enum Command {
 	sipush = 0x11,
 
 	ldc_w = 0x13,
+
+	getfield = 0xB4,
+
+	ifeq = 0x99,
+
+	goto_ = 0xA7,
 
 	invokevirtual = 0xB6,
 	invokespecial = 0xB7,
