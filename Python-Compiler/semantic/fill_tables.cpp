@@ -161,7 +161,6 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 
 	// Аргументы метода
 	int paramsCounter = 0;
-	//method->localVars.push_back(clazz->name); // Внутри тела любой функции, первым аргументом должен идти this (ссылка на класс, внутри которого реализована функция), если она нестатическая
 	if (funcDef->args != nullptr) {
 		// Обычные аргументы (a,b,c,...)
 		ExprNode* arg = funcDef->args->exprList->first;
@@ -186,6 +185,7 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 		}
 		*/
 	}
+	method->paramsCount = paramsCounter;
 
 	method->suite = funcDef->suite;
 	fillMethodTable(clazz, method, method->suite);
@@ -453,9 +453,14 @@ void addRTLToClass(Class* clazz) {
 
 void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 	if (expr != nullptr && expr->exprType == _FUNCTION_CALL && expr->funcArgs != nullptr) {
+		// 1) Сравнение количества передаваемых аргументов с количеством требуемых
+		if (expr->argsCount != clazz->methods[expr->left->identifier]->paramsCount)
+			throw runtime_error("S: ERROR -> function \"" + expr->left->identifier + "\" takes " + to_string(clazz->methods[expr->left->identifier]->paramsCount) + 
+				" arguments but " + to_string(expr->argsCount) + " was given");
+
+		// 2) Проверка на существование передаваемых аргументов
 		ExprNode* arg = expr->funcArgs->exprList->first;
 		while (arg != nullptr) {
-			// Method local vars && Fields
 			if (find(method->localVars.begin(), method->localVars.end(), arg->identifier) == method->localVars.end() &&
 				clazz->fields.find(arg->identifier) == clazz->fields.end()) {
 				throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined in function call \"" + expr->left->identifier + "\"");

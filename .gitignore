@@ -39,3 +39,4 @@ Python-Compiler/python.output
 Python-Compiler/python.flex.cpp
 Python-Compiler/python.tab.cpp
 Python-Compiler/python.tab.h
+enc_temp_folder/

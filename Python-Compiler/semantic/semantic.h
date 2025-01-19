@@ -40,11 +40,9 @@ struct Method {
 	// Super класса Java (java/lang/Object)
 	int selfMethodRef = -1;
 
-	/*
-	Зачем нужны?
-	Егор: Я так понял, это ссылка на конструктор, если у нас метод вдруг окажется конструктором.
-	Егор: Несмотря на то, что дескриптор "()V", конструктор лишь инициализирует значения, а не возвращает объект или ссылку на объект.
-	*/
+	// Количество параметров (передаваемых в функцию)
+	int paramsCount = -1;
+
 	// Ссылка на super класс (в моем случае, __BASE__)
 	int baseClassNumber = -1;
 	// Ссылка на конструктор super класса
@@ -126,6 +124,8 @@ void transform(ClassElementsListNode* classElementsList);
 void transform(ClassElementNode* classElement);
 void transform(StmtsListNode* stmtsList);
 void transform(StmtNode* stmt);
+void transform(ExprListNode* exprList);
+void transform(ExprNode* expr);
 
 // Функции для определения модификатора доступа элементов внутри класса
 void defineAccessModifier(FuncNode* funcDef);
