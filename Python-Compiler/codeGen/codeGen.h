@@ -23,7 +23,8 @@ void generateFieldCode(Field* field, Class* clazz);
 vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method);
 vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Method* method);
 vector<char> generateWhileStatementCode(StmtNode* stmt, Class* clazz, Method* method);
-vector<char> generateStatementListCode(StmtsListNode* stmts, StmtNode* stmt, Class* clazz, Method* method);
+vector<char> generateStatementListCode(StmtsListNode* stmts, Class* clazz, Method* method);
+vector<char> generateIfStatementCode(StmtNode* stmt, Class* clazz, Method* method);
 
 vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method);
 

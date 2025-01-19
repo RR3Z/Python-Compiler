@@ -319,25 +319,80 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 			}
 		}
 		break;
-	case _RETURN:
-		if (stmt->list != nullptr) {
-			bytes = generateExpressionCode(stmt->list->first, clazz, method);
+		case _RETURN:
+			if (stmt->list != nullptr) {
+				bytes = generateExpressionCode(stmt->list->first, clazz, method);
+				result.insert(result.end(), bytes.begin(), bytes.end());
+				result.push_back((char)Command::areturn);
+			}
+			else {
+				result.push_back((char)Command::_return);
+			}
+			break;
+		case _WHILE:
+			bytes = generateWhileStatementCode(stmt, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
-			result.push_back((char)Command::areturn);
-		}
-		else {
-			result.push_back((char)Command::_return);
-		}
-		break;
-	case _WHILE:
-		bytes = generateWhileStatementCode(stmt, clazz, method);
-		result.insert(result.end(), bytes.begin(), bytes.end());
-		break;
+			break;
+		case _IF:
+			bytes = generateIfStatementCode(stmt, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			break;
 	}
 
 	return result;
 }
 
+vector<char> generateIfStatementCode(StmtNode* stmt, Class* clazz, Method* method) {
+	vector<char> result, bytes = {};
+
+	// TODO If mojet bit' bez ()
+	vector<char> condition = generateExpressionCode(stmt->expr->left, clazz, method);
+	vector<char> suite = generateStatementListCode(stmt->suite, clazz, method);
+	vector<char> elseSuite = {};
+
+	vector<vector<char>> elifConditions = {};
+	vector<vector<char>> elifSuites = {};
+	
+	elifConditions.push_back(condition);
+	elifSuites.push_back(suite);
+	
+	if (stmt->stmtsList != nullptr) {
+		StmtNode* stmtElif = stmt->stmtsList->first;
+		while (stmtElif != nullptr) {
+			elifConditions.push_back(generateExpressionCode(stmtElif->expr,clazz,method));
+			elifSuites.push_back(generateStatementListCode(stmtElif->suite, clazz, method));
+			stmtElif = stmtElif->next;
+		}
+	}
+
+	if (stmt->rightNode != nullptr) {
+		elseSuite = generateStatementCode(stmt->rightNode,clazz,method);
+	}
+
+	result.insert(result.begin(), elseSuite.begin(), elseSuite.end());
+
+	for (int i = elifConditions.size() - 1; i >= 0; --i) {
+		if (result.size() != 0) {
+			elifSuites[i].push_back((char)Command::goto_);
+			bytes = intToBytes(result.size() + 3,2);
+			elifSuites[i].push_back(bytes[0]);
+			elifSuites[i].push_back(bytes[1]);
+		}
+
+		elifConditions[i].push_back((char)Command::getfield);
+		bytes = intToBytes(stmt->boolFieldMethodRef, 2);
+		elifConditions[i].push_back(bytes[0]);
+		elifConditions[i].push_back(bytes[1]);
+		elifConditions[i].push_back((char)Command::ifeq);
+		bytes = intToBytes(elifSuites[i].size() + 3,2);
+		elifConditions[i].push_back(bytes[0]);
+		elifConditions[i].push_back(bytes[1]);
+		result.insert(result.begin(), elifSuites[i].begin(), elifSuites[i].end());
+		result.insert(result.begin(), elifConditions[i].begin(), elifConditions[i].end());
+	}
+
+	return result;
+}
 
 vector<char> generateStatementListCode(StmtsListNode* stmts, Class* clazz, Method* method) {
 	vector<char> result = {};
@@ -358,24 +413,13 @@ vector<char> generateWhileStatementCode(StmtNode* stmt, Class* clazz, Method* me
 	vector<char> code = generateStatementListCode(stmt->suite, clazz, method);
 
 	bytes = generateExpressionCode(stmt->expr->left, clazz, method);
-	test = bytes;
 	result.insert(result.end(), bytes.begin(), bytes.end());
 	result.push_back((char)Command::getfield);
 	bytes = intToBytes(stmt->boolFieldMethodRef, 2);
 	result.push_back(bytes[0]);
 	result.push_back(bytes[1]);
 	result.push_back((char)Command::ifeq);
-
-	int offset = code.size() + test.size() + 3;
-	offset = -offset;
-
-	if (offset < 0)
-		bytes = intToBytes(offset, 2);
-	else
-		bytes = intToBytes(offset + 3, 2);
-
-	//bytes = intToBytes(code.size() + 6, 2);
-
+	bytes = intToBytes(code.size() + 6, 2);
 	result.push_back(bytes[0]);
 	result.push_back(bytes[1]);
 	result.insert(result.end(), code.begin(), code.end());
@@ -577,7 +621,7 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			bytes = generateExpressionCode(expr->right, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			result.push_back((char)Command::invokevirtual);
-			bytes = intToBytes(expr -> number, 2); //TODO ID �������� �� number
+			bytes = intToBytes(expr -> number, 2); //TODO ID �������� ��ff number
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
