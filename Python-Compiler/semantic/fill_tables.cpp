@@ -240,7 +240,11 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 
 		case _IF:
 		case _ELIF:
-			fillMethodTable(clazz, method, stmt->expr); // condition
+			// condition
+			if (stmt->expr != nullptr) {
+				checkConditionForErrors(clazz, method, stmt->expr, "IF");
+				fillMethodTable(clazz, method, stmt->expr);
+			}
 			if (stmt->suite != nullptr) fillMethodTable(clazz, method, stmt->suite); // suite
 			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
 			break;
@@ -258,7 +262,11 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			// TODO
 			break;
 		case _WHILE:
-			fillMethodTable(clazz, method, stmt->expr); // condition
+			// condition
+			if (stmt->expr != nullptr) {
+				checkConditionForErrors(clazz, method, stmt->expr, "WHILE");
+				fillMethodTable(clazz, method, stmt->expr);
+			}
 			fillMethodTable(clazz, method, stmt->suite); // suite 
 
 			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
@@ -555,6 +563,37 @@ void checkMethodNameForErrors(FuncNode* funcDef) {
 		if (funcDef->identifier->identifier == "main") {
 			throw runtime_error("S: ERROR -> Changes to the signature of the \"main\" function!");
 		}
+	}
+}
+
+void checkConditionForErrors(Class* clazz, Method* method, ExprNode* condition, string stmtType) {
+	if (condition == nullptr) throw runtime_error("S: ERROR -> No condition for IF.");
+
+	ExprNode* cond = condition;
+	if (condition->exprType == _BRACKETS) cond = condition->left;
+
+	switch (condition->exprType)
+	{
+		case _IDENTIFIER:
+			if (!cond->identifier.empty() &&
+				find(method->localVars.begin(), method->localVars.end(), cond->identifier) == method->localVars.end() &&
+				clazz->fields.find(cond->identifier) == clazz->fields.end())
+			{
+				throw runtime_error("S: ERROR -> Unknown variable \"" + cond->identifier + "\" in " + stmtType + " condition");
+			}
+			break;
+		case _EQUAL:
+		case _GREAT_EQUAL:
+		case _GREAT:
+		case _LESS:
+		case _LESS_EQUAL:
+			if (cond->left != nullptr &&
+				find(method->localVars.begin(), method->localVars.end(), cond->left->identifier) == method->localVars.end() &&
+				clazz->fields.find(cond->left->identifier) == clazz->fields.end())
+			{
+				throw runtime_error("S: ERROR -> Unknown variable \"" + cond->left->identifier + "\" in " + stmtType + " condition");
+			}
+			break;
 	}
 }
 

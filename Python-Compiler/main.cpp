@@ -48,7 +48,9 @@ int main(int argc, const char* argv[])
 		system("javap -verbose __PROGRAM__.class");
 
 		cout << "\n\n========= __PROGRAM__ CALL =========" << endl;
-		system("java -cp . __PROGRAM__");
+		system("java -noverify -cp . __PROGRAM__");
+		//system("java -cp . __PROGRAM__");
+		cout << "\n\n" << endl;
 
 		// DOT GENERATION
 	/*

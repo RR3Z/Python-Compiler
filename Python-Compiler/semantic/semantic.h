@@ -171,6 +171,7 @@ void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr);
 bool checkRTLFunctionCallParams(ExprNode* expr);
 void isMethodExists(Class* clazz, Method* method, ExprNode* functionCall);
 bool isRTLMethodExists(Class* clazz, ExprNode* functionCall);
+void checkConditionForErrors(Class* clazz, Method* method, ExprNode* condition, string stmtType);
 
 // Функции для заполнения таблиц
 void fillTables(FileNode* program);
