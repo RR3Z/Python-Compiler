@@ -7,7 +7,7 @@ FILE* fileClass;
 /* ========= Генерация байт кода ========= */
 
 /*
-	��� ���������, ��� �� ����� ��. class file format � ������������ JVM ��� � ���������.
+	Документация JVM по содержимому файлов .class .
 	https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.1
 */
 void generate(FileNode* program, const map<string, Class*>& classesList) {
@@ -337,6 +337,12 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 			bytes = generateIfStatementCode(stmt, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			break;
+		case _COMPOUND_IF:
+			bytes = generateCompoundIfStatementCode(stmt, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			break;
+		case _ELSE:
+			break;
 	}
 
 	return result;
@@ -345,31 +351,16 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 vector<char> generateIfStatementCode(StmtNode* stmt, Class* clazz, Method* method) {
 	vector<char> result, bytes = {};
 
-	// TODO If mojet bit' bez ()
-	vector<char> condition = generateExpressionCode(stmt->expr->left, clazz, method);
-	vector<char> suite = generateStatementListCode(stmt->suite, clazz, method);
-	vector<char> elseSuite = {};
+	vector<char> condition, ifSuite = {};
+	vector<vector<char>> elifConditions, elifSuites = {};
 
-	vector<vector<char>> elifConditions = {};
-	vector<vector<char>> elifSuites = {};
+	if (stmt->expr->exprType == _BRACKETS) condition = generateExpressionCode(stmt->expr->left, clazz, method);
+	else condition = generateExpressionCode(stmt->expr, clazz, method);
+
+	ifSuite = generateStatementListCode(stmt->suite, clazz, method);
 	
 	elifConditions.push_back(condition);
-	elifSuites.push_back(suite);
-	
-	if (stmt->stmtsList != nullptr) {
-		StmtNode* stmtElif = stmt->stmtsList->first;
-		while (stmtElif != nullptr) {
-			elifConditions.push_back(generateExpressionCode(stmtElif->expr,clazz,method));
-			elifSuites.push_back(generateStatementListCode(stmtElif->suite, clazz, method));
-			stmtElif = stmtElif->next;
-		}
-	}
-
-	if (stmt->rightNode != nullptr) {
-		elseSuite = generateStatementCode(stmt->rightNode,clazz,method);
-	}
-
-	result.insert(result.begin(), elseSuite.begin(), elseSuite.end());
+	elifSuites.push_back(ifSuite);
 
 	for (int i = elifConditions.size() - 1; i >= 0; --i) {
 		if (result.size() != 0) {
@@ -385,6 +376,55 @@ vector<char> generateIfStatementCode(StmtNode* stmt, Class* clazz, Method* metho
 		elifConditions[i].push_back(bytes[1]);
 		elifConditions[i].push_back((char)Command::ifeq);
 		bytes = intToBytes(elifSuites[i].size() + 3,2);
+		elifConditions[i].push_back(bytes[0]);
+		elifConditions[i].push_back(bytes[1]);
+		result.insert(result.begin(), elifSuites[i].begin(), elifSuites[i].end());
+		result.insert(result.begin(), elifConditions[i].begin(), elifConditions[i].end());
+	}
+
+	return result;
+}
+
+vector<char> generateCompoundIfStatementCode(StmtNode* stmt, Class* clazz, Method* method) {
+	vector<char> result, bytes = {};
+
+	vector<char> condition, ifSuite, elseSuite = {};
+	vector<vector<char>> elifConditions, elifSuites = {};
+
+	if (stmt->leftNode->expr->exprType == _BRACKETS) condition = generateExpressionCode(stmt->leftNode->expr->left, clazz, method);
+	else condition = generateExpressionCode(stmt->leftNode->expr, clazz, method);
+
+	ifSuite = generateStatementListCode(stmt->leftNode->suite, clazz, method);
+
+	elifConditions.push_back(condition);
+	elifSuites.push_back(ifSuite);
+
+	if (stmt->stmtsList != nullptr) {
+		StmtNode* stmtElif = stmt->stmtsList->first;
+		while (stmtElif != nullptr) {
+			elifConditions.push_back(generateExpressionCode(stmtElif->expr, clazz, method));
+			elifSuites.push_back(generateStatementListCode(stmtElif->suite, clazz, method));
+			stmtElif = stmtElif->next;
+		}
+	}
+
+	if (stmt->rightNode != nullptr) elseSuite = generateStatementCode(stmt->rightNode, clazz, method);
+	result.insert(result.begin(), elseSuite.begin(), elseSuite.end());
+
+	for (int i = elifConditions.size() - 1; i >= 0; --i) {
+		if (result.size() != 0) {
+			elifSuites[i].push_back((char)Command::goto_);
+			bytes = intToBytes(result.size() + 3, 2);
+			elifSuites[i].push_back(bytes[0]);
+			elifSuites[i].push_back(bytes[1]);
+		}
+
+		elifConditions[i].push_back((char)Command::getfield);
+		bytes = intToBytes(stmt->boolFieldMethodRef, 2);
+		elifConditions[i].push_back(bytes[0]);
+		elifConditions[i].push_back(bytes[1]);
+		elifConditions[i].push_back((char)Command::ifeq);
+		bytes = intToBytes(elifSuites[i].size() + 3, 2);
 		elifConditions[i].push_back(bytes[0]);
 		elifConditions[i].push_back(bytes[1]);
 		result.insert(result.begin(), elifSuites[i].begin(), elifSuites[i].end());

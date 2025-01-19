@@ -8,7 +8,7 @@
 #include "./Command.h"
 using namespace std;
 
-/* ========= Функции генерации байт кода ========= */
+/* ========= Р¤СѓРЅРєС†РёРё РіРµРЅРµСЂР°С†РёРё Р±Р°Р№С‚ РєРѕРґР° ========= */
 
 void generate(FileNode* program, const map<string, Class*>& classesList);
 
@@ -25,15 +25,15 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 vector<char> generateWhileStatementCode(StmtNode* stmt, Class* clazz, Method* method);
 vector<char> generateStatementListCode(StmtsListNode* stmts, Class* clazz, Method* method);
 vector<char> generateIfStatementCode(StmtNode* stmt, Class* clazz, Method* method);
-
+vector<char> generateCompoundIfStatementCode(StmtNode* stmt, Class* clazz, Method* method);
 vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method);
 
-/* ========= Вспомогательные функции ========= */
+/* ========= Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ С„СѓРЅРєС†РёРё ========= */
 
-// Перевод в байтовое представление
+// РџРµСЂРµРІРѕРґ РІ Р±Р°Р№С‚РѕРІРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ
 vector <char> intToFourBytes(int value);
 vector <char> intToBytes(int value, int size);
 vector<char> floatToBytes(float value);
 
-// Для сортировки (по номерам)
+// Р”Р»СЏ СЃРѕСЂС‚РёСЂРѕРІРєРё (РїРѕ РЅРѕРјРµСЂР°Рј)
 bool compare(pair<Constant, int>& a, pair<Constant, int>& b);
