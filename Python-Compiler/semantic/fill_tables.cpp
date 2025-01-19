@@ -235,10 +235,23 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 				}
 			}
 			break;
+
 		case _IF:
+		case _ELIF:
+			fillMethodTable(clazz, method, stmt->expr); // condition
+			if (stmt->suite != nullptr) fillMethodTable(clazz, method, stmt->suite); // suite
+			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
+			break;
+		case _ELSE:
+			if (stmt->suite != nullptr) fillMethodTable(clazz, method, stmt->suite); // suite
 			break;
 		case _COMPOUND_IF:
+			fillMethodTable(clazz, method, stmt->leftNode);
+			if (stmt->rightNode != nullptr) fillMethodTable(clazz, method, stmt->rightNode);
+			if (stmt->stmtsList != nullptr) fillMethodTable(clazz, method, stmt->stmtsList);
+			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
 			break;
+
 		case _FOR:
 			break;
 		case _WHILE:
@@ -247,6 +260,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			fillMethodTable(clazz, method, stmt->suite);
 			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
 			break;
+
 		case _RETURN:
 			// TODO: множественное возвращение
 			if (stmt->list != nullptr) {
@@ -354,6 +368,9 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 		case _U_MINUS:
 			fillMethodTable(clazz, method, expr->right);
 			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__unary_minus__", "()L__BASE__;");
+			break;
+		case _BRACKETS:
+			fillMethodTable(clazz, method, expr->left);
 			break;
 		case _FUNCTION_CALL:
 			// Проверка на существование метода

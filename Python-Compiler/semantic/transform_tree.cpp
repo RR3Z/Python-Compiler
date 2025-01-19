@@ -165,11 +165,11 @@ void transform(ClassElementNode* classElement) {
 /* ========== STMTS ========== */
 void transform(StmtsListNode* stmtsList) {
 	if (stmtsList == nullptr) {
-		throw runtime_error("S: ERROR -> StmtsListNode is unavailable");
+		//throw runtime_error("S: ERROR -> StmtsListNode is unavailable");
 		return;
 	}
 	if (stmtsList->first == nullptr) {
-		throw runtime_error("S: ERROR -> StmtsListNode (id = " + to_string(stmtsList->id) + ") first element in list is unavailable");
+		//throw runtime_error("S: ERROR -> StmtsListNode (id = " + to_string(stmtsList->id) + ") first element in list is unavailable");
 		return;
 	}
 	
