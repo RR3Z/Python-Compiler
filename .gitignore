@@ -30,6 +30,9 @@
 *.out
 *.app
 
+# Logs
+*.log
+
 # Own ignores
 .vs/
 x64/
