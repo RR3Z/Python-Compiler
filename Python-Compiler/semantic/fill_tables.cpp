@@ -380,24 +380,7 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			}
 
 			// Определяем функцию (RTL или обычная)
-			if (expr->left->identifier == "print") {
-				if (expr->funcArgs != nullptr) {
-					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) {
-						throw runtime_error("S: ERROR -> Wrong amount of args in function call with name: " + expr->left->identifier);
-					}
-					expr->number = clazz->pushOrFindMethodRef("__BASE__", "print", "(L__BASE__;)V");
-				} else expr->number = clazz->pushOrFindMethodRef("__BASE__", "print", "()V");
-			}
-			else if (expr->left->identifier == "input") {
-				if (expr->funcArgs != nullptr) {
-					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) {
-						throw runtime_error("S: ERROR -> Wrong amount of args in function call with name: " + expr->left->identifier);
-					}
-					expr->number = clazz->pushOrFindMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
-				}
-				else expr->number = clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
-			}
-			else expr->number = clazz->pushOrFindMethodRef(clazz->name, expr->left->identifier, clazz->methods[expr->left->identifier]->descriptor);
+			expr->number = defineMethodRefByExprNode(clazz, method, expr);
 			
 			break;
 	}
@@ -546,4 +529,32 @@ int findElementIndexInVector(vector<string> vec, string element) {
 	}
 
 	return -1;
+}
+
+int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr) {
+	switch (expr->exprType)
+	{
+		case _FUNCTION_CALL:
+			if (expr->left->identifier == "print") {
+				if (expr->funcArgs != nullptr) {
+					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) {
+						throw runtime_error("S: ERROR -> Wrong amount of args in function call with name: " + expr->left->identifier);
+					}
+					return clazz->pushOrFindMethodRef("__BASE__", "print", "(L__BASE__;)V");
+				}
+				else return clazz->pushOrFindMethodRef("__BASE__", "print", "()V");
+			}
+			else if (expr->left->identifier == "input") {
+				if (expr->funcArgs != nullptr) {
+					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) {
+						throw runtime_error("S: ERROR -> Wrong amount of args in function call with name: " + expr->left->identifier);
+					}
+					return clazz->pushOrFindMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
+				}
+				else return clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
+			}
+			else return clazz->pushOrFindMethodRef(clazz->name, expr->left->identifier, clazz->methods[expr->left->identifier]->descriptor);
+	}
+
+	throw runtime_error("UNSUPPORTED TYPE");
 }

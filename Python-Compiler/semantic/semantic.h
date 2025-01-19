@@ -155,3 +155,4 @@ void addRTLToClass(Class* clazz);
 string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor);
 string defineMethodReturnType(Method* method);
 int findElementIndexInVector(vector<string> vec, string element);
+int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr);
