@@ -41,6 +41,7 @@ int main(int argc, const char* argv[])
 		cout << "\n\n========= CODE GENERATION =========" << endl;
 		cout << "Compiling __BASE__.java file..." << endl;
 		system("javac __BASE__.java");
+		cout << "Completed!" << endl;
 
 		cout << "\n\n========= __PROGRAM__ FILE CONTENT =========" << endl;
 		generate(fileRoot, classesList);
