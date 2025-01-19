@@ -47,12 +47,6 @@ void fillTables(FileNode* program) {
 					fillMethodTable(entryClass, programElement->funcDef);
 					break;
 				case _STMT:
-					/*
-						� Python ��� ����� ����� ����� � ���������. � ����� ������, � ��� ��� ����������� ������ ����.
-						��� ������, ��� ���� � ��� ����������� ���-�� � ���������� ������� ��������� ����� funcDef, classDef 
-						� assignStmt(������ � ���� ������) ���� ����� � main �����.
-					*/
-
 					if (programElement->stmt->stmtType == _COMPOUND_ASSIGN && programElement->stmt->stmtsList != nullptr) {
 						fillFieldTable(entryClass, programElement->stmt->stmtsList);
 					}
@@ -93,7 +87,7 @@ void fillTables(ClassNode* classDef) {
 	// Добавление RTL в класс
 	addRTLToClass(newClass);
 
-	// Родительский класс (одиночное наследование)
+	// Родительский класс
 	if (classDef->base != nullptr) {
 		if (classesList.find(classDef->base->stringVal) != classesList.end()) {
 			newClass->parent = classesList[classDef->base->stringVal];
@@ -447,24 +441,23 @@ void addRTLToClass(Class* clazz) {
 
 void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 	if (expr != nullptr && expr->exprType == _FUNCTION_CALL && expr->funcArgs != nullptr) {
-		// 1) Сравнение количества передаваемых аргументов с количеством требуемых
+		// 1) Проверка на существование передаваемых аргументов
+		ExprNode* arg = expr->funcArgs->exprList->first;
+		while (arg != nullptr) {
+			if (find(method->localVars.begin(), method->localVars.end(), arg->identifier) == method->localVars.end() && clazz->fields.find(arg->identifier) == clazz->fields.end() && arg->exprType == _IDENTIFIER) {
+				throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\".");
+			}
+
+			arg = arg->next;
+		}
+
+		// 2) Сравнение количества передаваемых аргументов с количеством требуемых
 		// Для RTL функций
 		if (checkRTLFunctionCallParams(expr)) return;
 		// Для собственной функции
 		if (clazz->methods.find(expr->left->identifier) != clazz->methods.end() && expr->argsCount != clazz->methods[expr->left->identifier]->paramsCount) {
 			throw runtime_error("S: ERROR -> function \"" + expr->left->identifier + "\" takes " + to_string(clazz->methods[expr->left->identifier]->paramsCount) +
 				" arguments but " + to_string(expr->argsCount) + " was given");
-		}
-			
-		// 2) Проверка на существование передаваемых аргументов
-		ExprNode* arg = expr->funcArgs->exprList->first;
-		while (arg != nullptr) {
-			if (find(method->localVars.begin(), method->localVars.end(), arg->identifier) == method->localVars.end() &&
-				clazz->fields.find(arg->identifier) == clazz->fields.end()) {
-				throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\"");
-			}
-
-			arg = arg->next;
 		}
 	}
 }
