@@ -170,9 +170,6 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 	}
 	method->paramsCount = paramsCounter;
 
-	method->suite = funcDef->suite;
-	fillMethodTable(clazz, method, method->suite);
-
 	// Составление дескриптора
 	string methodReturnType = defineMethodReturnType(method);
 	string methodDescriptor = generateMethodDescriptor(paramsCounter, methodReturnType);
@@ -181,10 +178,15 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 
 	method->number = clazz->pushOrFindMethodRef(clazz->name, method->name, methodDescriptor);
 	funcDef->idSemantic = method->number;
+
 	// Ссылки на super класс __BASE__
 	method->baseClassNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 	method->baseConstructorNumber = clazz->pushOrFindMethodRef("__BASE__", "<init>", "()V");
 	clazz->methods[method->name] = method;
+
+	// Генерация таблиц для тела функции
+	method->suite = funcDef->suite;
+	fillMethodTable(clazz, method, method->suite);
 }
 
 void fillMethodTable(Class* clazz, Method* method, StmtsListNode* stmts) {
@@ -213,17 +215,17 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
 				}
 
-				// Если переменная не является полем класса, добавляем ее в качестве локальной переменной и загружаем ее имя в constant pool класса
+				// Если переменная не является полем класса, добавляем ее в качестве локальной переменной текущей функции
 				if (clazz->fields.find(stmt->leftExpr->identifier) == clazz->fields.end()) {
 					method->localVars.push_back(stmt->leftExpr->identifier);
 					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
-					fillMethodTable(clazz, method, stmt->leftExpr);
 				}
 				else {
 					stmt->number = clazz->fields[stmt->leftExpr->identifier]->number;
 				}
 			}
 
+			fillMethodTable(clazz, method, stmt->leftExpr);
 			fillMethodTable(clazz, method, stmt->rightExpr);
 			break;
 		case _COMPOUND_ASSIGN:
@@ -238,7 +240,11 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 
 		case _IF:
 		case _ELIF:
-			fillMethodTable(clazz, method, stmt->expr); // condition
+			// condition
+			if (stmt->expr != nullptr) {
+				checkConditionForErrors(clazz, method, stmt->expr, "IF");
+				fillMethodTable(clazz, method, stmt->expr);
+			}
 			if (stmt->suite != nullptr) fillMethodTable(clazz, method, stmt->suite); // suite
 			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
 			break;
@@ -253,11 +259,18 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			break;
 
 		case _FOR:
+			// TODO
 			break;
 		case _WHILE:
 			// condition
-			fillMethodTable(clazz, method, stmt->expr->left);
-			fillMethodTable(clazz, method, stmt->suite);
+			if (stmt->expr != nullptr) {
+				checkConditionForErrors(clazz, method, stmt->expr, "WHILE");
+				fillMethodTable(clazz, method, stmt->expr);
+			}
+
+			// suite
+			if (stmt->suite != nullptr) fillMethodTable(clazz, method, stmt->suite);
+
 			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
 			break;
 
@@ -374,7 +387,7 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			break;
 		case _FUNCTION_CALL:
 			// Проверка на существование метода
-			isMethodExists(clazz, expr);
+			isMethodExists(clazz, method, expr);
 			
 			if (expr->funcArgs != nullptr) {
 				checkFunctionCallParams(clazz, method, expr);
@@ -519,10 +532,10 @@ bool checkRTLFunctionCallParams(ExprNode* expr) {
 	return false;
 }
 
-void isMethodExists(Class* clazz, ExprNode* functionCall) {
+void isMethodExists(Class* clazz, Method* method, ExprNode* functionCall) {
 	if (functionCall != nullptr && functionCall->exprType == _FUNCTION_CALL) {
 		if (clazz->methods.find(functionCall->left->identifier) == clazz->methods.end()) {
-			if (isRTLMethodExists(clazz, functionCall)) return;
+			if (isRTLMethodExists(clazz, functionCall) || method->name == functionCall->left->identifier) return;
 			throw runtime_error("S: ERROR -> trying call unknown function \"" + functionCall->left->identifier + "\"");
 		}
 	}
@@ -574,6 +587,37 @@ void checkMethodNameForErrors(FuncNode* funcDef) {
 		if (funcDef->identifier->identifier == "main") {
 			throw runtime_error("S: ERROR -> Changes to the signature of the \"main\" function!");
 		}
+	}
+}
+
+void checkConditionForErrors(Class* clazz, Method* method, ExprNode* condition, string stmtType) {
+	if (condition == nullptr) throw runtime_error("S: ERROR -> No condition for IF.");
+
+	ExprNode* cond = condition;
+	if (condition->exprType == _BRACKETS) cond = condition->left;
+
+	switch (condition->exprType)
+	{
+		case _IDENTIFIER:
+			if (!cond->identifier.empty() &&
+				find(method->localVars.begin(), method->localVars.end(), cond->identifier) == method->localVars.end() &&
+				clazz->fields.find(cond->identifier) == clazz->fields.end())
+			{
+				throw runtime_error("S: ERROR -> Unknown variable \"" + cond->identifier + "\" in " + stmtType + " condition");
+			}
+			break;
+		case _EQUAL:
+		case _GREAT_EQUAL:
+		case _GREAT:
+		case _LESS:
+		case _LESS_EQUAL:
+			if (cond->left != nullptr &&
+				find(method->localVars.begin(), method->localVars.end(), cond->left->identifier) == method->localVars.end() &&
+				clazz->fields.find(cond->left->identifier) == clazz->fields.end())
+			{
+				throw runtime_error("S: ERROR -> Unknown variable \"" + cond->left->identifier + "\" in " + stmtType + " condition");
+			}
+			break;
 	}
 }
 
@@ -630,18 +674,14 @@ int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr) {
 		case _FUNCTION_CALL:
 			if (expr->left->identifier == "print") {
 				if (expr->funcArgs != nullptr) {
-					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) {
-						throw runtime_error("S: ERROR -> Wrong amount of args in function call with name: " + expr->left->identifier);
-					}
+					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) throw runtime_error("S: ERROR -> Wrong amount of args in function call with name: " + expr->left->identifier);
 					return clazz->pushOrFindMethodRef("__BASE__", "print", "(L__BASE__;)V");
 				}
 				else return clazz->pushOrFindMethodRef("__BASE__", "print", "()V");
 			}
 			else if (expr->left->identifier == "input") {
 				if (expr->funcArgs != nullptr) {
-					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) {
-						throw runtime_error("S: ERROR -> Wrong amount of args in function call with name: " + expr->left->identifier);
-					}
+					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) throw runtime_error("S: ERROR -> Wrong amount of args in function call with name: " + expr->left->identifier);
 					return clazz->pushOrFindMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
 				}
 				else return clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");

@@ -311,11 +311,10 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 		case _COMPOUND_ASSIGN:
 			if (stmt->stmtsList != nullptr) {
 				StmtNode* assignStmt = stmt->stmtsList->first;
-
-			while (assignStmt != nullptr) {
-				bytes = generateStatementCode(assignStmt, clazz, method);
-				result.insert(result.end(), bytes.begin(), bytes.end());
-				assignStmt = assignStmt->next;
+				while (assignStmt != nullptr) {
+					bytes = generateStatementCode(assignStmt, clazz, method);
+					result.insert(result.end(), bytes.begin(), bytes.end());
+					assignStmt = assignStmt->next;
 			}
 		}
 		break;
@@ -354,6 +353,7 @@ vector<char> generateIfStatementCode(StmtNode* stmt, Class* clazz, Method* metho
 	// condition
 	if (stmt->expr->exprType == _BRACKETS) condition = generateExpressionCode(stmt->expr->left, clazz, method);
 	else condition = generateExpressionCode(stmt->expr, clazz, method);
+
 	//suite
 	ifSuite = generateStatementListCode(stmt->suite, clazz, method);
 
@@ -424,12 +424,13 @@ vector<char> generateCompoundIfStatementCode(StmtNode* stmt, Class* clazz, Metho
 }
 
 vector<char> generateStatementListCode(StmtsListNode* stmts, Class* clazz, Method* method) {
-	vector<char> result = {};
+	vector<char> result, bytes = {};
 
 	if (stmts != nullptr) {
 		StmtNode* stmt = stmts->first;
 		while (stmt != nullptr) {
-			result = generateStatementCode(stmt, clazz, method);
+			bytes = generateStatementCode(stmt, clazz, method);
+			result.insert(result.end(),bytes.begin(), bytes.end());
 			stmt = stmt->next;
 		}
 	}
@@ -438,20 +439,28 @@ vector<char> generateStatementListCode(StmtsListNode* stmts, Class* clazz, Metho
 }
 
 vector<char> generateWhileStatementCode(StmtNode* stmt, Class* clazz, Method* method) {
-	vector<char> result, bytes,test = {};
-	vector<char> code = generateStatementListCode(stmt->suite, clazz, method);
+	vector<char> result, bytes, code = {};
 
-	bytes = generateExpressionCode(stmt->expr->left, clazz, method);
+	// condition
+	if (stmt->expr->exprType == _BRACKETS) bytes = generateExpressionCode(stmt->expr->left, clazz, method);
+	else bytes = generateExpressionCode(stmt->expr, clazz, method);
 	result.insert(result.end(), bytes.begin(), bytes.end());
+
+	code = generateStatementListCode(stmt->suite, clazz, method);
+
 	result.push_back((char)Command::getfield);
 	bytes = intToBytes(stmt->boolFieldMethodRef, 2);
 	result.push_back(bytes[0]);
 	result.push_back(bytes[1]);
+
 	result.push_back((char)Command::ifeq);
 	bytes = intToBytes(code.size() + 6, 2);
 	result.push_back(bytes[0]);
 	result.push_back(bytes[1]);
+
+	// suite
 	result.insert(result.end(), code.begin(), code.end());
+
 	bytes = intToBytes(-1 * result.size(), 2);
 	result.push_back((char)Command::goto_);
 	result.push_back(bytes[0]);
