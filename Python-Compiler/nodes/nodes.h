@@ -127,6 +127,9 @@ struct StmtNode {
 
 	// Для семантики
 	int boolFieldMethodRef = -1;
+
+	// SEMANTIC
+	int number = -1;
 };
 
 /* ========== STATEMENTS LIST ========== */

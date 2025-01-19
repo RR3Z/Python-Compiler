@@ -33,7 +33,7 @@ int main(int argc, const char* argv[])
 	
 	// SEMANTIC
 	transformTree(fileRoot);
-	fillTable(fileRoot);
+	fillTables(fileRoot);
 
 	// CODE GENERATION
 	cout << "\n\n========= CODE GENERATION =========" << endl;

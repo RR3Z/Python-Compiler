@@ -3,40 +3,45 @@
 #include <iostream>
 using namespace std;
 
-// Самая верхоуровневая таблица классов
 std::map<std::string, Class*> classesList;
 
-// Заполнение таблиц (стартовая функция)
-void fillTable(FileNode* program) {
-	// Создание класса, как точки входа в программу
+// ========= пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ =========
+
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
+void fillTables(FileNode* program) {
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	Class* entryClass = new Class();
 	entryClass->name = "__PROGRAM__";
-	// Добавление класса в глобальную таблицу
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	classesList[entryClass->name] = entryClass;
 
-	// Добавление констант класса
-	entryClass->pushOrFindConstant(*Constant::UTF8("Code")); // По идее добавляется, так как у нас будет конструктор по умолчанию
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	entryClass->pushOrFindConstant(*Constant::UTF8("Code")); // пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	entryClass->number = entryClass->pushOrFindConstant(*Constant::Class(entryClass->pushOrFindConstant(*Constant::UTF8(entryClass->name))));
 
-	// Добавление родительского класса
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ RTL пїЅ пїЅпїЅпїЅпїЅпїЅ
+	addRTLToClass(entryClass);
+
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	int parentClassName = entryClass->pushOrFindConstant(*Constant::UTF8("java/lang/Object"));
 	entryClass->parentNumber = entryClass->pushOrFindConstant(*Constant::Class(parentClassName));
 
-	// Создание функции, как точки входа в программу
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	Method* mainMethod = new Method();
 	mainMethod->name = "main";
-	// Добавление констант метода
+	mainMethod->descriptor = "([Ljava/lang/String;)V";
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	mainMethod->nameNumber = entryClass->pushOrFindConstant(*Constant::UTF8(mainMethod->name));
 	mainMethod->descriptorNumber = entryClass->pushOrFindConstant(*Constant::UTF8("([Ljava/lang/String;)V"));
 	mainMethod->number = entryClass->pushOrFindMethodRef(entryClass->name, mainMethod->name, "([Ljava/lang/String;)V");
-	// Добавление локальной переменной (в собственную таблицу локальных переменных)
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 	mainMethod->localVars.push_back("args");
-	// Тело метода (изначально пустое)
+	// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
 	mainMethod->suite = nullptr;
-	// Добавление main в таблицу методов entryClass
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ main пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ entryClass
 	entryClass->methods[mainMethod->name] = mainMethod;
 
-	// Разбор кода программы
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	if (program != nullptr && program->elementsList != nullptr) {
 		FileElementNode* programElement = program->elementsList->first;
 
@@ -47,47 +52,59 @@ void fillTable(FileNode* program) {
 					//fillTable(programElement->classDef);
 					break;
 				case _FUNC_DEF:
-					fillTable(entryClass, programElement->funcDef);
+					fillMethodTable(entryClass, programElement->funcDef);
 					break;
 				case _STMT:
 					/*
-					В Python нет явной точки входа в программу. В таком случае, у нас код выполняется сверху вниз.
-					Это значит, что если у нас встречается что-то в глобальной области видимости кроме funcDef и classDef идет сразу в main метод.
+						пїЅ Python пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ.
+						пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ-пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ funcDef, classDef 
+						пїЅ assignStmt(пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ) пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ main пїЅпїЅпїЅпїЅпїЅ.
 					*/
+
+					// пїЅпїЅпїЅпїЅ Assign Stmt, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+					if (programElement->stmt->stmtType == _COMPOUND_ASSIGN && programElement->stmt->stmtsList != nullptr) {
+						fillFieldTable(entryClass, programElement->stmt->stmtsList);
+					}
+
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ main пїЅпїЅпїЅпїЅпїЅпїЅ
 					if (mainMethod->suite == nullptr) mainMethod->suite = new StmtsListNode();
 
 					if (mainMethod->suite->first != nullptr) {
-						mainMethod->suite->last = programElement->stmt; 
-						mainMethod->suite->first->next = programElement->stmt;
+						mainMethod->suite->last->next = programElement->stmt;
+						mainMethod->suite->last = programElement->stmt;
 					}
-					else { 
-						mainMethod->suite->first = programElement->stmt; 
-						mainMethod->suite->last = programElement->stmt; 
+					else {
+						mainMethod->suite->first = programElement->stmt;
+						mainMethod->suite->last = programElement->stmt;
 					}
 
-					fillTable(entryClass, mainMethod, programElement->stmt);
-
+					fillMethodTable(entryClass, mainMethod, programElement->stmt);
+					
 					break;
 			}
 
-			// Переходим к следующему элементу
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			programElement = programElement->next;
 		}
 	}
 }
 
-// TODO: классы
-void fillTable(ClassNode* classDef) {
-	// Создание нового класса
+// TODO: пїЅпїЅпїЅпїЅпїЅпїЅ
+void fillTables(ClassNode* classDef) {
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	Class* newClass = new Class();
-	// Добавление класса в глобальную таблицу
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	newClass->name = classDef->identifier->stringVal;
 	classesList[newClass->name] = newClass;
-	// Добавление констант в класс
-	newClass->pushOrFindConstant(*Constant::UTF8("Code"));
-	newClass->pushOrFindConstant(*Constant::Class(newClass->pushOrFindConstant(*Constant::UTF8(newClass->name))));
 
-	// Родительский класс (одиночное наследование)
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
+	newClass->pushOrFindConstant(*Constant::UTF8("Code"));
+	newClass->number = newClass->pushOrFindConstant(*Constant::Class(newClass->pushOrFindConstant(*Constant::UTF8(newClass->name))));
+
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ RTL пїЅ пїЅпїЅпїЅпїЅпїЅ
+	addRTLToClass(newClass);
+
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 	if (classDef->base != nullptr) {
 		if (classesList.find(classDef->base->stringVal) != classesList.end()) {
 			newClass->parent = classesList[classDef->base->stringVal];
@@ -97,20 +114,16 @@ void fillTable(ClassNode* classDef) {
 		}
 	}
 
-	// По идее не может быть пустым (всегда отлавливается на уровне парсера)
+	// пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 	if (classDef->suite != nullptr && classDef->suite->first != nullptr) {
 		ClassElementNode* classElement = classDef->suite->first;
 		while (classElement != nullptr) {
 			switch (classElement->elementType)
 			{
 				case _FUNCTION_DEF:
-					fillTable(newClass, classElement->funcDef);
+					//fillMethodTable(newClass, classElement->funcDef);
 					break;
 				case _STMT_NODE:
-					// TODO: если это явное присвоение значения -> добавляем в таблицу полей
-					//if (classElement->stmt->stmtType == _ASSIGN || classElement->stmt->stmtType == _COMPOUND_ASSIGN) fillFieldTable(newClass, classElement->stmt);
-					//		 если же какой-то код рандомный (цикл for или что бы то ни было) -> идет в main функцию
-					//else fillTable(classesList.find("__PROGRAM__")->second, classesList.find("__PROGRAM__")->second->methods.find("main")->second, classElement->stmt);
 					break;
 			}
 
@@ -118,16 +131,20 @@ void fillTable(ClassNode* classDef) {
 		}
 	}
 
-	// TODO: Конструктор по умолчанию (от java/lang/Object)
+	// TODO: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ java/lang/Object)
 	//newClass->pushOrFindConstant(*Constant::UTF8("<init>"));
 }
 
-// TODO: именованные аргументы + дескриптор
-void fillTable(Class* clazz, FuncNode* funcDef) {
+// ========= пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ =========
+
+// TODO: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ + пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+void fillMethodTable(Class* clazz, FuncNode* funcDef) {
+	checkMethodForErrors(funcDef);
+
 	Method* method = new Method();
 	method->name = funcDef->identifier->identifier;
 	method->nameNumber = clazz->pushOrFindConstant(*Constant::UTF8(method->name));
-	// Модификатор доступа - AccessModifier -> AccessFlag
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ - AccessModifier -> AccessFlag
 	switch (funcDef->accessModifier)
 	{
 		case _PRIVATE:
@@ -136,35 +153,34 @@ void fillTable(Class* clazz, FuncNode* funcDef) {
 		case _PROTECTED:
 			method->accessModifier = PROTECTED;
 			break;
-		case _UNKNOWN: // Если нет модификатора доступа, то по дефолту public.
+		case _UNKNOWN: // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ public.
 		case _PUBLIC:
 			method->accessModifier = PUBLIC;
 			break;
 	}
 
-	// Аргументы метода
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	int paramsCounter = 0;
+	//method->localVars.push_back(clazz->name); // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ this (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ), пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	if (funcDef->args != nullptr) {
-		// Обычные аргументы (a,b,c,...)
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (a,b,c,...)
 		ExprNode* arg = funcDef->args->exprList->first;
 		while (arg != nullptr) {
 			paramsCounter++;
-
 			method->localVars.push_back(arg->identifier);
-			arg->paramLocalVarNum = method->localVars.size() - 1;
 
 			arg = arg->next;
 		}
 
-		// TODO: Именованные аргументы (d=1,e=2,...)
+		// TODO: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (d=1,e=2,...)
 		/*
 		FuncArgNode* namedArg = funcDef->args->namedArgsList->first;
 		while (namedArg != nullptr) {
 			paramsCounter++;
 
-			//TODO: записать значения и константы в таблицы
+			//TODO: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			method->localVars.push_back(namedArg->assignStmt->leftExpr->identifier);
-			// TODO: записать в expr node индекс аругмента в методе ???
+			// TODO: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ expr node пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ???
 
 			namedArg = namedArg->next;
 		}
@@ -172,46 +188,66 @@ void fillTable(Class* clazz, FuncNode* funcDef) {
 	}
 
 	method->suite = funcDef->suite;
-	fillTable(clazz, method, method->suite);
+	fillMethodTable(clazz, method, method->suite);
 
-	// Составление дескриптора
-	//string methodReturnType = defineMethodReturnType(funcDef);
-	string methodDescriptor = generateMethodDescriptor(paramsCounter, "L__BASE__"); // TODO: параметры не всегда должны быть только __BASE__
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	string methodReturnType = defineMethodReturnType(method);
+	string methodDescriptor = generateMethodDescriptor(paramsCounter, methodReturnType);
+	method->descriptor = methodDescriptor;
 	method->descriptorNumber = clazz->pushOrFindConstant(*Constant::UTF8(methodDescriptor));
 
 	method->number = clazz->pushOrFindMethodRef(clazz->name, method->name, methodDescriptor);
 	funcDef->idSemantic = method->number;
-	// Ссылки на super класс __BASE__
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ super пїЅпїЅпїЅпїЅпїЅ __BASE__
 	method->baseClassNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 	method->baseConstructorNumber = clazz->pushOrFindMethodRef("__BASE__", "<init>", "()V");
 	clazz->methods[method->name] = method;
 }
 
-void fillTable(Class* clazz, Method* method, StmtsListNode* stmts) {
+void fillMethodTable(Class* clazz, Method* method, StmtsListNode* stmts) {
 	if (stmts != nullptr) {
 		StmtNode* stmt = stmts->first;
 		while (stmt != nullptr) {
-			fillTable(clazz, method, stmt);
+			fillMethodTable(clazz, method, stmt);
+
+			if (stmt->stmtType == StmtType::_RETURN) {
+				stmt->next = nullptr;
+				if(method->suite == stmts) method->suite->last = stmt;
+			}
+			
 			stmt = stmt->next;
 		}
 	}
 }
 
 // TODO
-void fillTable(Class* clazz, Method* method, StmtNode* stmt) {
+void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 	switch (stmt->stmtType)
 	{
 		case _ASSIGN:
-			if (!stmt->leftExpr->identifier.empty()) method->localVars.push_back(stmt->leftExpr->identifier);
+			if (!stmt->leftExpr->identifier.empty()) {
+				if (find(method->localVars.begin(), method->localVars.end(), stmt->leftExpr->identifier) != method->localVars.end()) {
+					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
+				}
 
-			fillTable(clazz, method, stmt->leftExpr);
-			fillTable(clazz, method, stmt->rightExpr);
+				// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ пїЅ constant pool пїЅпїЅпїЅпїЅпїЅпїЅ
+				if (clazz->fields.find(stmt->leftExpr->identifier) == clazz->fields.end()) {
+					method->localVars.push_back(stmt->leftExpr->identifier);
+					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
+					fillMethodTable(clazz, method, stmt->leftExpr);
+				}
+				else {
+					stmt->number = clazz->fields[stmt->leftExpr->identifier]->number;
+				}
+			}
+
+			fillMethodTable(clazz, method, stmt->rightExpr);
 			break;
 		case _COMPOUND_ASSIGN:
 			if (stmt->stmtsList != nullptr) {
 				StmtNode* assignStmt = stmt->stmtsList->first;
 				while (assignStmt != nullptr) {
-					fillTable(clazz, method, assignStmt);
+					fillMethodTable(clazz, method, assignStmt);
 					assignStmt = assignStmt->next;
 				}
 			}
@@ -229,19 +265,16 @@ void fillTable(Class* clazz, Method* method, StmtNode* stmt) {
 			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
 			break;
 		case _RETURN:
-			// TODO: множественное возвращение
+			// TODO: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			if (stmt->list != nullptr) {
 				ExprNode* expr = stmt->list->first;
-				//while (expr != nullptr) {
-				//	fillTable(clazz, method, expr);
-				//	expr = expr->next;
-				//}
+
 				checkReturnValue(clazz, method, expr);
-				fillTable(clazz, method, expr);
+				fillMethodTable(clazz, method, expr);
 			}
 			break;
 		case _EXPR_STMT:
-			fillTable(clazz, method, stmt->expr);
+			fillMethodTable(clazz, method, stmt->expr);
 			break;
 		case _EXPR_LIST_STMT:
 			break;
@@ -249,7 +282,7 @@ void fillTable(Class* clazz, Method* method, StmtNode* stmt) {
 }
 
 // TODO
-void fillTable(Class* clazz, Method* method, ExprNode* expr) {
+void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 	switch (expr->exprType)
 	{
 		case _INT_CONST:
@@ -277,79 +310,171 @@ void fillTable(Class* clazz, Method* method, ExprNode* expr) {
 			expr->valueNumber = clazz->pushOrFindConstant(*Constant::String(clazz->pushOrFindConstant(*Constant::UTF8(expr->identifier))));
 			expr->classNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 			expr->number = clazz->pushOrFindMethodRef("__BASE__", "<init>", "(Ljava/lang/String;)V");
-			expr->paramLocalVarNum = method->localVars.size() - 1;
+			expr->paramLocalVarNum = findElementIndexInVector(method->localVars, expr->identifier);
 			break;
-		case _PLUS: //TODO ID заменить на number
-			fillTable(clazz, method, expr->left);
-			fillTable(clazz, method, expr->right);
-			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__add__", "(L__BASE__;)L__BASE__;");
+		case _PLUS:
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__add__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _MINUS:
-			fillTable(clazz, method, expr->left);
-			fillTable(clazz, method, expr->right);
-			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__sub__", "(L__BASE__;)L__BASE__;");
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__sub__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _MUL:
-			fillTable(clazz, method, expr->left);
-			fillTable(clazz, method, expr->right);
-			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__mul__", "(L__BASE__;)L__BASE__;");
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__mul__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _DIV:
-			fillTable(clazz, method, expr->left);
-			fillTable(clazz, method, expr->right);
-			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__div__", "(L__BASE__;)L__BASE__;");
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__div__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _EQUAL:
-			fillTable(clazz, method, expr->left);
-			fillTable(clazz, method, expr->right);
-			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__eql__", "(L__BASE__;)L__BASE__;");
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__eql__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _NOT_EQUAL:
-			fillTable(clazz, method, expr->left);
-			fillTable(clazz, method, expr->right);
-			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__not_eql__", "(L__BASE__;)L__BASE__;");
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__not_eql__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _LESS:
-			fillTable(clazz, method, expr->left);
-			fillTable(clazz, method, expr->right);
-			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__les__", "(L__BASE__;)L__BASE__;");
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__les__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _LESS_EQUAL:
-			fillTable(clazz, method, expr->left);
-			fillTable(clazz, method, expr->right);
-			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__les_or_eql__", "(L__BASE__;)L__BASE__;");
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__les_or_eql__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _GREAT:
-			fillTable(clazz, method, expr->left);
-			fillTable(clazz, method, expr->right);
-			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__greater__", "(L__BASE__;)L__BASE__;");
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__greater__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _GREAT_EQUAL:
-			fillTable(clazz, method, expr->left);
-			fillTable(clazz, method, expr->right);
-			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__greater_or_eql__", "(L__BASE__;)L__BASE__;");
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__greater_or_eql__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _U_PLUS:
-			fillTable(clazz, method, expr->right);
-			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__unary_plus__", "()L__BASE__;");
+			fillMethodTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__unary_plus__", "()L__BASE__;");
 			break;
 		case _U_MINUS:
-			fillTable(clazz, method, expr->right);
-			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__unary_minus__", "()L__BASE__;");
+			fillMethodTable(clazz, method, expr->right);
+			expr->id = clazz->pushOrFindMethodRef("__BASE__", "__unary_minus__", "()L__BASE__;");
+			break;
+		case _FUNCTION_CALL:
+			if (expr->funcArgs != nullptr) {
+				ExprNode* arg = expr->funcArgs->exprList->first;
+				while (arg != nullptr) {
+					fillMethodTable(clazz, method, arg);
+					arg = arg->next;
+				}
+			}
+
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (RTL пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
+			if (expr->left->identifier == "print") {
+				if (expr->funcArgs != nullptr) {
+					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) {
+						throw runtime_error("S: ERROR -> Wrong amount of args in function call with name: " + expr->left->identifier);
+					}
+					expr->number = clazz->pushOrFindMethodRef("__BASE__", "print", "(L__BASE__;)V");
+				} else expr->number = clazz->pushOrFindMethodRef("__BASE__", "print", "()V");
+			}
+			else if (expr->left->identifier == "input") {
+				if (expr->funcArgs != nullptr) {
+					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) {
+						throw runtime_error("S: ERROR -> Wrong amount of args in function call with name: " + expr->left->identifier);
+					}
+					expr->number = clazz->pushOrFindMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
+				}
+				else expr->number = clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
+			}
+			else expr->number = clazz->pushOrFindMethodRef(clazz->name, expr->left->identifier, clazz->methods[expr->left->identifier]->descriptor);
+			
 			break;
 	}
 }
 
-// Функции проверки
+// ========= пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ =========
+
+void fillFieldTable(Class* clazz, StmtsListNode* compoundAssign) {
+	if (compoundAssign->first != nullptr) {
+		StmtNode* assignStmt = compoundAssign->first;
+		while (assignStmt != nullptr) {
+			fillFieldTable(clazz, assignStmt);
+			assignStmt = assignStmt->next;
+		}
+	}
+}
+
+void fillFieldTable(Class* clazz, StmtNode* assignStmt) {
+	Field* field = new Field();
+
+	// пїЅпїЅпїЅ
+	field->name = assignStmt->leftExpr->identifier;
+	field->nameNumber = clazz->pushOrFindConstant(*Constant::UTF8(field->name));
+	field->nameNode = assignStmt->leftExpr;
+
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ - AccessModifier -> AccessFlag
+	switch (assignStmt->accessModifier) {
+	case _PRIVATE:
+		field->accessModifier = PRIVATE;
+		break;
+	case _PROTECTED:
+		field->accessModifier = PROTECTED;
+		break;
+	case _UNKNOWN: // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ public.
+	case _PUBLIC:
+		field->accessModifier = PUBLIC;
+		break;
+	}
+
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	field->descriptor = "L__BASE__;";
+	field->descriptorNumber = clazz->pushOrFindConstant(*Constant::UTF8(field->descriptor));
+
+	// FieldRef
+	field->number = clazz->pushOrFindFieldRef(clazz->name, field->name, field->descriptor);
+	assignStmt->number = field->number;
+
+	clazz->fields[field->name] = field;
+}
+
+// ========= RTL =========
+
+void addRTLToClass(Class* clazz) {
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"));
+	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	clazz->pushOrFindMethodRef("__BASE__", "print", "(L__BASE__;)V");
+	clazz->pushOrFindMethodRef("__BASE__", "print", "()V");
+
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	clazz->pushOrFindMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
+	clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
+}
+
+// ========= пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ =========
 
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
 	if (expr != nullptr) {
 		switch (expr->exprType)
 		{
 			case _IDENTIFIER:
-				// Main Method local vars
-				vector<string> mainMethodLocalVars = classesList["__PROGRAM__"]->methods["main"]->localVars;
-				if (find(mainMethodLocalVars.begin(), mainMethodLocalVars.end(), expr->identifier) != mainMethodLocalVars.end()) return;
+				// Main Method local vars - TODO: пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
+				//vector<string> mainMethodLocalVars = classesList["__PROGRAM__"]->methods["main"]->localVars;
+				//if (find(mainMethodLocalVars.begin(), mainMethodLocalVars.end(), expr->identifier) != mainMethodLocalVars.end()) return;
+
 				// Method local vars
 				if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) return;
 				// Fields
@@ -360,50 +485,64 @@ void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
 	}
 }
 
-// Вспомогательные функции
+void checkMethodForErrors(FuncNode* funcDef) {
+	if (funcDef != nullptr) {
+		if (funcDef->identifier->identifier == "print") {
+			throw runtime_error("S: ERROR -> Changes to the signature of the \"print\" function!");
+		}
 
-// TODO: в качестве параметров могут передаваться и другие классы, для которых будет другой дескриптор
+		if (funcDef->identifier->identifier == "input") {
+			throw runtime_error("S: ERROR -> Changes to the signature of the \"input\" function!");
+		}
+
+		if (funcDef->identifier->identifier == "main") {
+			throw runtime_error("S: ERROR -> Changes to the signature of the \"main\" function!");
+		}
+	}
+}
+
+// ========= пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ =========
+
+// TODO: пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor) {
 	string descriptor = "(";
 	
-	// Заполнение параметров
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	for (int i = 0; i < paramsNumber; i++) {
 		descriptor += "L__BASE__;";
 	}
-	// Возвращаемое значение
-	descriptor += ")" + returnValueDescriptor + ";";
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	descriptor += ")" + returnValueDescriptor;
 
 	return descriptor;
 }
 
-// TODO: реализовать множественное возвращение (сейчас можно вернуть только один элемент)
+// TODO: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 string defineMethodReturnType(Method* method) {
 	vector<ExprNode*> returnValues = {};
 
-	StmtNode* lastStmt = method->suite->last;
-	if (lastStmt->stmtType == _RETURN) {
-		if (lastStmt->list != nullptr) {
-			ExprNode* expr = lastStmt->list->first;
+	if (method->suite == nullptr) return "V";
 
-			switch (expr->exprType)
-			{
-				case _STRING_CONST:
-				case _INT_CONST:
-				case _FLOAT_CONST:
-					return "L__BASE__";
-				case _IDENTIFIER:
-					if (!expr->identifier.empty()) {
-						if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
-							if (classesList.find(expr->identifier) != classesList.end()) return "L" + expr->identifier;
-						}
-						// TODO: проверка локальных переменных
-						//else throw runtime_error("S: ERROR -> Something went wrong...");
-					}
-					return "";
-			}
+	StmtNode* suiteStmt = method->suite->first;
+	while (suiteStmt != nullptr) {
+		switch (suiteStmt->stmtType)
+		{
+			case _RETURN:
+				return "L__BASE__;";
+		}
+
+		suiteStmt = suiteStmt->next;
+	}
+
+	return "V";
+}
+
+int findElementIndexInVector(vector<string> vec, string element) {
+	for (int i = 0; i < vec.size(); i++) {
+		if (vec[i] == element) {
+			return i;
 		}
 	}
 
-	//throw runtime_error("S: ERROR -> Unsupported type in Return Stmt");
-	return "";
+	return -1;
 }

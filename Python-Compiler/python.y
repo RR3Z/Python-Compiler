@@ -267,7 +267,7 @@ classDef: CLASS identifier ':' classSuite  { $$ = createClassNode(createIdExprNo
 
 // ASSIGNMENT STATEMENT
 
-assignStmt: assignStmtTargetAssignList '=' exprList { $$ = createCompoundAssignStmtNode($1, $3); cout << "P: assignStmtTargetAssignList '=' expr -> assignStmt" << endl; }
+assignStmt: assignStmtTargetAssignList '=' exprList { $$ = createCompoundAssignStmtNode($1, $3); cout << "P: assignStmtTargetAssignList '=' exprList -> assignStmt" << endl; }
           | target PLUS_ASSIGN expr { $$ = createPlusAssignStmtNode($1, $3); cout << "P: target PLUS_ASSIGN expr -> assignStmt" << endl; }
           | target MINUS_ASSIGN expr { $$ = createMinusAssignStmtNode($1, $3); cout << "P: target MINUS_ASSIGN expr -> assignStmt" << endl; }
           | target MUL_ASSIGN expr { $$ = createMulAssignStmtNode($1, $3); cout << "P: target MUL_ASSIGN expr -> assignStmt" << endl; }

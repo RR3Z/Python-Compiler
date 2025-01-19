@@ -392,15 +392,21 @@ public class __BASE__ {
         return toString();
     }
 
+    public static void print() {
+        System.out.print("\n\n"); }
+
     public static void print(__BASE__ value) {
         System.out.print(value.toString());
     }
 
-    public static void println(__BASE__ value) {
-        System.out.println(value.toString());
+    public static __BASE__ input() {
+        Scanner scanner = new Scanner(System.in);
+        return new __BASE__(scanner.nextLine());
     }
 
-    public static __BASE__  __gets__() {
+    public static __BASE__ input(__BASE__ value) {
+        System.out.print(value.toString() + "\n");
+
         Scanner scanner = new Scanner(System.in);
         return new __BASE__(scanner.nextLine());
     }
@@ -462,6 +468,7 @@ public class __BASE__ {
 
         throw new UnsupportedOperationException("split() isn't support operation for type: " + this.__type);
     }
+
     @Override
     public boolean equals(Object obj) {
         __BASE__ o = (__BASE__) obj;

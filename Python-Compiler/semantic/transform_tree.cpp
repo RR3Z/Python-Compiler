@@ -16,8 +16,8 @@ using namespace std;
 
 /* ========== FILE ========== */
 void transformTree(FileNode* program) {
-	if (program->elementsList == nullptr) {
-		throw runtime_error("S: ERROR -> something went wrong in the previous stages (FileElementsListNode is unavailable)");
+	if (program == nullptr || program->elementsList == nullptr) {
+		//throw runtime_error("S: ERROR -> something went wrong in the previous stages (FileElementsListNode is unavailable)");
 		return;
 	}
 
