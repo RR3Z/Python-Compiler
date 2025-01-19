@@ -134,7 +134,7 @@ void defineAccessModifier(StmtNode* stmt);
 // Функции для определния ошибок
 void checkCompoundAssignForErrors(StmtNode* stmt);
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr);
-void checkMethodForErrors(FuncNode* funcDef);
+void checkMethodNameForErrors(FuncNode* funcDef);
 
 // Функции для заполнения таблиц
 void fillTables(FileNode* program);

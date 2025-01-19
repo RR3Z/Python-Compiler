@@ -89,22 +89,22 @@ void fillTables(FileNode* program) {
 	}
 }
 
-// TODO: ������
+// TODO: классы
 void fillTables(ClassNode* classDef) {
-	// �������� ������ ������
+	// Создание нового класса
 	Class* newClass = new Class();
-	// ���������� ������ � ���������� �������
-	newClass->name = classDef->identifier->stringVal;
+	// Добавление класса в глобальную таблицу
+	newClass->name = classDef->identifier->identifier;
 	classesList[newClass->name] = newClass;
 
-	// ���������� �������� � �����
+	// Добавление констант в класс
 	newClass->pushOrFindConstant(*Constant::UTF8("Code"));
 	newClass->number = newClass->pushOrFindConstant(*Constant::Class(newClass->pushOrFindConstant(*Constant::UTF8(newClass->name))));
 
-	// ���������� RTL � �����
+	// Добавление RTL в класс
 	addRTLToClass(newClass);
 
-	// ������������ ����� (��������� ������������)
+	// Родительский класс (одиночное наследование)
 	if (classDef->base != nullptr) {
 		if (classesList.find(classDef->base->stringVal) != classesList.end()) {
 			newClass->parent = classesList[classDef->base->stringVal];
@@ -114,7 +114,7 @@ void fillTables(ClassNode* classDef) {
 		}
 	}
 
-	// �� ���� �� ����� ���� ������ (������ ������������� �� ������ �������)
+	// По идее не может быть пустым (всегда отлавливается на уровне парсера)
 	if (classDef->suite != nullptr && classDef->suite->first != nullptr) {
 		ClassElementNode* classElement = classDef->suite->first;
 		while (classElement != nullptr) {
@@ -131,20 +131,20 @@ void fillTables(ClassNode* classDef) {
 		}
 	}
 
-	// TODO: ����������� �� ��������� (�� java/lang/Object)
+	// TODO: Конструктор по умолчанию (от java/lang/Object)
 	//newClass->pushOrFindConstant(*Constant::UTF8("<init>"));
 }
 
-// ========= ���������� ������ ������� =========
+// ========= Заполнение таблиц методов =========
 
-// TODO: ����������� ��������� + ����������
+// TODO: именованные аргументы + дескриптор
 void fillMethodTable(Class* clazz, FuncNode* funcDef) {
-	checkMethodForErrors(funcDef);
+	checkMethodNameForErrors(funcDef);
 
 	Method* method = new Method();
 	method->name = funcDef->identifier->identifier;
 	method->nameNumber = clazz->pushOrFindConstant(*Constant::UTF8(method->name));
-	// ����������� ������� - AccessModifier -> AccessFlag
+	// Модификатор доступа - AccessModifier -> AccessFlag
 	switch (funcDef->accessModifier)
 	{
 		case _PRIVATE:
@@ -153,17 +153,17 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 		case _PROTECTED:
 			method->accessModifier = PROTECTED;
 			break;
-		case _UNKNOWN: // ���� ��� ������������ �������, �� �� ������� public.
+		case _UNKNOWN: // Если нет модификатора доступа, то по дефолту public.
 		case _PUBLIC:
 			method->accessModifier = PUBLIC;
 			break;
 	}
 
-	// ��������� ������
+	// Аргументы метода
 	int paramsCounter = 0;
-	//method->localVars.push_back(clazz->name); // ������ ���� ����� �������, ������ ���������� ������ ���� this (������ �� �����, ������ �������� ����������� �������), ���� ��� �������������
+	//method->localVars.push_back(clazz->name); // Внутри тела любой функции, первым аргументом должен идти this (ссылка на класс, внутри которого реализована функция), если она нестатическая
 	if (funcDef->args != nullptr) {
-		// ������� ��������� (a,b,c,...)
+		// Обычные аргументы (a,b,c,...)
 		ExprNode* arg = funcDef->args->exprList->first;
 		while (arg != nullptr) {
 			paramsCounter++;
@@ -172,15 +172,15 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 			arg = arg->next;
 		}
 
-		// TODO: ����������� ��������� (d=1,e=2,...)
+		// TODO: Именованные аргументы (d=1,e=2,...)
 		/*
 		FuncArgNode* namedArg = funcDef->args->namedArgsList->first;
 		while (namedArg != nullptr) {
 			paramsCounter++;
 
-			//TODO: �������� �������� � ��������� � �������
+			//TODO: записать значения и константы в таблицы
 			method->localVars.push_back(namedArg->assignStmt->leftExpr->identifier);
-			// TODO: �������� � expr node ������ ��������� � ������ ???
+			// TODO: записать в expr node индекс аругмента в методе ???
 
 			namedArg = namedArg->next;
 		}
@@ -190,7 +190,7 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 	method->suite = funcDef->suite;
 	fillMethodTable(clazz, method, method->suite);
 
-	// ����������� �����������
+	// Составление дескриптора
 	string methodReturnType = defineMethodReturnType(method);
 	string methodDescriptor = generateMethodDescriptor(paramsCounter, methodReturnType);
 	method->descriptor = methodDescriptor;
@@ -198,7 +198,7 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 
 	method->number = clazz->pushOrFindMethodRef(clazz->name, method->name, methodDescriptor);
 	funcDef->idSemantic = method->number;
-	// ������ �� super ����� __BASE__
+	// Ссылки на super класс __BASE__
 	method->baseClassNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 	method->baseConstructorNumber = clazz->pushOrFindMethodRef("__BASE__", "<init>", "()V");
 	clazz->methods[method->name] = method;
@@ -230,7 +230,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
 				}
 
-				// ���� ���������� �� �������� ����� ������, ��������� �� � �������� ��������� ���������� � ��������� �� ��� � constant pool ������
+				// Если переменная не является полем класса, добавляем ее в качестве локальной переменной и загружаем ее имя в constant pool класса
 				if (clazz->fields.find(stmt->leftExpr->identifier) == clazz->fields.end()) {
 					method->localVars.push_back(stmt->leftExpr->identifier);
 					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
@@ -265,7 +265,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
 			break;
 		case _RETURN:
-			// TODO: ������������� �����������
+			// TODO: множественное возвращение
 			if (stmt->list != nullptr) {
 				ExprNode* expr = stmt->list->first;
 
@@ -379,7 +379,7 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 				}
 			}
 
-			// ���������� ������� (RTL ��� �������)
+			// Определяем функцию (RTL или обычная)
 			if (expr->left->identifier == "print") {
 				if (expr->funcArgs != nullptr) {
 					if (expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) {
@@ -403,7 +403,7 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 	}
 }
 
-// ========= ���������� ������ ����� =========
+// ========= Заполнение таблиц полей =========
 
 void fillFieldTable(Class* clazz, StmtsListNode* compoundAssign) {
 	if (compoundAssign->first != nullptr) {
@@ -418,12 +418,12 @@ void fillFieldTable(Class* clazz, StmtsListNode* compoundAssign) {
 void fillFieldTable(Class* clazz, StmtNode* assignStmt) {
 	Field* field = new Field();
 
-	// ���
+	// Имя
 	field->name = assignStmt->leftExpr->identifier;
 	field->nameNumber = clazz->pushOrFindConstant(*Constant::UTF8(field->name));
 	field->nameNode = assignStmt->leftExpr;
 
-	// ����������� ������� - AccessModifier -> AccessFlag
+	// Модификатор доступа - AccessModifier -> AccessFlag
 	switch (assignStmt->accessModifier) {
 	case _PRIVATE:
 		field->accessModifier = PRIVATE;
@@ -431,13 +431,13 @@ void fillFieldTable(Class* clazz, StmtNode* assignStmt) {
 	case _PROTECTED:
 		field->accessModifier = PROTECTED;
 		break;
-	case _UNKNOWN: // ���� ��� ������������ �������, �� �� ��������� public.
+	case _UNKNOWN: // Если нет модификатора доступа, то по умолчанию public.
 	case _PUBLIC:
 		field->accessModifier = PUBLIC;
 		break;
 	}
 
-	// ����������
+	// Дескриптор
 	field->descriptor = "L__BASE__;";
 	field->descriptorNumber = clazz->pushOrFindConstant(*Constant::UTF8(field->descriptor));
 
@@ -451,27 +451,27 @@ void fillFieldTable(Class* clazz, StmtNode* assignStmt) {
 // ========= RTL =========
 
 void addRTLToClass(Class* clazz) {
-	// �������� �������� ������
+	// Загрузка базового класса
 	clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"));
 	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 
-	// ������ ��� ������ ������ � �������
+	// Методы для вывода данных в консоль
 	clazz->pushOrFindMethodRef("__BASE__", "print", "(L__BASE__;)V");
 	clazz->pushOrFindMethodRef("__BASE__", "print", "()V");
 
-	// ������ ��� ��������� ������ �� �������
+	// Методы для получения данных из консоли
 	clazz->pushOrFindMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
 	clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
 }
 
-// ========= ������� �������� =========
+// ========= Функции проверок =========
 
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
 	if (expr != nullptr) {
 		switch (expr->exprType)
 		{
 			case _IDENTIFIER:
-				// Main Method local vars - TODO: �� ���� �� ���� ��������� (���������)
+				// Main Method local vars - TODO: по идее не надо проверять (логически)
 				//vector<string> mainMethodLocalVars = classesList["__PROGRAM__"]->methods["main"]->localVars;
 				//if (find(mainMethodLocalVars.begin(), mainMethodLocalVars.end(), expr->identifier) != mainMethodLocalVars.end()) return;
 
@@ -485,7 +485,7 @@ void checkReturnValue(Class* clazz, Method* method, ExprNode* expr) {
 	}
 }
 
-void checkMethodForErrors(FuncNode* funcDef) {
+void checkMethodNameForErrors(FuncNode* funcDef) {
 	if (funcDef != nullptr) {
 		if (funcDef->identifier->identifier == "print") {
 			throw runtime_error("S: ERROR -> Changes to the signature of the \"print\" function!");
@@ -501,23 +501,23 @@ void checkMethodForErrors(FuncNode* funcDef) {
 	}
 }
 
-// ========= ��������������� ������� =========
+// ========= Вспомогательные функции =========
 
-// TODO: � �������� ���������� ����� ������������ � ������ ������, ��� ������� ����� ������ ����������
+// TODO: в качестве параметров могут передаваться и другие классы, для которых будет другой дескриптор
 string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor) {
 	string descriptor = "(";
 	
-	// ���������� ����������
+	// Заполнение параметров
 	for (int i = 0; i < paramsNumber; i++) {
 		descriptor += "L__BASE__;";
 	}
-	// ������������ ��������
+	// Возвращаемое значение
 	descriptor += ")" + returnValueDescriptor;
 
 	return descriptor;
 }
 
-// TODO: ����������� ������������� ����������� (������ ����� ������� ������ ���� �������)
+// TODO: реализовать множественное возвращение (сейчас можно вернуть только один элемент)
 string defineMethodReturnType(Method* method) {
 	vector<ExprNode*> returnValues = {};
 
@@ -528,7 +528,8 @@ string defineMethodReturnType(Method* method) {
 		switch (suiteStmt->stmtType)
 		{
 			case _RETURN:
-				return "L__BASE__;";
+				if(suiteStmt->list != nullptr) return "L__BASE__;";
+				return "V";
 		}
 
 		suiteStmt = suiteStmt->next;
