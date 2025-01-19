@@ -408,7 +408,7 @@ vector<char> generateCompoundIfStatementCode(StmtNode* stmt, Class* clazz, Metho
 		}
 	}
 
-	if (stmt->rightNode != nullptr) elseSuite = generateStatementCode(stmt->rightNode, clazz, method);
+	if (stmt->rightNode != nullptr) elseSuite = generateStatementListCode(stmt->rightNode->suite, clazz, method);
 	result.insert(result.begin(), elseSuite.begin(), elseSuite.end());
 
 	for (int i = elifConditions.size() - 1; i >= 0; --i) {
