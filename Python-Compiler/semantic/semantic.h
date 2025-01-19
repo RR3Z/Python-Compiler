@@ -136,6 +136,7 @@ void checkCompoundAssignForErrors(StmtNode* stmt);
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr);
 void checkMethodNameForErrors(FuncNode* funcDef);
 void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr);
+void checkRTLFunctionCallParams(ExprNode* expr);
 
 // Функции для заполнения таблиц
 void fillTables(FileNode* program);

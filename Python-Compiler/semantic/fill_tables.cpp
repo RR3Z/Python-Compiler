@@ -5,9 +5,9 @@ using namespace std;
 
 std::map<std::string, Class*> classesList;
 
-// ========= ���������� ������ =========
+// ========= Функции для начала заполнения таблиц =========
 
-// ���������� ������ (��������� �������)
+// Стартовая функция
 void fillTables(FileNode* program) {
 	// �������� ������, ��� ����� ����� � ���������
 	Class* entryClass = new Class();
@@ -454,7 +454,10 @@ void addRTLToClass(Class* clazz) {
 void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 	if (expr != nullptr && expr->exprType == _FUNCTION_CALL && expr->funcArgs != nullptr) {
 		// 1) Сравнение количества передаваемых аргументов с количеством требуемых
-		if (expr->argsCount != clazz->methods[expr->left->identifier]->paramsCount)
+		// Для RTL функций
+		checkRTLFunctionCallParams(expr);
+		// Для собственной функции
+		if (clazz->methods.find(expr->left->identifier) != clazz->methods.end() && expr->argsCount != clazz->methods[expr->left->identifier]->paramsCount)
 			throw runtime_error("S: ERROR -> function \"" + expr->left->identifier + "\" takes " + to_string(clazz->methods[expr->left->identifier]->paramsCount) + 
 				" arguments but " + to_string(expr->argsCount) + " was given");
 
@@ -467,6 +470,20 @@ void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 			}
 
 			arg = arg->next;
+		}
+	}
+}
+
+void checkRTLFunctionCallParams(ExprNode* expr) {
+	if (expr->left->identifier == "print") {
+		if (expr->argsCount > 1) {
+			throw runtime_error("S: ERROR -> function \"" + expr->left->identifier + "\" takes 1 or 0 arguments but " + to_string(expr->argsCount) + " was given");
+		}
+	}
+
+	if (expr->left->identifier == "input") {
+		if (expr->argsCount > 1) {
+			throw runtime_error("S: ERROR -> function \"" + expr->left->identifier + "\" takes 1 or 0 arguments but " + to_string(expr->argsCount) + " was given");
 		}
 	}
 }
