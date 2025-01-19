@@ -169,7 +169,7 @@ void checkReturnValue(Class* clazz, Method* method, ExprNode* expr);
 void checkMethodNameForErrors(FuncNode* funcDef);
 void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr);
 bool checkRTLFunctionCallParams(ExprNode* expr);
-void isMethodExists(Class* clazz, ExprNode* functionCall);
+void isMethodExists(Class* clazz, Method* method, ExprNode* functionCall);
 bool isRTLMethodExists(Class* clazz, ExprNode* functionCall);
 
 // Функции для заполнения таблиц
