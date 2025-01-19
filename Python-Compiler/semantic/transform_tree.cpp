@@ -10,8 +10,9 @@ using namespace std;
 	Что хранится в узлах, можно смотреть в файле nodes.h в папке nodes.
 
 	1) Изменяем только "[]" и "=" на "[]=" (_COMPOUND_ASSIGN в transform для StmtNode)
-	2) Добавляем модификатор доступа для элементов класса (функции defineAccessModifier)
+	2) Добавляем модификатор доступа для элементов класса (функция defineAccessModifier)
 	3) Проверка правильности присваивания (функция checkCompoundAssignForErrors)
+	4) Подсчитываю количество передаваемых при вызове функции аргументов (_FUNCTION_CALL в transform для ExprNode)
 */
 
 /* ========== FILE ========== */
@@ -32,7 +33,6 @@ void transformTree(FileNode* program) {
 void transform(FileElementNode* programElement) {
 	if (programElement == nullptr) {
 		throw runtime_error("S: ERROR->FileElementNode is unavailable");
-		return;
 	}
 	
 	switch (programElement->elementType)
@@ -52,12 +52,10 @@ void transform(FileElementNode* programElement) {
 /* ========== FUNCTION ========== */
 void transform(FuncNode* funcDef) {
 	if (funcDef == nullptr) {
-		throw runtime_error("S: ERROR->FuncNode is unavailable");
-		return;
+		throw runtime_error("S: ERROR -> FuncNode is unavailable");
 	}
 	if (funcDef->identifier == nullptr) {
 		throw runtime_error("S: ERROR -> FuncNode (id = " + to_string(funcDef->id) + ") has no identifier");
-		return;
 	}
 
 	// В функции могут быть/не быть аргументы
@@ -73,47 +71,47 @@ void transform(FuncNode* funcDef) {
 
 void transform(FuncArgsListNode* funcArgsList) {
 	if (funcArgsList == nullptr) {
-		throw runtime_error("S: ERROR->FuncArgsListNode is unavailable");
-		return;
+		throw runtime_error("S: ERROR -> FuncArgsListNode is unavailable");
 	}
 
-	// Для неименованных аргументов (ExprList из ExprNode*) ничего делать не надо
+	// Неименованные аргументы
+	ExprNode* funcArg = funcArgsList->exprList->first;
+	while (funcArg != nullptr) {
+		transform(funcArg);
+		funcArg = funcArg->next;
+	}
 
+	// Именованные аргументы
 	FuncArgNode* namedFuncArg = funcArgsList->first;
-	if (namedFuncArg != nullptr) {
-		while (namedFuncArg != nullptr) {
-			transform(namedFuncArg);
-			namedFuncArg = namedFuncArg->next;
-		}
+	while (namedFuncArg != nullptr) {
+		transform(namedFuncArg);
+		namedFuncArg = namedFuncArg->next;
 	}
 }
 
 void transform(FuncArgNode* funcArg) {
 	if (funcArg == nullptr) {
-		throw runtime_error("S: ERROR->FuncArgNode is unavailable");
-		return;
+		throw runtime_error("S: ERROR -> FuncArgNode is unavailable");
 	}
 	
 	switch (funcArg->funcArgType)
 	{
-	case _NAMED:
-		transform(funcArg->assignStmt);
-		break;
-	case _VAR:
-		// transform(funcArg->var); // expr, который не надо никак преобразовывать
-		break;
+		case _NAMED:
+			transform(funcArg->assignStmt);
+			break;
+		case _VAR:
+			transform(funcArg->var);
+			break;
 	}
 }
 
 /* ========== CLASS ========== */
 void transform(ClassNode* classDef) {
 	if (classDef == nullptr) {
-		throw runtime_error("S: ERROR->FuncNode is unavailable");
-		return;
+		throw runtime_error("S: ERROR -> ClassNode is unavailable");
 	}
 	if (classDef->identifier == nullptr) {
-		throw runtime_error("S: ERROR -> FuncNode (id = " + to_string(classDef->id) + ") has no identifier");
-		return;
+		throw runtime_error("S: ERROR -> ClassNode (id = " + to_string(classDef->id) + ") has no identifier");
 	}
 
 	// В классе может быть/не быть тело (подразумевается кода внутри тела)
@@ -121,17 +119,18 @@ void transform(ClassNode* classDef) {
 		transform(classDef->suite);
 	}
 
-	// Проверять/преобразовать родительский класс (base) нам не надо
+	// Имя родительского класса
+	if (classDef->base != nullptr) {
+		transform(classDef->base);
+	}
 }
 
 void transform(ClassElementsListNode* classElementsList) {
 	if (classElementsList == nullptr) {
-		throw runtime_error("S: ERROR->ClassElementsListNode is unavailable");
-		return;
+		throw runtime_error("S: ERROR -> ClassElementsListNode is unavailable");
 	}
 	if (classElementsList->first == nullptr) {
 		throw runtime_error("S: ERROR -> ClassElementsListNode (id = " + to_string(classElementsList->id) + ") first element in list is unavailable");
-		return;
 	}
 
 	ClassElementNode* classElement = classElementsList->first;
@@ -143,31 +142,30 @@ void transform(ClassElementsListNode* classElementsList) {
 
 void transform(ClassElementNode* classElement) {
 	if (classElement == nullptr) {
-		throw runtime_error("S: ERROR->ClassElementNode is unavailable");
-		return;
+		throw runtime_error("S: ERROR -> ClassElementNode is unavailable");
 	}
 
 	switch (classElement->elementType)
 	{
-	case _FUNCTION_DEF:
-		if (classElement->funcDef != nullptr) {
-			transform(classElement->funcDef);
-			defineAccessModifier(classElement->funcDef);
-		}
-		break;
-	case _STMT_NODE:
-		if (classElement->stmt != nullptr) {
-			transform(classElement->stmt);
-			defineAccessModifier(classElement->stmt);
-		}
-		break;
+		case _FUNCTION_DEF:
+			if (classElement->funcDef != nullptr) {
+				transform(classElement->funcDef);
+				defineAccessModifier(classElement->funcDef);
+			}
+			break;
+		case _STMT_NODE:
+			if (classElement->stmt != nullptr) {
+				transform(classElement->stmt);
+				defineAccessModifier(classElement->stmt);
+			}
+			break;
 	}
 }
 
 /* ========== STMTS ========== */
 void transform(StmtsListNode* stmtsList) {
 	if (stmtsList == nullptr) {
-		throw runtime_error("S: ERROR->StmtsListNode is unavailable");
+		throw runtime_error("S: ERROR -> StmtsListNode is unavailable");
 		return;
 	}
 	if (stmtsList->first == nullptr) {
@@ -187,146 +185,154 @@ void transform(StmtNode* stmt) {
 		throw runtime_error("S: ERROR->StmtNode is unavailable");
 		return;
 	}
-
-	// EXPR STMT
-	/*
-		А надо ли что-то изменять в expr?
-		Егор: нет, не надо. AssignOp (как expr) работает иначе чем Assign (как Stmt).
-
-		if a[0][0]:=5:
-		SyntaxError: cannot use assignment expressions with subscript
-		НЕЛЬЗЯ таким образом задавать значение элементу списка (массива). Соответственно, не надо ничего изменять.
-	*/
 	
 	switch (stmt->stmtType) {
-		// IF STMT
-	case _IF:
-		//transform(stmt->expr); // condition (expr, который нам не надо изменять)
-		transform(stmt->suite); // suite
-		break;
-	case _ELSE:
-		transform(stmt->suite); // suite
-		break;
-	case _ELIF:
-		//transform(stmt->expr); // condition (expr, который нам не надо изменять)
-		transform(stmt->suite); // suite
-		break;
-	case _COMPOUND_IF:
-		transform(stmt->leftNode);	// ifStmt
-		transform(stmt->rightNode);	// elseStmt
-		transform(stmt->stmtsList);	// elifStmtsList
-		break;
+			// IF STMT
+		case _IF:
+			transform(stmt->expr); // condition
+			transform(stmt->suite); // suite
+			break;
+		case _ELSE:
+			transform(stmt->suite); // suite
+			break;
+		case _ELIF:
+			transform(stmt->expr); // condition
+			transform(stmt->suite); // suite
+			break;
+		case _COMPOUND_IF:
+			transform(stmt->leftNode);	// ifStmt
+			transform(stmt->rightNode);	// elseStmt
+			transform(stmt->stmtsList);	// elifStmtsList
+			break;
 
-		// ASSIGN STMT
-	case _ASSIGN:
-		// НИЧЕГО НЕ НАДО ДЕЛАТЬ
-		break;
-	case _COMPOUND_ASSIGN: {
-		StmtNode* target = stmt->stmtsList->first;
-		ExprNode* value = stmt->list->first;
+			// ASSIGN STMT
+		case _ASSIGN:
+			transform(stmt->leftExpr);
+			transform(stmt->rightExpr);
+			break;
+		case _COMPOUND_ASSIGN: {
+			StmtNode* target = stmt->stmtsList->first;
+			ExprNode* value = stmt->list->first;
 
-		while (target != nullptr) {
-			if (target->list != nullptr && target->list->first->exprType == _LIST_ACCESS) {
-				target->stmtType = _ASSIGN_AND_ACCESS;
-				target->expr = target->list->last->right; // INDEX
-				target->leftExpr = target->list->last->left; // ID
-			}
-			else {
-				target->stmtType = _ASSIGN;
-				target->leftExpr = target->list->last; // ID
-			}
-			target->rightExpr = value; // VALUE
-			target->list = nullptr;
+			while (target != nullptr) {
+				if (target->list != nullptr && target->list->first->exprType == _LIST_ACCESS) {
+					target->stmtType = _ASSIGN_AND_ACCESS;
+					target->expr = target->list->last->right; // INDEX
+					target->leftExpr = target->list->last->left; // ID
+				}
+				else {
+					target->stmtType = _ASSIGN;
+					target->leftExpr = target->list->last; // ID
+				}
+				target->rightExpr = value; // VALUE
+				target->list = nullptr;
+
+				transform(target);
 			
-			target = target->next;
+				target = target->next;
+			}
+			stmt->list = nullptr;
+
+			checkCompoundAssignForErrors(stmt);
+			break;
 		}
-		stmt->list = nullptr;
+		case _ASSIGN_AND_ACCESS:
+			transform(stmt->leftExpr);
+			transform(stmt->rightExpr);
+			transform(stmt->expr);
+			break;
 
-		checkCompoundAssignForErrors(stmt); // Проверка на правильность (на грамматике не проверял)
-		break;
-	}
+		case _MUL_ASSIGN:
+			transform(stmt->leftExpr);
+			transform(stmt->rightExpr);
+			break;
+		case _DIV_ASSIGN:
+			transform(stmt->leftExpr);
+			transform(stmt->rightExpr);
+			break;
+		case _MINUS_ASSIGN:
+			transform(stmt->leftExpr);
+			transform(stmt->rightExpr);
+			break;
+		case _PLUS_ASSIGN:
+			transform(stmt->leftExpr);
+			transform(stmt->rightExpr);
+			break;
 
-	case _MUL_ASSIGN:
-		// НИЧЕГО НЕ НАДО ДЕЛАТЬ
-		break;
-	case _DIV_ASSIGN:
-		// НИЧЕГО НЕ НАДО ДЕЛАТЬ
-		break;
-	case _MINUS_ASSIGN:
-		// НИЧЕГО НЕ НАДО ДЕЛАТЬ
-		break;
-	case _PLUS_ASSIGN:
-		// НИЧЕГО НЕ НАДО ДЕЛАТЬ
-		break;
+			// WHILE STMT
+		case _WHILE:
+			transform(stmt->expr); // condition
+			transform(stmt->suite); // suite
+			break;
+		case _COMPOUND_WHILE:
+			transform(stmt->leftNode);	// whileStmt
+			transform(stmt->rightNode);	// elseStmt
+			break;
 
-		// WHILE STMT
-	case _WHILE:
-		//transform(stmt->expr); // condition (expr, который нам не надо изменять)
-		transform(stmt->suite); // suite
-		break;
-	case _COMPOUND_WHILE:
-		transform(stmt->leftNode);	// whileStmt
-		transform(stmt->rightNode);	// elseStmt
-		break;
+			// FOR STMT
+		case _FOR:
+			transform(stmt->list);	// targetList из expr
+			transform(stmt->expr);	// expr
+			transform(stmt->suite);	// suite
+			break;
+		case _COMPOUND_FOR:
+			transform(stmt->leftNode);	// forStmt
+			transform(stmt->rightNode);	// elseStmt
+			break;
 
-		// FOR STMT
-	case _FOR:
-		//transform(stmt->list);	// targetList из expr, который нам не надо изменять
-		//transform(stmt->expr);	// expr, который нам не надо изменять
-		transform(stmt->suite);	// suite
-		break;
-	case _COMPOUND_FOR:
-		transform(stmt->leftNode);	// forStmt
-		transform(stmt->rightNode);	// elseStmt
-		break;
+			// RETURN STMT
+		case _RETURN:
+			transform(stmt->list); // exprList (возвращаемые значения)
+			break;
 
-		// RETURN STMT
-	case _RETURN:
-		//transform(stmt->list); // exprList (возвращаемые значения, т.е. expr, которые нам не надо изменять)
-		break;
-
-		// TRY STMT
-	case _TRY:
-		transform(stmt->suite); // suite
-		break;
-	case _COMPOUND_TRY:
-		transform(stmt->leftNode);	// elseStmt
-		transform(stmt->rightNode);	// finnalyStmt
-		transform(stmt->stmtsList); // exceptStmtsList
-		transform(stmt->tryStmt);	// tryStmt
-		break;
-	case _EXCEPT:
-		//transform(stmt->expr); // что мы отлавливаем (expr, который нам не надо изменять)
-		transform(stmt->suite); // suite
-		break;
-	case _IDENTIFIER_EXCEPT:
-		//transform(stmt->expr);		// что мы отлавливаем (expr, который нам не надо изменять)
-		//transform(stmt->identifier);  // собственное наименование того, что мы отлавливаем (expr, который нам не надо изменять)
-		transform(stmt->suite); // suite
-		break;
-	case _FINALLY:
-		transform(stmt->suite); // suite
-		break;
+			// TRY STMT
+		case _TRY:
+			transform(stmt->suite); // suite
+			break;
+		case _COMPOUND_TRY:
+			transform(stmt->leftNode);	// elseStmt
+			transform(stmt->rightNode);	// finnalyStmt
+			transform(stmt->stmtsList); // exceptStmtsList
+			transform(stmt->tryStmt);	// tryStmt
+			break;
+		case _EXCEPT:
+			transform(stmt->expr); // что мы отлавливаем (expr)
+			transform(stmt->suite); // suite
+			break;
+		case _IDENTIFIER_EXCEPT:
+			transform(stmt->expr);		// что мы отлавливаем (expr)
+			transform(stmt->identifier);  // собственное наименование того, что мы отлавливаем (expr)
+			transform(stmt->suite); // suite
+			break;
+		case _FINALLY:
+			transform(stmt->suite); // suite
+			break;
+		case _EXPR_STMT:
+			transform(stmt->expr);
+			break;
+		case _EXPR_LIST_STMT:
+			transform(stmt->list);
+			break;
 	}
 }
 
 /* ========== EXPRS ========== */
-/*
+
 void transform(ExprListNode* exprsList) {
 	if (exprsList == nullptr) {
-		cout << "S: ERROR -> ExprListNode is unavailable" << endl;
+		//cout << "S: ERROR -> ExprListNode is unavailable" << endl;
 		return;
 	}
 	if (exprsList->first == nullptr) {
-		cout << "S: ERROR -> ExprListNode (id = " << exprsList->id << ") first element in list is unavailable" << endl;
+		//cout << "S: ERROR -> ExprListNode (id = " << exprsList->id << ") first element in list is unavailable" << endl;
 		return;
 	}
 
-	//ExprNode* exprNode = exprsList->first;
-	//while (exprNode != nullptr) {
-	//	transform(exprNode);
-	//	exprNode = exprNode->next;
-	//}
+	ExprNode* exprNode = exprsList->first;
+	while (exprNode != nullptr) {
+		transform(exprNode);
+		exprNode = exprNode->next;
+	}
 }
 
 void transform(ExprNode* expr) {
@@ -335,13 +341,24 @@ void transform(ExprNode* expr) {
 		return;
 	}
 	
-	//switch (expr->exprType)
-	//{
-	//case _ASSIGN_OP:
-	//	break;
-	//}
+	switch (expr->exprType)
+	{
+		case _FUNCTION_CALL:
+			expr->argsCount = 0;
+
+			// Посчитать количество передаваемых аргументов
+			if (expr->funcArgs != nullptr) {
+				ExprNode* arg = expr->funcArgs->exprList->first;
+				while (arg != nullptr) {
+					expr->argsCount++;
+					arg = arg->next;
+				}
+			}
+
+			break;
+	}
 }
-*/
+
 
 /* ========== ACCESS MODIFIER ========== */
 /*
@@ -416,7 +433,7 @@ void defineAccessModifier(StmtNode* stmt) {
 /* ========== ERRORS ========== */
 void checkCompoundAssignForErrors(StmtNode* stmt) {
 	if (stmt == nullptr) {
-		throw runtime_error("S: ERROR->StmtNode is unavailable");
+		throw runtime_error("S: ERROR -> StmtNode is unavailable");
 		return;
 	}
 

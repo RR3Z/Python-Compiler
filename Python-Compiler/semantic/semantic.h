@@ -40,11 +40,9 @@ struct Method {
 	// Super класса Java (java/lang/Object)
 	int selfMethodRef = -1;
 
-	/*
-	Зачем нужны?
-	Егор: Я так понял, это ссылка на конструктор, если у нас метод вдруг окажется конструктором.
-	Егор: Несмотря на то, что дескриптор "()V", конструктор лишь инициализирует значения, а не возвращает объект или ссылку на объект.
-	*/
+	// Количество параметров (передаваемых в функцию)
+	int paramsCount = -1;
+
 	// Ссылка на super класс (в моем случае, __BASE__)
 	int baseClassNumber = -1;
 	// Ссылка на конструктор super класса
@@ -111,6 +109,38 @@ public:
 		return pushOrFindMethodRef(this->name, methodName, descriptor);
 	}
 
+	int findConstant(const Constant& constant) {
+		auto iter = constants.find(constant);
+		if (iter == constants.end()) return -1;
+		return iter->second;
+	}
+
+	int findFieldRef(const string& className, const string& fieldName, const string& type) {
+		int nameNumber = findConstant(*Constant::UTF8(fieldName));
+		int typeNumber = findConstant(*Constant::UTF8(type));
+		int nameAndTypeNumber = findConstant(*Constant::NameAndType(nameNumber, typeNumber));
+		int classNumber = findConstant(*Constant::Class(findConstant(*Constant::UTF8(className))));
+		int fieldRefNumber = findConstant(*Constant::FieldRef(classNumber, nameAndTypeNumber));
+		return fieldRefNumber;
+	}
+
+	int findFieldRef(const string& fieldName, const string& type) {
+		return findFieldRef(this->name, fieldName, type);
+	}
+
+	int findMethodRef(const string& className, const string& methodName, const string& descriptor) {
+		int nameNumber = findConstant(*Constant::UTF8(methodName));
+		int descriptorNumber = findConstant(*Constant::UTF8(descriptor));
+		int nameAndTypeNumber = findConstant(*Constant::NameAndType(nameNumber, descriptorNumber));
+		int classNumber = findConstant(*Constant::Class(pushOrFindConstant(*Constant::UTF8(className))));
+		int methodRefNumber = findConstant(*Constant::MethodRef(classNumber, nameAndTypeNumber));
+		return methodRefNumber;
+	}
+
+	int findMethodRef(const string& methodName, const string& descriptor) {
+		return findMethodRef(this->name, methodName, descriptor);
+	}
+
 private:
 	long long _ID = 0;
 };
@@ -126,6 +156,8 @@ void transform(ClassElementsListNode* classElementsList);
 void transform(ClassElementNode* classElement);
 void transform(StmtsListNode* stmtsList);
 void transform(StmtNode* stmt);
+void transform(ExprListNode* exprList);
+void transform(ExprNode* expr);
 
 // Функции для определения модификатора доступа элементов внутри класса
 void defineAccessModifier(FuncNode* funcDef);
@@ -134,7 +166,11 @@ void defineAccessModifier(StmtNode* stmt);
 // Функции для определния ошибок
 void checkCompoundAssignForErrors(StmtNode* stmt);
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr);
-void checkMethodForErrors(FuncNode* funcDef);
+void checkMethodNameForErrors(FuncNode* funcDef);
+void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr);
+bool checkRTLFunctionCallParams(ExprNode* expr);
+void isMethodExists(Class* clazz, ExprNode* functionCall);
+bool isRTLMethodExists(Class* clazz, ExprNode* functionCall);
 
 // Функции для заполнения таблиц
 void fillTables(FileNode* program);
@@ -155,3 +191,4 @@ void addRTLToClass(Class* clazz);
 string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor);
 string defineMethodReturnType(Method* method);
 int findElementIndexInVector(vector<string> vec, string element);
+int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr);
