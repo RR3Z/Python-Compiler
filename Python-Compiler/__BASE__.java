@@ -402,10 +402,10 @@ public class __BASE__ {
     }
 
     public static void print() {
-        System.out.print("\n\n"); }
+        System.out.println("\n\n"); }
 
     public static void print(__BASE__ value) {
-        System.out.print(value.toString());
+        System.out.println(value.toString());
     }
 
     public static __BASE__ input() {
