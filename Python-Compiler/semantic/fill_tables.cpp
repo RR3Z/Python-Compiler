@@ -219,13 +219,13 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 				if (clazz->fields.find(stmt->leftExpr->identifier) == clazz->fields.end()) {
 					method->localVars.push_back(stmt->leftExpr->identifier);
 					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
-					fillMethodTable(clazz, method, stmt->leftExpr);
 				}
 				else {
 					stmt->number = clazz->fields[stmt->leftExpr->identifier]->number;
 				}
 			}
 
+			fillMethodTable(clazz, method, stmt->leftExpr);
 			fillMethodTable(clazz, method, stmt->rightExpr);
 			break;
 		case _COMPOUND_ASSIGN:
@@ -267,7 +267,9 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 				checkConditionForErrors(clazz, method, stmt->expr, "WHILE");
 				fillMethodTable(clazz, method, stmt->expr);
 			}
-			fillMethodTable(clazz, method, stmt->suite); // suite 
+
+			// suite
+			if (stmt->suite != nullptr) fillMethodTable(clazz, method, stmt->suite);
 
 			stmt->boolFieldMethodRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
 			break;
