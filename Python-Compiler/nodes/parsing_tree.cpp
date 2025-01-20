@@ -122,6 +122,17 @@ ExprNode* createAndLogicExprNode(ExprNode* leftOperand, ExprNode* rightOperand) 
 	return node;
 }
 
+ExprNode* createAndLogicExprNode(ExprNode* leftOperand) {
+	ExprNode* node = new ExprNode();
+
+	node->exprType = _NOT;
+	node->left = leftOperand;
+	node->right = nullptr;
+	node->id = ID++;
+
+	return node;
+}
+
 ExprNode* createAndBitwiseExprNode(ExprNode* leftOperand, ExprNode* rightOperand) {
 	ExprNode* node = new ExprNode();
 

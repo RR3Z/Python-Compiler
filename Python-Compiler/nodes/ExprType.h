@@ -24,7 +24,7 @@ enum ExprType {
 	_STRING_CONST = 23,				
 	_FLOAT_CONST = 24,				
 	_INT_CONST = 25,				
-	_ATTRIBUTE_REF = 26, // Оно же field ref (ссылка на поле класса)		
+	_ATTRIBUTE_REF = 26, // РћРЅРѕ Р¶Рµ field ref (СЃСЃС‹Р»РєР° РЅР° РїРѕР»Рµ РєР»Р°СЃСЃР°)		
 	_METHOD_CALL = 27,				
 	_FUNCTION_CALL = 28,			
 	_SLICING_LIST_ACCESS = 29,		
@@ -35,5 +35,6 @@ enum ExprType {
 	_IDENTIFIER = 34,				
 	_IF_HEADER = 35,				
 	_FOR_HEADER = 36,
-	_FUNC_HEADER = 37				
+	_FUNC_HEADER = 37,
+	_NOT = 38
 };

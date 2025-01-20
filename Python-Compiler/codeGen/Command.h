@@ -21,6 +21,7 @@ enum Command {
 	getfield = 0xB4,
 
 	ifeq = 0x99,
+	ifne = 0x9A,
 
 	goto_ = 0xA7,
 
