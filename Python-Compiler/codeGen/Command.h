@@ -8,20 +8,23 @@ enum Command {
 	istore = 0x36,
 	astore = 0x3A,
 	aload = 0x19,
+	athrow = 0xBF,
 	pop = 0x57,
-
 
 	anewarray = 0xBD,
 	aastore = 0x53, 
 
 	sipush = 0x11,
 
+	ldc = 0x12,
 	ldc_w = 0x13,
 
 	getfield = 0xB4,
 
 	ifeq = 0x99,
 	ifne = 0x9A,
+
+	ifnonnull = 0xC7,
 
 	goto_ = 0xA7,
 

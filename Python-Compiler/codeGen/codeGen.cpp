@@ -588,6 +588,23 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[1]);
 			break;
 		case _IDENTIFIER:
+			if (clazz->name == "__PROGRAM__") {
+				if (clazz->fields.find(expr->identifier) != clazz->fields.end()) {
+					result.push_back((char)Command::getstatic);
+					bytes = intToBytes(clazz->fields[expr->identifier]->number, 2);
+					result.push_back(bytes[0]);
+					result.push_back(bytes[1]);
+				}
+				else if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
+					result.push_back((char)Command::aload);
+					bytes = intToBytes(expr->paramLocalVarNum, 1);
+					result.push_back(bytes[0]);
+				}
+			}
+			else {
+				// TODO: для обычных классов
+			}
+			/*
 			if (clazz->fields.find(expr->identifier) != clazz->fields.end()) {
 				if (clazz->name == "__PROGRAM__") {
 					if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
@@ -612,7 +629,7 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 				result.push_back(bytes[0]);
 				break;
 			}
-
+			*/
 			break;
 		case _METHOD_CALL:
 			if (expr->list != nullptr) {
@@ -624,22 +641,6 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 				}
 			}
 			result.push_back((char)Command::invokespecial);
-			bytes = intToBytes(expr->number, 2);
-			result.push_back(bytes[0]);
-			result.push_back(bytes[1]);
-			break;
-		case _FUNCTION_CALL:
-			if (expr->funcArgs != nullptr) {
-				exprCounter = expr->funcArgs->exprList->first;
-				while (exprCounter != nullptr) {
-					bytes = generateExpressionCode(exprCounter, clazz, method);
-					result.insert(result.end(), bytes.begin(), bytes.end());
-					exprCounter = exprCounter->next;
-				}
-			}
-			if(clazz->name == "__PROGRAM__") result.push_back((char)Command::invokestatic);
-			else result.push_back((char)Command::invokevirtual);
-
 			bytes = intToBytes(expr->number, 2);
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
@@ -668,7 +669,7 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			bytes = generateExpressionCode(expr->right, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			result.push_back((char)Command::invokevirtual);
-			bytes = intToBytes(expr -> number, 2); //TODO ID �������� �� number
+			bytes = intToBytes(expr -> number, 2);
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
@@ -811,6 +812,18 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
+		case _FUNCTION_CALL:
+			if (expr->funcArgs != nullptr) {
+				exprCounter = expr->funcArgs->exprList->first;
+				while (exprCounter != nullptr) {
+					// Генерация кода вызова функции
+					bytes = generateExpressionCode(exprCounter, clazz, method);
+					result.insert(result.end(), bytes.begin(), bytes.end());
+					exprCounter = exprCounter->next;
+				}
+			}
+			if (clazz->name == "__PROGRAM__") result.push_back((char)Command::invokestatic);
+			else result.push_back((char)Command::invokevirtual);
 	}
 
 	return result;

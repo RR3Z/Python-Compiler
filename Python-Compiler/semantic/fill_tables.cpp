@@ -510,6 +510,11 @@ void addRTLToClass(Class* clazz) {
 	// Методы для получения данных из консоли
 	clazz->pushOrFindMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
 	clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
+
+	// NullPointerException
+	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("java/lang/NullPointerException"))));
+	clazz->pushOrFindMethodRef("java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V");
+	clazz->pushOrFindConstant(*Constant::String(clazz->pushOrFindConstant(*Constant::UTF8("Code: ERROR -> identifier in FUNCTION CALL is not defined."))));
 }
 
 // ========= Функции проверок =========
