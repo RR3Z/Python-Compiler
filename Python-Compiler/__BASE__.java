@@ -367,11 +367,16 @@ public class __BASE__ {
     public __BASE__ __member_access__(__BASE__ index) {
         if(index.__type != INTEGER) throw new IllegalArgumentException("index must be integer");
 
-        if(this.__type == ARRAY) {
+        if(this.__type == ARRAY && (index.__iVal >= 0)) {
             if(index.__iVal >= this.__aVal.size()) throw new IllegalArgumentException("Wrong index in array access: " + index.__iVal);
             return this.__aVal.get(index.__iVal);
         }
 
+        if(this.__type == ARRAY && (index.__iVal < 0)){
+            if(index.__iVal < (-1 * (this.__aVal.size()))) throw new IllegalArgumentException("Wrong index in array access: " + index.__iVal);
+            return this.__aVal.get( (this.__aVal.size()) + index.__iVal );
+        }
+        
         throw new UnsupportedOperationException("member_access isn't support operation for type: " + this.__type);
     }
 
