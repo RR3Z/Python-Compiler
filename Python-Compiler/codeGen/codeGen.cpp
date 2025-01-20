@@ -616,22 +616,6 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
-		case _FUNCTION_CALL:
-			if (expr->funcArgs != nullptr) {
-				exprCounter = expr->funcArgs->exprList->first;
-				while (exprCounter != nullptr) {
-					bytes = generateExpressionCode(exprCounter, clazz, method);
-					result.insert(result.end(), bytes.begin(), bytes.end());
-					exprCounter = exprCounter->next;
-				}
-			}
-			if(clazz->name == "__PROGRAM__") result.push_back((char)Command::invokestatic);
-			else result.push_back((char)Command::invokevirtual);
-
-			bytes = intToBytes(expr->number, 2);
-			result.push_back(bytes[0]);
-			result.push_back(bytes[1]);
-			break;
 		case _PLUS:
 		case _MINUS:
 		case _MUL:
@@ -656,7 +640,7 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			bytes = generateExpressionCode(expr->right, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			result.push_back((char)Command::invokevirtual);
-			bytes = intToBytes(expr -> number, 2); //TODO ID �������� �� number
+			bytes = intToBytes(expr -> number, 2);
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
@@ -725,6 +709,27 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
+		case _FUNCTION_CALL:
+			if (expr->funcArgs != nullptr) {
+				exprCounter = expr->funcArgs->exprList->first;
+				while (exprCounter != nullptr) {
+					// Проверка, что передаваемый аргумент существует (ЭТО ПЛОХО, ЭТО НАДО ДЕЛАТЬ НА УРОВНЕ ТАБЛИЦ)
+					bytes = checkArgExistence(clazz, method, exprCounter);
+					result.insert(result.end(), bytes.begin(), bytes.end());
+
+					// Генерация кода вызова функции
+					bytes = generateExpressionCode(exprCounter, clazz, method);
+					result.insert(result.end(), bytes.begin(), bytes.end());
+					exprCounter = exprCounter->next;
+				}
+			}
+			if (clazz->name == "__PROGRAM__") result.push_back((char)Command::invokestatic);
+			else result.push_back((char)Command::invokevirtual);
+
+			bytes = intToBytes(expr->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
 	}
 
 	return result;
@@ -778,4 +783,45 @@ int countExprs(ExprListNode* expr) {
 		countExpr = countExpr->next;
 	}
 	return count;
+}
+
+/* ========= Проверки на ошибки ========= */
+
+vector<char> checkArgExistence(Class* clazz, Method* method, ExprNode* arg) {
+	if (arg->exprType != _IDENTIFIER) return {};
+
+	vector<char> result, tmp, bytes = {};
+
+	// Загрузка локальной переменной (2 байта)
+	result.push_back((char)Command::aload);
+	bytes = intToBytes(arg->paramLocalVarNum, 1);
+	result.push_back(bytes[0]);
+
+	// Загрузка проверки на null + смещение (3 байта)
+	result.push_back((char)Command::ifnonnull);
+
+	// Код с исключением
+	tmp.push_back((char)Command::_new);
+	bytes = intToBytes(clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("java/lang/NullPointerException")))), 2);
+	tmp.push_back(bytes[0]);
+	tmp.push_back(bytes[1]);
+	tmp.push_back((char)Command::dup);
+	tmp.push_back((char)Command::ldc_w);
+	bytes = intToBytes(clazz->pushOrFindConstant(*Constant::String(clazz->pushOrFindConstant(*Constant::UTF8("Code: ERROR -> identifier in FUNCTION CALL is not defined.")))), 2);
+	tmp.push_back(bytes[0]);
+	tmp.push_back(bytes[1]);
+	tmp.push_back((char)Command::invokespecial);
+	bytes = intToBytes(clazz->pushOrFindMethodRef("java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V"), 2);
+	tmp.push_back(bytes[0]);
+	tmp.push_back(bytes[1]);
+	tmp.push_back((char)Command::athrow);
+
+	// Добавляем offset для ifnonnull (на конец проверки)
+	bytes = intToBytes(tmp.size() + 5, 2);
+	result.push_back(bytes[0]);
+	result.push_back(bytes[1]);
+
+	result.insert(result.end(), tmp.begin(), tmp.end());
+
+	return result;
 }

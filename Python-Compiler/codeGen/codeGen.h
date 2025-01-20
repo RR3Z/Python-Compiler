@@ -38,5 +38,8 @@ vector<char> floatToBytes(float value);
 // Для сортировки (по номерам)
 bool compare(pair<Constant, int>& a, pair<Constant, int>& b);
 
-
 int countExprs(ExprListNode* expr);
+
+/* ========= Проверки на ошибки ========= */
+
+vector<char> checkArgExistence(Class* clazz, Method* method, ExprNode* arg);
