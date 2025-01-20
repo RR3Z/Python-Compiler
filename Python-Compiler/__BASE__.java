@@ -374,16 +374,16 @@ public class __BASE__ {
 
         if(this.__type == ARRAY && (index.__iVal < 0)){
             if(index.__iVal < (-1 * (this.__aVal.size()))) throw new IllegalArgumentException("Wrong index in array access: " + index.__iVal);
-            return this.__aVal.get( (this.__aVal.size()) + index.__iVal );
+            return this.__aVal.get((this.__aVal.size()) + index.__iVal);
         }
-        
+
         throw new UnsupportedOperationException("member_access isn't support operation for type: " + this.__type);
     }
 
     public __BASE__ __member_access_assign__(__BASE__ index, __BASE__ value) {
         if(index.__type != INTEGER) throw new IllegalArgumentException("index must be integer");
 
-        if(this.__type == ARRAY) {
+        if(this.__type == ARRAY && (index.__iVal >= 0)) {
             if(index.__iVal >= this.__aVal.size()) {
                 ArrayList<__BASE__> a = new ArrayList<>();
                 for(int i = 0; i < index.__iVal; ++i) {
@@ -393,6 +393,17 @@ public class __BASE__ {
                 this.__aVal = a;
             }else {
                 this.__aVal.set(index.__iVal, value);
+            }
+
+            return value;
+        }
+
+
+        if(this.__type == ARRAY && (index.__iVal < 0)) {
+            if(index.__iVal < (-1 * (this.__aVal.size()))) {
+                throw new IllegalArgumentException("Wrong index in array access: " + index.__iVal);
+            }else {
+            this.__aVal.set((this.__aVal.size()) + index.__iVal, value);
             }
 
             return value;
