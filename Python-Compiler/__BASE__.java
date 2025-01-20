@@ -251,7 +251,8 @@ public class __BASE__ {
 
     public __BASE__ __not_eql__(__BASE__ o) {
         try {
-            return new __BASE__(__eql__(o).__bVal);
+            if(__eql__(o).__bVal == true) return new __BASE__(false);
+            return new __BASE__(true);
         } catch(UnsupportedOperationException e) {
             throw new UnsupportedOperationException("not_eql isn't support operation for types: " + this.__type + " and: " + o.__type);
         }
