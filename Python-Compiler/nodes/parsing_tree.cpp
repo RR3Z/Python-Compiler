@@ -122,12 +122,11 @@ ExprNode* createAndLogicExprNode(ExprNode* leftOperand, ExprNode* rightOperand) 
 	return node;
 }
 
-ExprNode* createAndLogicExprNode(ExprNode* leftOperand) {
+ExprNode* createNotLogicExprNode(ExprNode* leftOperand) {
 	ExprNode* node = new ExprNode();
 
 	node->exprType = _NOT;
 	node->left = leftOperand;
-	node->right = nullptr;
 	node->id = ID++;
 
 	return node;

@@ -45,7 +45,7 @@ ExprNode* createNotEqualExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
 ExprNode* createAndLogicExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 
-ExprNode* createAndLogicExprNode(ExprNode* leftOperand);
+ExprNode* createNotLogicExprNode(ExprNode* leftOperand);
 
 ExprNode* createAndBitwiseExprNode(ExprNode* leftOperand, ExprNode* rightOperand);
 

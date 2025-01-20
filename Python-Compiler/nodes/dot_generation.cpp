@@ -54,13 +54,13 @@ string generateDotFromClassNode(ClassNode* node) {
 
 	dot += dotLabel(node->id, "class\\nName: " + node->identifier->identifier);
 
-	// Ğîäèòåëüñêèé êëàññ (îäèíî÷íîå íàñëåäîâàíèå)
+	// Ğ Ğ¾Ğ´Ğ¸Ñ‚ĞµĞ»ÑŒÑĞºĞ¸Ğ¹ ĞºĞ»Ğ°ÑÑ (Ğ¾Ğ´Ğ¸Ğ½Ğ¾Ñ‡Ğ½Ğ¾Ğµ Ğ½Ğ°ÑĞ»ĞµĞ´Ğ¾Ğ²Ğ°Ğ½Ğ¸Ğµ)
 	if (node->base != nullptr) {
 		dot += generateDotFromExprNode(node->base);
 		dot += dotConnectionWithLabel(node->id, node->base->id, "base");
 	}
 
-	// Òåëî êëàññà
+	// Ğ¢ĞµĞ»Ğ¾ ĞºĞ»Ğ°ÑÑĞ°
 	dot += generateDotFromClassElementsListNode(node->suite);
 	dot += dotConnection(node->id, node->suite->id);
 
@@ -71,7 +71,7 @@ string generateDotFromFuncNode(FuncNode* node) {
 	string dot = "";
 	if (node == nullptr) { return dot; }
 	
-	// Ìîäèôèêàòîğ äîñòóïà
+	// ĞœĞ¾Ğ´Ğ¸Ñ„Ğ¸ĞºĞ°Ñ‚Ğ¾Ñ€ Ğ´Ğ¾ÑÑ‚ÑƒĞ¿Ğ°
 	switch (node->accessModifier)
 	{
 	case _PRIVATE:
@@ -88,14 +88,14 @@ string generateDotFromFuncNode(FuncNode* node) {
 		break;
 	}
 	
-	// Àğãóìåíòû ôóíêöèè
+	// ĞÑ€Ğ³ÑƒĞ¼ĞµĞ½Ñ‚Ñ‹ Ñ„ÑƒĞ½ĞºÑ†Ğ¸Ğ¸
 	if (node->args != nullptr) {
 		dot += dotLabel(node->args->id, "args");
 		dot += generateDotFromFuncArgsListNode(node->args->id, node->args);
 		dot += dotConnection(node->id, node->args->id);
 	}
 
-	// Òåëî ôóíêöèè
+	// Ğ¢ĞµĞ»Ğ¾ Ñ„ÑƒĞ½ĞºÑ†Ğ¸Ğ¸
 	dot += dotLabel(node->suite->id, "suite");
 	dot += generateDotFromStmtsListNode(node->suite->id, node->suite);
 	dot += dotConnection(node->id, node->suite->id);
@@ -254,7 +254,7 @@ string generateDotFromStmtNode(StmtNode* node) {
 			}
 			break;
 		case _ASSIGN:
-			// Access Modifier (åñëè ıòî ïîëå êëàññà)
+			// Access Modifier (ĞµÑĞ»Ğ¸ ÑÑ‚Ğ¾ Ğ¿Ğ¾Ğ»Ğµ ĞºĞ»Ğ°ÑÑĞ°)
 			switch (node->accessModifier)
 			{
 				case _PRIVATE:
@@ -532,6 +532,11 @@ string generateDotFromExprNode(ExprNode* node) {
 			dot += dotConnection(node->id, node->left->id);
 			dot += generateDotFromExprNode(node->right);
 			dot += dotConnection(node->id, node->right->id);
+			break;
+		case _NOT:
+			dot += dotLabel(node->id, "not");
+			dot += generateDotFromExprNode(node->left);
+			dot += dotConnection(node->id, node->left->id);
 			break;
 		case _AND_LOGIC:
 			dot += dotLabel(node->id, "and");
