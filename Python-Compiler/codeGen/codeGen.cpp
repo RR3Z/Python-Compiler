@@ -878,6 +878,11 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			}
 			if (clazz->name == "__PROGRAM__") result.push_back((char)Command::invokestatic);
 			else result.push_back((char)Command::invokevirtual);
+
+			bytes = intToBytes(expr->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
 	}
 
 	return result;
