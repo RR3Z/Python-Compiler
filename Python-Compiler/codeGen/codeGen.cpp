@@ -568,7 +568,7 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 
 // TODO
 vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method) {
-	vector<char> result, bytes = {};
+	vector<char> result, bytes, bytes1 = {};
 
 	ExprNode* exprCounter = nullptr;
 
@@ -792,6 +792,80 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
+		case _AND_LOGIC:
+			bytes = generateExpressionCode(expr->left,clazz,method);
+			bytes1 = generateExpressionCode(expr->right, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			result.push_back((char)Command::dup);
+			result.push_back((char)Command::getfield);
+			bytes = intToBytes(expr->booleanFieldRef, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::ifne);
+			bytes = intToBytes(14, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::_new);
+			bytes = intToBytes(expr->classNumber, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::dup);
+			result.push_back((char)Command::iconst_0);
+			result.push_back((char)Command::invokespecial);
+			bytes = intToBytes(expr->booleanInitMethodRef, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::goto_);
+			bytes = intToBytes(bytes1.size() + 6,2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.insert(result.end(), bytes1.begin(), bytes1.end());
+			result.push_back((char)Command::invokevirtual);
+			bytes = intToBytes(expr->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
+		case _OR_LOGIC:
+			bytes = generateExpressionCode(expr->left, clazz, method);
+			bytes1 = generateExpressionCode(expr->right, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			result.push_back((char)Command::dup);
+			result.push_back((char)Command::getfield);
+			bytes = intToBytes(expr->booleanFieldRef, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::ifeq);
+			bytes = intToBytes(14, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::_new);
+			bytes = intToBytes(expr->classNumber, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::dup);
+			result.push_back((char)Command::iconst_1);
+			result.push_back((char)Command::invokespecial);
+			bytes = intToBytes(expr->booleanInitMethodRef, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.push_back((char)Command::goto_);
+			bytes = intToBytes(bytes1.size() + 6, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			result.insert(result.end(), bytes1.begin(), bytes1.end());
+			result.push_back((char)Command::invokevirtual);
+			bytes = intToBytes(expr->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
+		case _NOT:
+			bytes = generateExpressionCode(expr->left, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			result.push_back((char)Command::invokevirtual);
+			bytes = intToBytes(expr->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
 		case _FUNCTION_CALL:
 			if (expr->funcArgs != nullptr) {
 				exprCounter = expr->funcArgs->exprList->first;
@@ -804,11 +878,6 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			}
 			if (clazz->name == "__PROGRAM__") result.push_back((char)Command::invokestatic);
 			else result.push_back((char)Command::invokevirtual);
-
-			bytes = intToBytes(expr->number, 2);
-			result.push_back(bytes[0]);
-			result.push_back(bytes[1]);
-			break;
 	}
 
 	return result;

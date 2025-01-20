@@ -448,8 +448,25 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			fillMethodTable(clazz, method, expr->right);
 			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__member_access__", "(L__BASE__;)L__BASE__;");
 			break;
-		case _LIST_COMPREHENSION:
-			cout << expr << endl;
+		case _AND_LOGIC:
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__logical_and__", "(L__BASE__;)L__BASE__;");
+			expr->classNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+			expr->booleanFieldRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
+			expr->booleanInitMethodRef = clazz->pushOrFindMethodRef("__BASE__", "<init>", "(Z)V");
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			break;
+		case _OR_LOGIC:
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__logical_or__", "(L__BASE__;)L__BASE__;");
+			expr->classNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+			expr->booleanFieldRef = clazz->pushOrFindFieldRef("__BASE__", "__bVal", "Z");
+			expr->booleanInitMethodRef = clazz->pushOrFindMethodRef("__BASE__", "<init>", "(Z)V");
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+			break;
+		case _NOT:
+			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__not__", ("()L__BASE__;"));
+			fillMethodTable(clazz, method, expr->left);
 			break;
 	}
 }

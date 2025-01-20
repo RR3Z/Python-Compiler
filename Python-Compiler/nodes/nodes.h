@@ -65,6 +65,8 @@ struct ExprNode {
 	int arrayListClassNumber = -1;
 	int arrayListConstructorMethodRef = -1;
 	int listConstructorMethodRef = -1;
+	int booleanInitMethodRef;
+	int booleanFieldRef;
 };
 
 /* ========== EXPRESSION LIST ========== */
