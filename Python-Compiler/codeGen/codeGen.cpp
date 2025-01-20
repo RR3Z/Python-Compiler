@@ -738,7 +738,8 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			result.push_back((char)Command::dup);
-			bytes = intToBytes(countExprs(expr->list), 2);
+			if (expr->list != nullptr) bytes = intToBytes(countExprs(expr->list), 2);
+			else bytes = intToBytes(0, 2);
 			result.push_back((char)Command::sipush);
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
