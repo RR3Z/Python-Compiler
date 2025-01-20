@@ -245,6 +245,20 @@ public class __BASE__ {
             return new __BASE__(this.__bVal == o.__bVal);
         }
 
+        if (this.__type == INTEGER && o.__type == BOOLEAN) {
+            if(__iVal != 0) this.__bVal = true;
+            else this.__bVal = false;
+
+            return new __BASE__(this.__bVal == o.__bVal);
+        }
+
+        if (this.__type == BOOLEAN && o.__type == INTEGER) {
+            if(o.__iVal != 0) o.__bVal = true;
+            else o.__bVal = false;
+
+            return new __BASE__(this.__bVal == o.__bVal);
+        }
+
         if (this.__type != o.__type) return new __BASE__(false);
 
         throw new UnsupportedOperationException("eql isn't support operation for types: " + this.__type + " and: " + o.__type);
