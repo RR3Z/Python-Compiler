@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -515,5 +516,13 @@ public class __BASE__ {
         }
 
         throw new UnsupportedOperationException("unary_plus isn't support operation for type: " + this.__type);
+    }
+
+    public Iterator __get_iterator__() {
+        if (this.__type != ARRAY) {
+            throw new UnsupportedOperationException("__get_iterator__ isn't support operation for type: " + this.__type);
+        }
+
+        return __aVal.iterator();
     }
 }

@@ -259,7 +259,27 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			break;
 
 		case _FOR:
-			// TODO
+			// array
+			if (stmt->expr != nullptr) fillMethodTable(clazz, method, stmt->expr);
+
+			// var (РАБОТАЕТ ТОЛЬКО С ОДНОЙ ПЕРЕМЕННОЙ!)
+			if (stmt->list != nullptr) {
+				fillMethodTable(clazz, method, stmt->list->first);
+				method->localVars.push_back(stmt->list->first->identifier);
+				stmt->iterableVarNumber = findElementIndexInVector(method->localVars, stmt->list->first->identifier);
+			}
+
+			// suite
+			if (stmt->suite != nullptr) fillMethodTable(clazz, method, stmt->suite);
+
+			// Дополнительная переменная для корректной работы цикла
+			method->localVars.push_back("iterator");
+			stmt->iteratorNumber = findElementIndexInVector(method->localVars, "iterator");
+			stmt->baseClassNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+			// Дополнительные методы для реализации цикла
+			stmt->getIteratorMethodRef = clazz->pushOrFindMethodRef("__BASE__", "__get_iterator__", "()Ljava/util/Iterator;");
+			stmt->forHasNextMethodRef = clazz->pushOrFindInterfaceMethodRef("java/util/Iterator", "hasNext", "()Z");
+			stmt->forNextMethodRef = clazz->pushOrFindInterfaceMethodRef("java/util/Iterator", "next", "()Ljava/lang/Object;");
 			break;
 		case _WHILE:
 			// condition
@@ -431,6 +451,16 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 		case _LIST_COMPREHENSION:
 			cout << expr << endl;
 			break;
+	}
+}
+
+void fillMethodTable(Class* clazz, Method* method, ExprListNode* exprList) {
+	if (exprList != nullptr) {
+		ExprNode* expr = exprList->first;
+		while (expr != nullptr) {
+			fillMethodTable(clazz, method, expr);
+			expr = expr->next;
+		}
 	}
 }
 

@@ -1,5 +1,5 @@
 /*
-	Почему такие значения?
+	РџРѕС‡РµРјСѓ С‚Р°РєРёРµ Р·РЅР°С‡РµРЅРёСЏ?
 	https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4
 */
 #ifndef CONSTANTTYPE_H
@@ -10,10 +10,11 @@ enum class ConstantType {
 	Integer = 3,
 	Float = 4,
 	String = 8,
-	Boolean = 0, // нет значения
+	Boolean = 0, // РЅРµС‚ Р·РЅР°С‡РµРЅРёСЏ
 	Class = 7,
 	FieldRef = 9,
 	MethodRef = 10,
+	InterfaceMethodRef = 11,
 	NameAndType = 12
 };
 

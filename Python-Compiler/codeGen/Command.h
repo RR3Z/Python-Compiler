@@ -2,7 +2,7 @@
 
 enum Command {
 	_new = 0xBB,
-	
+
 	iconst_0 = 0x3,
 	iconst_1 = 0x4,
 	istore = 0x36,
@@ -12,7 +12,7 @@ enum Command {
 	pop = 0x57,
 
 	anewarray = 0xBD,
-	aastore = 0x53, 
+	aastore = 0x53,
 
 	sipush = 0x11,
 
@@ -29,6 +29,7 @@ enum Command {
 	invokevirtual = 0xB6,
 	invokespecial = 0xB7,
 	invokestatic = 0xB8,
+	invokeinterface = 0xB9,
 
 	dup = 0x59,
 
@@ -38,4 +39,6 @@ enum Command {
 
 	getstatic = 0xB2,
 	putstatic = 0xB3,
+
+	checkcast = 0xC0,
 };

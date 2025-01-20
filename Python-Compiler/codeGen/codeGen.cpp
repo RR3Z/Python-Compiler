@@ -81,17 +81,13 @@ void generate(FileNode* program, const map<string, Class*>& classesList) {
 void generateConstantCode(Constant constant) {
 	// UTF8
 	if (constant.type == ConstantType::Utf8) {
-		// �������������� string � char*
 		const char* c = constant.strValue.c_str();
 
-		// ��� ��������� (u1)
 		fprintf(fileClass, "%c", (char)ConstantType::Utf8);
 
-		// ����� ������ � ������ (u2)
 		vector<char> len = intToFourBytes(strlen(c));
 		fprintf(fileClass, "%c%c", (char)len[2], (char)len[3]);
 
-		// ������� ������ � ���� ������������������ ���� ��������� ����� (u1[])
 		for (int i = 0; i < strlen(c); ++i) {
 			fprintf(fileClass, "%c", c[i]);
 		}
@@ -99,82 +95,76 @@ void generateConstantCode(Constant constant) {
 
 	// Integer
 	if (constant.type == ConstantType::Integer) {
-		// ��� ��������� (u1)
 		fprintf(fileClass, "%c", (char)ConstantType::Integer);
 
-		// ����� �� ������ (s4)
 		vector<char> len = intToFourBytes(constant.intValue);
 		fprintf(fileClass, "%c%c%c%c", len[0], len[1], len[2], len[3]);
 	}
 
 	// Float
 	if (constant.type == ConstantType::Float) {
-		// ��� ��������� (u1)
 		fprintf(fileClass, "%c", (char)ConstantType::Float);
 
-		// ����� �� ������ (s4)
 		vector<char> len = floatToBytes(constant.floatValue);
 		fprintf(fileClass, "%c%c%c%c", len[0], len[1], len[2], len[3]);
 	}
 
 	// String
 	if (constant.type == ConstantType::String) {
-		// ��� ��������� (u1)
 		fprintf(fileClass, "%c", (char)ConstantType::String);
 
-		// ����� ��������� UTF8 - �������� �������� ��������� (u2)
 		vector<char> len = intToFourBytes(constant.utf8Number);
 		fprintf(fileClass, "%c%c", len[2], len[3]);
 	}
 
 	// NameAndType
 	if (constant.type == ConstantType::NameAndType) {
-		// ��� ��������� (u1)
 		fprintf(fileClass, "%c", (char)ConstantType::NameAndType);
 
-		// ����� ��������� UTF8 - ��� ����/������ (u2)
 		vector<char> len = intToFourBytes(constant.nameNumber);
 		fprintf(fileClass, "%c%c", len[2], len[3]);
 
-		// ����� ��������� UTF8 - ���������� ����/������ (u2)
 		len = intToFourBytes(constant.typeNumber);
 		fprintf(fileClass, "%c%c", len[2], len[3]);
 	}
 
 	// Class
 	if (constant.type == ConstantType::Class) {
-		// ��� ��������� (u1)
 		fprintf(fileClass, "%c", (char)ConstantType::Class);
 
-		// ����� ��������� UTF8 - ������ ����������������� ��� ������ (u2)
 		vector<char> len = intToFourBytes(constant.classNameNumber);
 		fprintf(fileClass, "%c%c", len[2], len[3]);
 	}
 
 	// FieldRef
 	if (constant.type == ConstantType::FieldRef) {
-		// ��� ��������� (u1)
 		fprintf(fileClass, "%c", (char)ConstantType::FieldRef);
 
-		// ����� ��������� Class - �����, �������� ����������� ���� (u2)
 		vector<char> len = intToFourBytes(constant.classNumber);
 		fprintf(fileClass, "%c%c", len[2], len[3]);
 
-		// ����� ��������� NameAndType - ��� � ���������� ���� (u2)
 		len = intToFourBytes(constant.nameAndTypeNumber);
 		fprintf(fileClass, "%c%c", len[2], len[3]);
 	}
 
 	// MethodRef
 	if (constant.type == ConstantType::MethodRef) {
-		// ��� ��������� (u1)
 		fprintf(fileClass, "%c", (char)ConstantType::MethodRef);
 
-		// ����� ��������� Class - �����, �������� ����������� ����� (u2)
 		vector<char> len = intToFourBytes(constant.classNumber);
 		fprintf(fileClass, "%c%c", len[2], len[3]);
 
-		// ����� ��������� NameAndType - ��� � ���������� ������ (u2)
+		len = intToFourBytes(constant.nameAndTypeNumber);
+		fprintf(fileClass, "%c%c", len[2], len[3]);
+	}
+
+	// InterfaceMethodRef
+	if (constant.type == ConstantType::InterfaceMethodRef) {
+		fprintf(fileClass, "%c", (char)ConstantType::InterfaceMethodRef);
+
+		vector<char> len = intToFourBytes(constant.classNumber);
+		fprintf(fileClass, "%c%c", len[2], len[3]);
+
 		len = intToFourBytes(constant.nameAndTypeNumber);
 		fprintf(fileClass, "%c%c", len[2], len[3]);
 	}
@@ -332,6 +322,10 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 			bytes = generateWhileStatementCode(stmt, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			break;
+		case _FOR:
+			bytes = generateForStatementCode(stmt,clazz,method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			break;
 		case _IF:
 			bytes = generateIfStatementCode(stmt, clazz, method);
 			result.insert(result.end(), bytes.begin(), bytes.end());
@@ -474,6 +468,66 @@ vector<char> generateWhileStatementCode(StmtNode* stmt, Class* clazz, Method* me
 	result.insert(result.end(), code.begin(), code.end());
 
 	bytes = intToBytes(-1 * result.size(), 2);
+	result.push_back((char)Command::goto_);
+	result.push_back(bytes[0]);
+	result.push_back(bytes[1]);
+
+	return result;
+}
+
+vector<char> generateForStatementCode(StmtNode* stmt, Class* clazz, Method* method) {
+	vector<char> bytes, result, suite = {};
+
+	suite = generateStatementListCode(stmt->suite, clazz, method);
+
+	// array
+	bytes = generateExpressionCode(stmt->expr, clazz, method);
+	result.insert(result.end(), bytes.begin(), bytes.end());
+
+	result.push_back((char)Command::invokevirtual);
+	bytes = intToBytes(stmt->getIteratorMethodRef, 2);
+	result.push_back(bytes[0]);
+	result.push_back(bytes[1]);
+
+	result.push_back((char)Command::astore);
+	result.push_back(stmt->iteratorNumber);
+
+	result.push_back((char)Command::aload);
+	result.push_back(stmt->iteratorNumber);
+
+	result.push_back((char)Command::invokeinterface);
+	bytes = intToBytes(stmt->forHasNextMethodRef, 2);
+	result.push_back(bytes[0]);
+	result.push_back(bytes[1]);
+	result.push_back(0x01);
+	result.push_back(0x00);
+
+	result.push_back((char)Command::ifeq);
+	bytes = intToBytes(suite.size() + 18, 2);
+	result.push_back(bytes[0]);
+	result.push_back(bytes[1]);
+
+	result.push_back((char)Command::aload);
+	result.push_back(stmt->iteratorNumber);
+
+	result.push_back((char)Command::invokeinterface);
+	bytes = intToBytes(stmt->forNextMethodRef, 2);
+	result.push_back(bytes[0]);
+	result.push_back(bytes[1]);
+	result.push_back(0x01);
+	result.push_back(0x00);
+
+	result.push_back((char)Command::checkcast);
+	bytes = intToBytes(stmt->baseClassNumber, 2);
+	result.push_back(bytes[0]);
+	result.push_back(bytes[1]);
+
+	result.push_back((char)Command::astore);
+	result.push_back(stmt->iterableVarNumber);
+
+	result.insert(result.end(), suite.begin(), suite.end());
+
+	bytes = intToBytes(-1 * suite.size() - 22, 2);
 	result.push_back((char)Command::goto_);
 	result.push_back(bytes[0]);
 	result.push_back(bytes[1]);
@@ -755,6 +809,21 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
 			break;
+	}
+
+	return result;
+}
+
+vector<char> generateExpressionListCode(ExprListNode* exprList, Class* clazz, Method* method) {
+	vector<char> result, bytes = {};
+
+	if (exprList != nullptr) {
+		ExprNode* expr = exprList->first;
+		while (expr != nullptr) {
+			bytes = generateExpressionCode(expr, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			expr = expr->next;
+		}
 	}
 
 	return result;

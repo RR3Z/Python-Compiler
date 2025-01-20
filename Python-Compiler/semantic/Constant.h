@@ -4,16 +4,16 @@
 using namespace std;
 
 struct Constant {
-	// Òèï êîíñòàíòû
+	// Ð¢Ð¸Ð¿ ÐºÐ¾Ð½ÑÑ‚Ð°Ð½Ñ‚Ñ‹
 	ConstantType type;
 
-	// Çíà÷åíèå êîíñòàíòû
+	// Ð—Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ ÐºÐ¾Ð½ÑÑ‚Ð°Ð½Ñ‚Ñ‹
 	int intValue;
 	float floatValue;
 	string strValue;
 	bool boolValue;
 
-	// Íîìåð/-à êîíñòàíòû
+	// ÐÐ¾Ð¼ÐµÑ€/-Ð° ÐºÐ¾Ð½ÑÑ‚Ð°Ð½Ñ‚Ñ‹
 	unsigned int utf8Number;
 	unsigned int nameNumber;
 	unsigned int typeNumber;
@@ -70,6 +70,14 @@ struct Constant {
 		return constant;
 	}
 
+	static Constant* InterfaceMethodRef(int classNumber, int nameAndTypeNumber) {
+		Constant* constant = new Constant();
+		constant->classNumber = classNumber;
+		constant->nameAndTypeNumber = nameAndTypeNumber;
+		constant->type = ConstantType::InterfaceMethodRef;
+		return constant;
+	}
+
 	static Constant* MethodRef(int classNumber, int nameAndTypeNumber) {
 		Constant* constant = new Constant();
 		constant->type = ConstantType::MethodRef;
@@ -101,6 +109,7 @@ struct Constant {
 			return l.utf8Number == r.utf8Number;
 		case  ConstantType::NameAndType:
 			return (l.nameNumber == r.nameNumber) && (l.typeNumber == r.typeNumber);
+		case  ConstantType::InterfaceMethodRef:
 		case  ConstantType::MethodRef:
 		case  ConstantType::FieldRef:
 			return (l.nameAndTypeNumber == r.nameAndTypeNumber) && (l.classNameNumber == r.classNameNumber);
@@ -127,6 +136,7 @@ struct Constant {
 			case ConstantType::NameAndType:
 				return l.nameNumber < r.nameNumber || ((l.nameNumber == r.nameNumber) && (l.typeNumber < r.typeNumber));
 			case ConstantType::FieldRef:
+			case ConstantType::InterfaceMethodRef:
 			case ConstantType::MethodRef:
 				return l.classNumber < r.classNumber || ((l.classNumber == r.classNumber) && (l.nameAndTypeNumber < r.nameAndTypeNumber));
 			}

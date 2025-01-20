@@ -136,6 +136,12 @@ struct StmtNode {
 
 	// SEMANTIC
 	int number = -1;
+	int iterableVarNumber = -1;
+	int iteratorNumber = -1;
+	int getIteratorMethodRef = -1;
+	int forHasNextMethodRef = -1;
+	int forNextMethodRef = -1;
+	int baseClassNumber = -1;
 };
 
 /* ========== STATEMENTS LIST ========== */

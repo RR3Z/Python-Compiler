@@ -8,78 +8,78 @@
 using namespace std;
 
 struct Field {
-	int number = -1;	// Номер поля
+	int number = -1;	// РќРѕРјРµСЂ РїРѕР»СЏ
 
-	int nameNumber = -1; // Номер навзвания поля
-	string name = "";	// Название поля
-	ExprNode* nameNode = nullptr; // Узел с названием
+	int nameNumber = -1; // РќРѕРјРµСЂ РЅР°РІР·РІР°РЅРёСЏ РїРѕР»СЏ
+	string name = "";	// РќР°Р·РІР°РЅРёРµ РїРѕР»СЏ
+	ExprNode* nameNode = nullptr; // РЈР·РµР» СЃ РЅР°Р·РІР°РЅРёРµРј
 	
-	int descriptorNumber = -1; // Номер дескриптора
-	string descriptor = ""; // Дескриптор (тип переменной)
+	int descriptorNumber = -1; // РќРѕРјРµСЂ РґРµСЃРєСЂРёРїС‚РѕСЂР°
+	string descriptor = ""; // Р”РµСЃРєСЂРёРїС‚РѕСЂ (С‚РёРї РїРµСЂРµРјРµРЅРЅРѕР№)
 	 
-	AccessFlag accessModifier; // Модификатор доступа
+	AccessFlag accessModifier; // РњРѕРґРёС„РёРєР°С‚РѕСЂ РґРѕСЃС‚СѓРїР°
 };
 
 struct Method {
-	int number = -1; // Номер метода
+	int number = -1; // РќРѕРјРµСЂ РјРµС‚РѕРґР°
 
-	// Для имени метода
+	// Р”Р»СЏ РёРјРµРЅРё РјРµС‚РѕРґР°
 	string name = "";
 	int nameNumber = -1;
 
-	// Дескриптор нужен для корректной работы JVM
+	// Р”РµСЃРєСЂРёРїС‚РѕСЂ РЅСѓР¶РµРЅ РґР»СЏ РєРѕСЂСЂРµРєС‚РЅРѕР№ СЂР°Р±РѕС‚С‹ JVM
 	string descriptor = "";
 	int descriptorNumber = -1;
 
-	// Для локальных переменных (TODO: почему строки, а не int?)
+	// Р”Р»СЏ Р»РѕРєР°Р»СЊРЅС‹С… РїРµСЂРµРјРµРЅРЅС‹С… (TODO: РїРѕС‡РµРјСѓ СЃС‚СЂРѕРєРё, Р° РЅРµ int?)
 	vector<string> localVars = {};
 
-	// Ссылка на узел дерева с элементами тела
+	// РЎСЃС‹Р»РєР° РЅР° СѓР·РµР» РґРµСЂРµРІР° СЃ СЌР»РµРјРµРЅС‚Р°РјРё С‚РµР»Р°
 	StmtsListNode* suite = nullptr;
 
-	// Super класса Java (java/lang/Object)
+	// Super РєР»Р°СЃСЃР° Java (java/lang/Object)
 	int selfMethodRef = -1;
 
-	// Количество параметров (передаваемых в функцию)
+	// РљРѕР»РёС‡РµСЃС‚РІРѕ РїР°СЂР°РјРµС‚СЂРѕРІ (РїРµСЂРµРґР°РІР°РµРјС‹С… РІ С„СѓРЅРєС†РёСЋ)
 	int paramsCount = -1;
 
-	// Ссылка на super класс (в моем случае, __BASE__)
+	// РЎСЃС‹Р»РєР° РЅР° super РєР»Р°СЃСЃ (РІ РјРѕРµРј СЃР»СѓС‡Р°Рµ, __BASE__)
 	int baseClassNumber = -1;
-	// Ссылка на конструктор super класса
+	// РЎСЃС‹Р»РєР° РЅР° РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ super РєР»Р°СЃСЃР°
 	int baseConstructorNumber = -1;
 
-	// Модификатор доступа
+	// РњРѕРґРёС„РёРєР°С‚РѕСЂ РґРѕСЃС‚СѓРїР°
 	AccessFlag accessModifier;
 };
 
 class Class {
 public:
-	int number; // Номер класса
+	int number; // РќРѕРјРµСЂ РєР»Р°СЃСЃР°
 
-	// Родительский класс
+	// Р РѕРґРёС‚РµР»СЊСЃРєРёР№ РєР»Р°СЃСЃ
 	int parentNumber;
 	Class* parent;
 
-	string name; // Название класса
+	string name; // РќР°Р·РІР°РЅРёРµ РєР»Р°СЃСЃР°
 
-	// Таблицы
+	// РўР°Р±Р»РёС†С‹
 	map<Constant, int> constants;
 	map<string, Method*> methods;
 	map<string, Field*> fields;
-	// TODO: добавить таблицу для модификаторов доступа (для AccessModifier)
+	// TODO: РґРѕР±Р°РІРёС‚СЊ С‚Р°Р±Р»РёС†Сѓ РґР»СЏ РјРѕРґРёС„РёРєР°С‚РѕСЂРѕРІ РґРѕСЃС‚СѓРїР° (РґР»СЏ AccessModifier)
 
 	int pushOrFindConstant(const Constant& constant) {
-		// Поиск константы в таблице констант
+		// РџРѕРёСЃРє РєРѕРЅСЃС‚Р°РЅС‚С‹ РІ С‚Р°Р±Р»РёС†Рµ РєРѕРЅСЃС‚Р°РЅС‚
 		auto iter = constants.find(constant);
 
-		// Если не нашли, то добавляем в таблицу
+		// Р•СЃР»Рё РЅРµ РЅР°С€Р»Рё, С‚Рѕ РґРѕР±Р°РІР»СЏРµРј РІ С‚Р°Р±Р»РёС†Сѓ
 		if (iter == constants.end()) {
 			++_ID;
 			constants[constant] = _ID;
 			return _ID;
 		}
 
-		// Если нашли, то возвращаем номер найденной константы
+		// Р•СЃР»Рё РЅР°С€Р»Рё, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј РЅРѕРјРµСЂ РЅР°Р№РґРµРЅРЅРѕР№ РєРѕРЅСЃС‚Р°РЅС‚С‹
 		return iter->second;
 	}
 
@@ -107,6 +107,19 @@ public:
 
 	int pushOrFindMethodRef(const string& methodName, const string& descriptor) {
 		return pushOrFindMethodRef(this->name, methodName, descriptor);
+	}
+
+	int pushOrFindInterfaceMethodRef(const string& className, const string& methodName, const string& descriptor) {
+		int nameNumber = pushOrFindConstant(*Constant::UTF8(methodName));
+		int descriptorNumber = pushOrFindConstant(*Constant::UTF8(descriptor));
+		int nameAndTypeNumber = pushOrFindConstant(*Constant::NameAndType(nameNumber, descriptorNumber));
+		int classNumber = pushOrFindConstant(*Constant::Class(pushOrFindConstant(*Constant::UTF8(className))));
+		int methodRefNumber = pushOrFindConstant(*Constant::InterfaceMethodRef(classNumber, nameAndTypeNumber));
+		return methodRefNumber;
+	}
+
+	int pushOrFindInterfaceMethodRef(const string& methodName, const string& descriptor) {
+		return pushOrFindInterfaceMethodRef(this->name, methodName, descriptor);
 	}
 
 	int findConstant(const Constant& constant) {
@@ -145,7 +158,7 @@ private:
 	long long _ID = 0;
 };
 
-// Функции для преобразования дерева
+// Р¤СѓРЅРєС†РёРё РґР»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ РґРµСЂРµРІР°
 void transformTree(FileNode* program);
 void transform(FileElementNode* programElement);
 void transform(FuncNode* funcDef);
@@ -159,11 +172,11 @@ void transform(StmtNode* stmt);
 void transform(ExprListNode* exprList);
 void transform(ExprNode* expr);
 
-// Функции для определения модификатора доступа элементов внутри класса
+// Р¤СѓРЅРєС†РёРё РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РјРѕРґРёС„РёРєР°С‚РѕСЂР° РґРѕСЃС‚СѓРїР° СЌР»РµРјРµРЅС‚РѕРІ РІРЅСѓС‚СЂРё РєР»Р°СЃСЃР°
 void defineAccessModifier(FuncNode* funcDef);
 void defineAccessModifier(StmtNode* stmt);
 
-// Функции для определния ошибок
+// Р¤СѓРЅРєС†РёРё РґР»СЏ РѕРїСЂРµРґРµР»РЅРёСЏ РѕС€РёР±РѕРє
 void checkCompoundAssignForErrors(StmtNode* stmt);
 void checkReturnValue(Class* clazz, Method* method, ExprNode* expr);
 void checkMethodNameForErrors(FuncNode* funcDef);
@@ -173,22 +186,23 @@ void isMethodExists(Class* clazz, Method* method, ExprNode* functionCall);
 bool isRTLMethodExists(Class* clazz, ExprNode* functionCall);
 void checkConditionForErrors(Class* clazz, Method* method, ExprNode* condition, string stmtType);
 
-// Функции для заполнения таблиц
+// Р¤СѓРЅРєС†РёРё РґР»СЏ Р·Р°РїРѕР»РЅРµРЅРёСЏ С‚Р°Р±Р»РёС†
 void fillTables(FileNode* program);
 void fillTables(ClassNode* classDef);
-// Таблица методов
+// РўР°Р±Р»РёС†Р° РјРµС‚РѕРґРѕРІ
 void fillMethodTable(Class* clazz, FuncNode* funcDef);
 void fillMethodTable(Class* clazz, Method* method, StmtsListNode* stmts);
+void fillMethodTable(Class* clazz, Method* method, ExprListNode* exprList);
 void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt);
 void fillMethodTable(Class* clazz, Method* method, ExprNode* expr);
-// Таблица полей
+// РўР°Р±Р»РёС†Р° РїРѕР»РµР№
 void fillFieldTable(Class* clazz, StmtsListNode* compoundAssign);
 void fillFieldTable(Class* clazz, StmtNode* assignStmt);
 
 // RTL
 void addRTLToClass(Class* clazz);
 
-// Вспомогательные функции для заполнения таблиц
+// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ С„СѓРЅРєС†РёРё РґР»СЏ Р·Р°РїРѕР»РЅРµРЅРёСЏ С‚Р°Р±Р»РёС†
 string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor);
 string defineMethodReturnType(Method* method);
 int findElementIndexInVector(vector<string> vec, string element);
