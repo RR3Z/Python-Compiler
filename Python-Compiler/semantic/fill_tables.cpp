@@ -288,6 +288,12 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			break;
 		case _EXPR_LIST_STMT:
 			break;
+		case _ASSIGN_AND_ACCESS:
+			fillMethodTable(clazz, method, stmt->leftExpr);
+			fillMethodTable(clazz, method, stmt->rightExpr);
+			fillMethodTable(clazz, method, stmt->expr);
+			stmt->number = clazz->pushOrFindMethodRef("__BASE__", "__member_access_assign__", "(L__BASE__;L__BASE__;)L__BASE__;");
+			break;
 	}
 }
 
@@ -423,7 +429,7 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__member_access__", "(L__BASE__;)L__BASE__;");
 			break;
 		case _LIST_COMPREHENSION:
-			cout << "test" << endl;
+			cout << expr << endl;
 			break;
 	}
 }

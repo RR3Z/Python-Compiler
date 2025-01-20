@@ -342,6 +342,18 @@ vector<char> generateStatementCode(StmtNode* stmt, Class* clazz, Method* method)
 			break;
 		case _ELSE:
 			break;
+		case _ASSIGN_AND_ACCESS:
+			bytes = generateExpressionCode(stmt->leftExpr, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			bytes = generateExpressionCode(stmt->expr, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			bytes = generateExpressionCode(stmt->rightExpr, clazz, method);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			result.push_back((char)Command::invokevirtual);
+			bytes = intToBytes(stmt->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
 	}
 
 	return result;
