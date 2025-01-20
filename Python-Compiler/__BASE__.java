@@ -353,7 +353,7 @@ public class __BASE__ {
         if(index.__type != INTEGER) throw new IllegalArgumentException("index must be integer");
 
         if(this.__type == ARRAY) {
-            if(index.__iVal >= this.__aVal.size()) return new __BASE__();
+            if(index.__iVal >= this.__aVal.size()) throw new IllegalArgumentException("Wrong index in array access: " + index.__iVal);
             return this.__aVal.get(index.__iVal);
         }
 
