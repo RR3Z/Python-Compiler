@@ -107,7 +107,7 @@ void fillTables(ClassNode* classDef) {
 	initMethod->localVars.push_back("this");
 	initMethod->baseClassNumber = newClass->pushOrFindConstant(*Constant::Class(newClass->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 	initMethod->baseConstructorNumber = newClass->pushOrFindMethodRef("__BASE__", "<init>", "()V");
-	initMethod->suite = new StmtsListNode();
+	initMethod->suite = nullptr;
 	initMethod->number = newClass->pushOrFindMethodRef(newClass->name, initMethod->name, "()V");
 	initMethod->selfMethodRef = newClass->pushOrFindMethodRef("__BASE__", initMethod->name, "()V");
 	initMethod->isClassCreated = false;
@@ -120,13 +120,14 @@ void fillTables(ClassNode* classDef) {
 			switch (classElement->elementType)
 			{
 				case _FUNCTION_DEF:
-					//fillMethodTable(newClass, classElement->funcDef);
+					fillMethodTable(newClass, classElement->funcDef);
 					break;
 				case _STMT_NODE:
 					// В конструктор идут только поля класса
 					if (classElement->stmt->stmtType == _COMPOUND_ASSIGN && classElement->stmt->stmtsList != nullptr) {
 						fillFieldTable(newClass, classElement->stmt->stmtsList);
 
+						if (initMethod->suite == nullptr) initMethod->suite = new StmtsListNode();
 						if (initMethod->suite->first != nullptr) {
 							initMethod->suite->last->next = classElement->stmt;
 							initMethod->suite->last = classElement->stmt;
