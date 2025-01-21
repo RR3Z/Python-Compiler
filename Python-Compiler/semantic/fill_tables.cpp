@@ -554,10 +554,8 @@ void fillFieldTable(Class* clazz, StmtNode* assignStmt) {
 	case _PRIVATE:
 		field->accessModifier = PRIVATE;
 		break;
-	case _PROTECTED:
-		field->accessModifier = PROTECTED;
-		break;
 	case _UNKNOWN: // Если нет модификатора доступа, то по умолчанию public.
+	case _PROTECTED: // Protected работает аналогично Public (да, Python...)
 	case _PUBLIC:
 		field->accessModifier = PUBLIC;
 		break;

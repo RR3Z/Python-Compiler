@@ -271,8 +271,8 @@ void generateAttributeCode(Method* method, Class* clazz) {
 
 void generateFieldCode(Field* field, Class* clazz) {
 	// access flags (u2)
-	if (clazz->name == "__PROGRAM__") fprintf(fileClass, "%c%c", 0x00, (char)AccessFlag::STATIC); // ���� ������ __PROGRAM__ ������ ����� static
-	else fprintf(fileClass, "%c%c", 0x00, (char)(field->accessModifier)); // ���� ������ ������� ��� ����� ��������������� ����������� �������
+	if (clazz->name == "__PROGRAM__") fprintf(fileClass, "%c%c", 0x00, (char)AccessFlag::STATIC);
+	else fprintf(fileClass, "%c%c", 0x00, (char)(field->accessModifier));
 
 	// name index (u2)
 	vector<char> bytes = intToBytes(field->nameNumber, 2);
