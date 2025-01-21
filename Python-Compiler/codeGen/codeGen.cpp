@@ -217,6 +217,19 @@ void generateAttributeCode(Method* method, Class* clazz) {
 
 	// Подсчитываю кол-во байт в коде
 	vector<char> codeBytes, stmtBytes = {};
+	if (method->name == "<init>" && !method->isClassCreated) {
+		// Загружаем ссылку на this
+		codeBytes.push_back((char)Command::aload);
+		bytes = intToBytes(method->localVars.size() - 1, 1);
+		codeBytes.push_back(bytes[0]);
+		// Создаем явно наш объект
+		codeBytes.push_back((char)Command::invokespecial);
+		bytes = intToBytes(method->baseConstructorNumber, 2);
+		codeBytes.insert(codeBytes.end(), bytes.begin(), bytes.end());
+
+		// Запоминаем, что присвоили this объект
+		method->isClassCreated = true;
+	}
 	if (method->suite != nullptr) {
 		if (method->suite->first != nullptr) {
 			StmtNode* stmt = method->suite->first;
@@ -538,20 +551,6 @@ vector<char> generateForStatementCode(StmtNode* stmt, Class* clazz, Method* meth
 
 vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Method* method) {
 	vector<char> result, bytes = {};
-
-	if (method->name == "<init>" && !method->isClassCreated) {
-		// Загружаем ссылку на this
-		result.push_back((char)Command::aload);
-		bytes = intToBytes(method->localVars.size() - 1, 1);
-		result.push_back(bytes[0]);
-		// Создаем явно наш объект
-		result.push_back((char)Command::invokespecial);
-		bytes = intToBytes(method->baseConstructorNumber, 2);
-		result.insert(result.end(), bytes.begin(), bytes.end());
-
-		// Запоминаем, что присвоили this объект
-		method->isClassCreated = true;
-	}
 
 	bytes = generateExpressionCode(assignStmt->rightExpr, clazz, method);
 	result.insert(result.end(), bytes.begin(), bytes.end());
