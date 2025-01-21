@@ -464,23 +464,50 @@ void checkCompoundAssignForErrors(StmtNode* stmt) {
 				break;
 			case _INT_CONST:
 				// 15 = True
-				throw runtime_error("S: Syntax Error -> cannot assign to literal here.");
+				throw runtime_error("S: Syntax Error -> cannot assign to literal.");
 				break;
 			case _FLOAT_CONST:
 				// 15.0 = "a"
-				throw runtime_error("S: Syntax Error -> cannot assign to literal here.");
+				throw runtime_error("S: Syntax Error -> cannot assign to literal.");
 				break;
 			case _STRING_CONST:
 				// "a" = 15.0
-				throw runtime_error("S: Syntax Error -> cannot assign to literal here.");
+				throw runtime_error("S: Syntax Error -> cannot assign to literal.");
 				break;
 			case _SLICING_LIST_ACCESS:
 				// my_list[1:4] = 10
-				throw runtime_error("S: Syntax Error -> must assign iterable to extended slice."); // TODO: RECHECK IT AFTER CODE GENERATION
+				throw runtime_error("S: Syntax Error -> must assign iterable to extended slice.");
 				break;
 			case _LIST_COMPREHENSION:
 				//[x * 2 for x in my_list] = 5
 				throw runtime_error("S: Syntax Error -> cannot assign to list comprehension.");
+				break;
+			case _FUNCTION_CALL:
+			case _METHOD_CALL:
+				throw runtime_error("S: Syntax Error -> cannot assign value to function call.");
+				break;
+			case _FOR_HEADER:
+			case _FUNC_HEADER:
+			case _IF_HEADER:
+			case _BRACKETS:
+			case _LAMBDA:
+				throw runtime_error("S: Syntax Error -> cannot assign value.");
+				break;
+			case _AND_BITWISE:
+			case _AND_LOGIC:
+			case _OR_LOGIC:
+			case _OR_BITWISE:
+			case _NOT:
+			case _ASSIGN_OP:
+			case _U_MINUS:
+			case _U_PLUS:
+			case _NOT_EQUAL:
+			case _EQUAL:
+			case _LESS_EQUAL:
+			case _LESS:
+			case _GREAT_EQUAL:
+			case _GREAT:
+				throw runtime_error("S: Syntax Error -> cannot assign to operators.");
 				break;
 		}
 
