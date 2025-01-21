@@ -253,7 +253,7 @@ void generateAttributeCode(Method* method, Class* clazz) {
 		bytes.push_back((char)Command::_return);
 		codeBytes.insert(codeBytes.end(), bytes.begin(), bytes.end());
 	}
-	
+
 	// attribute_length (u4)
 	bytes = intToFourBytes(12 + codeBytes.size());
 	fprintf(fileClass, "%c%c%c%c", bytes[0], bytes[1], bytes[2], bytes[3]);
@@ -275,7 +275,7 @@ void generateAttributeCode(Method* method, Class* clazz) {
 		fprintf(fileClass, "%c", codeBytes[i]);
 	}
 
-	// exception_table_length (u2) - TODO: исключения (https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.3)
+	// exception_table_length (u2) - НЕ РЕАЛИЗУЕМ
 	fprintf(fileClass, "%c%c", 0x00, 0x00);
 
 	// attributes_count (u2)
@@ -911,9 +911,8 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 					exprCounter = exprCounter->next;
 				}
 			}
-			if (clazz->name == "__PROGRAM__" && !expr->isConstructor) result.push_back((char)Command::invokestatic);
-			else if (expr->isConstructor)
-			{
+
+			if (expr->isConstructor) {
 				result.push_back((char)Command::_new);
 				bytes = intToBytes(clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8(expr->left->identifier)))), 2);
 				result.push_back(bytes[0]);
@@ -921,7 +920,8 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 				result.push_back((char)Command::dup);
 				result.push_back((char)Command::invokespecial);
 			}
-			else result.push_back((char)Command::invokevirtual);
+			else if (clazz->name == "__PROGRAM__" || isRTLMethod(expr)) { result.push_back((char)Command::invokestatic);	}
+			else { result.push_back((char)Command::invokevirtual); }
 
 			bytes = intToBytes(expr->number, 2);
 			result.push_back(bytes[0]);
@@ -995,4 +995,14 @@ int countExprs(ExprListNode* expr) {
 		countExpr = countExpr->next;
 	}
 	return count;
+}
+
+bool isRTLMethod(ExprNode* functionCall) {
+	if (functionCall == nullptr) return false;
+
+	if (functionCall->left->identifier == "print" ||
+		functionCall->left->identifier == "input")
+		return true;
+
+	return false;
 }

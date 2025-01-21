@@ -42,6 +42,8 @@ bool compare(pair<Constant, int>& a, pair<Constant, int>& b);
 
 int countExprs(ExprListNode* expr);
 
+bool isRTLMethod(ExprNode* functionCall);
+
 /* ========= Проверки на ошибки ========= */
 
 vector<char> checkArgExistence(Class* clazz, Method* method, ExprNode* arg);
