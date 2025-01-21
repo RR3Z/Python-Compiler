@@ -39,7 +39,8 @@ void generate(FileNode* program, const map<string, Class*>& classesList) {
 		}
 
 		// access flags (u2) - ACC_SUPER (0x20) + ACC_PUBLIC (0x01)
-		fprintf(fileClass, "%c%c", 0x00, 0x21);
+		if (clazz.second->name == "__PROGRAM__") fprintf(fileClass, "%c%c", 0x00, 0x21);
+		else fprintf(fileClass, "%c%c", 0x00, 0x20);
 
 		// this class (u2)
 		vector<char> bytes = intToFourBytes(clazz.second->number);
@@ -538,10 +539,25 @@ vector<char> generateForStatementCode(StmtNode* stmt, Class* clazz, Method* meth
 vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Method* method) {
 	vector<char> result, bytes = {};
 
+	if (method->name == "<init>" && !method->isClassCreated) {
+		// Загружаем ссылку на this
+		result.push_back((char)Command::aload);
+		bytes = intToBytes(method->localVars.size() - 1, 1);
+		result.push_back(bytes[0]);
+		// Создаем явно наш объект
+		result.push_back((char)Command::invokespecial);
+		bytes = intToBytes(method->baseConstructorNumber, 2);
+		result.insert(result.end(), bytes.begin(), bytes.end());
+
+		// Запоминаем, что присвоили this объект
+		method->isClassCreated = true;
+	}
+
 	bytes = generateExpressionCode(assignStmt->rightExpr, clazz, method);
 	result.insert(result.end(), bytes.begin(), bytes.end());
 
 	if (clazz->fields.find(assignStmt->leftExpr->identifier) != clazz->fields.end()) {
+		// Для __PROGRAM__
 		if (clazz->name == "__PROGRAM__") {
 			if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
 				result.push_back((char)Command::astore);
@@ -554,8 +570,27 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			return result;
 		}
+		// Для всех остальных классов
+		else {
+			if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
+				result.push_back((char)Command::astore);
+				result.push_back(assignStmt->leftExpr->paramLocalVarNum);
+				return result;
+			}
 
-		// TODO: Добавить для обычных классов
+			// Загружаем ссылку на this
+			result.push_back((char)Command::aload);
+			bytes = intToBytes(method->localVars.size() - 1, 1);
+			result.push_back(bytes[0]);
+			// Меняем местами this и значение
+			result.push_back((char)Command::swap);
+			// Размещаем в поле
+			result.push_back((char)Command::putfield);
+			bytes = intToBytes(assignStmt->number, 2);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			return result;
+		}
+		
 	} 
 	else if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
 		result.push_back((char)Command::astore);
@@ -877,7 +912,16 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 					exprCounter = exprCounter->next;
 				}
 			}
-			if (clazz->name == "__PROGRAM__") result.push_back((char)Command::invokestatic);
+			if (clazz->name == "__PROGRAM__" && !expr->isConstructor) result.push_back((char)Command::invokestatic);
+			else if (expr->isConstructor)
+			{
+				result.push_back((char)Command::_new);
+				bytes = intToBytes(clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8(expr->left->identifier)))), 2);
+				result.push_back(bytes[0]);
+				result.push_back(bytes[1]);
+				result.push_back((char)Command::dup);
+				result.push_back((char)Command::invokespecial);
+			}
 			else result.push_back((char)Command::invokevirtual);
 
 			bytes = intToBytes(expr->number, 2);

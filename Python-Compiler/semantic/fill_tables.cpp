@@ -41,7 +41,7 @@ void fillTables(FileNode* program) {
 			switch (programElement->elementType)
 			{
 				case _CLASS_DEF:
-					//fillTable(programElement->classDef);
+					fillTables(programElement->classDef);
 					break;
 				case _FUNC_DEF:
 					fillMethodTable(entryClass, programElement->funcDef);
@@ -96,8 +96,24 @@ void fillTables(ClassNode* classDef) {
 			throw runtime_error("S: ERROR -> parent class " + classDef->base->stringVal + " for class " + classDef->identifier->stringVal + " not found");
 		}
 	}
+	// Родительский класс по умолчанию
+	else newClass->parentNumber = newClass->pushOrFindConstant(*Constant::Class(newClass->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 
-	// По идее не может быть пустым (всегда отлавливается на уровне парсера)
+	// Конструктор по умолчанию
+	Method* initMethod = new Method();
+	initMethod->name = "<init>";
+	initMethod->nameNumber = newClass->pushOrFindConstant(*Constant::UTF8(initMethod->name));
+	initMethod->descriptorNumber = newClass->pushOrFindConstant(*Constant::UTF8("()V"));
+	initMethod->localVars.push_back("this");
+	initMethod->baseClassNumber = newClass->pushOrFindConstant(*Constant::Class(newClass->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+	initMethod->baseConstructorNumber = newClass->pushOrFindMethodRef("__BASE__", "<init>", "()V");
+	initMethod->suite = new StmtsListNode();
+	initMethod->number = newClass->pushOrFindMethodRef(newClass->name, initMethod->name, "()V");
+	initMethod->selfMethodRef = newClass->pushOrFindMethodRef("__BASE__", initMethod->name, "()V");
+	initMethod->isClassCreated = false;
+	newClass->methods[initMethod->name] = initMethod;
+
+	// Заполнение тела
 	if (classDef->suite != nullptr && classDef->suite->first != nullptr) {
 		ClassElementNode* classElement = classDef->suite->first;
 		while (classElement != nullptr) {
@@ -107,6 +123,39 @@ void fillTables(ClassNode* classDef) {
 					//fillMethodTable(newClass, classElement->funcDef);
 					break;
 				case _STMT_NODE:
+					// В конструктор идут только поля класса
+					if (classElement->stmt->stmtType == _COMPOUND_ASSIGN && classElement->stmt->stmtsList != nullptr) {
+						fillFieldTable(newClass, classElement->stmt->stmtsList);
+
+						if (initMethod->suite->first != nullptr) {
+							initMethod->suite->last->next = classElement->stmt;
+							initMethod->suite->last = classElement->stmt;
+						}
+						else {
+							initMethod->suite->first = classElement->stmt;
+							initMethod->suite->last = classElement->stmt;
+						}
+
+						fillMethodTable(newClass, initMethod, classElement->stmt->stmtsList);
+					}
+					// Все остальное идет в main функцию класса __PROGRAM__
+					else {
+						
+						//if (mainMethod->suite == nullptr) mainMethod->suite = new StmtsListNode();
+
+						//if (mainMethod->suite->first != nullptr) {
+						//	mainMethod->suite->last->next = programElement->stmt;
+						//	mainMethod->suite->last = programElement->stmt;
+						//}
+						//else {
+						//	mainMethod->suite->first = programElement->stmt;
+						//	mainMethod->suite->last = programElement->stmt;
+						//}
+
+						//fillMethodTable(entryClass, mainMethod, programElement->stmt);
+
+						//fillMethodTable(newClass, classesList["__PROGRAM__"]->methods["main"], classElement->stmt);
+					}
 					break;
 			}
 
@@ -114,8 +163,7 @@ void fillTables(ClassNode* classDef) {
 		}
 	}
 
-	// TODO: Конструктор по умолчанию (от java/lang/Object)
-	//newClass->pushOrFindConstant(*Constant::UTF8("<init>"));
+	classesList["__PROGRAM__"]->pushOrFindMethodRef("A", "<init>", "()V");
 }
 
 // ========= Заполнение таблиц методов =========
@@ -412,6 +460,8 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			fillMethodTable(clazz, method, expr->left);
 			break;
 		case _FUNCTION_CALL:
+			// Проверка является ли заданный метод конструктором
+			if (isConstructorCall(clazz, expr)) expr->isConstructor = true;
 			// Проверка на существование метода
 			isMethodExists(clazz, method, expr);
 			
@@ -591,6 +641,8 @@ bool checkRTLFunctionCallParams(ExprNode* expr) {
 }
 
 void isMethodExists(Class* clazz, Method* method, ExprNode* functionCall) {
+	if (functionCall->isConstructor) return;
+
 	if (functionCall != nullptr && functionCall->exprType == _FUNCTION_CALL) {
 		if (clazz->methods.find(functionCall->left->identifier) == clazz->methods.end()) {
 			if (isRTLMethodExists(clazz, functionCall) || method->name == functionCall->left->identifier) return;
@@ -679,6 +731,13 @@ void checkConditionForErrors(Class* clazz, Method* method, ExprNode* condition, 
 	}
 }
 
+bool isConstructorCall(Class* clazz, ExprNode* functionCall) {
+	if (functionCall->exprType == _FUNCTION_CALL) {
+		if (clazz->findMethodRef(functionCall->left->identifier, "<init>", "()V") != -1) return true;
+		return false;
+	}
+}
+
 // ========= Вспомогательные функции =========
 
 // TODO: в качестве параметров могут передаваться и другие классы, для которых будет другой дескриптор
@@ -744,8 +803,7 @@ int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr) {
 				}
 				else return clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
 			}
+			else if (expr->isConstructor) return clazz->pushOrFindMethodRef(expr->left->identifier, "<init>", "()V");
 			else return clazz->pushOrFindMethodRef(clazz->name, expr->left->identifier, clazz->methods[expr->left->identifier]->descriptor);
 	}
-
-	throw runtime_error("UNSUPPORTED TYPE");
 }

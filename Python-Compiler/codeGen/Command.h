@@ -10,6 +10,7 @@ enum Command {
 	aload = 0x19,
 	athrow = 0xBF,
 	pop = 0x57,
+	swap = 0x5F,
 
 	anewarray = 0xBD,
 	aastore = 0x53,
@@ -20,6 +21,7 @@ enum Command {
 	ldc_w = 0x13,
 
 	getfield = 0xB4,
+	putfield = 0xB5,
 
 	ifeq = 0x99,
 	ifne = 0x9A,

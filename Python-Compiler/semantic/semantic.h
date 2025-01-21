@@ -31,13 +31,13 @@ struct Method {
 	string descriptor = "";
 	int descriptorNumber = -1;
 
-	// Для локальных переменных (TODO: почему строки, а не int?)
+	// Для локальных переменных
 	vector<string> localVars = {};
 
 	// Ссылка на узел дерева с элементами тела
 	StmtsListNode* suite = nullptr;
 
-	// Super класса Java (java/lang/Object)
+	// Ссылка на сам метод
 	int selfMethodRef = -1;
 
 	// Количество параметров (передаваемых в функцию)
@@ -50,6 +50,9 @@ struct Method {
 
 	// Модификатор доступа
 	AccessFlag accessModifier;
+
+	// ИСПОЛЬЗУЕТСЯ ТОЛЬКО В КОНСТРУКТОРАХ КЛАССОВ
+	bool isClassCreated = false;
 };
 
 class Class {
@@ -185,6 +188,7 @@ bool checkRTLFunctionCallParams(ExprNode* expr);
 void isMethodExists(Class* clazz, Method* method, ExprNode* functionCall);
 bool isRTLMethodExists(Class* clazz, ExprNode* functionCall);
 void checkConditionForErrors(Class* clazz, Method* method, ExprNode* condition, string stmtType);
+bool isConstructorCall(Class* clazz, ExprNode* functionCall);
 
 // Функции для заполнения таблиц
 void fillTables(FileNode* program);
