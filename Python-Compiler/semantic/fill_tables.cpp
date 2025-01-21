@@ -179,9 +179,7 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 		case _PRIVATE:
 			method->accessModifier = PRIVATE;
 			break;
-		case _PROTECTED:
-			method->accessModifier = PROTECTED;
-			break;
+		case _PROTECTED: // Protected работает аналогично Public (да, Python...)
 		case _UNKNOWN: // Если нет модификатора доступа, то по дефолту public.
 		case _PUBLIC:
 			method->accessModifier = PUBLIC;
