@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 
-std::map<std::string, Class*> classesList;
+map<string, Class*> classesList;
 
 // ========= Функции для начала заполнения таблиц =========
 
@@ -72,7 +72,6 @@ void fillTables(FileNode* program) {
 	}
 }
 
-// TODO: классы
 void fillTables(ClassNode* classDef) {
 	// Создание нового класса
 	Class* newClass = new Class();
@@ -162,14 +161,19 @@ void fillTables(ClassNode* classDef) {
 		}
 	}
 
+	// Дефолтный конструктор добавляется в constant pool нашей программы
 	classesList["__PROGRAM__"]->pushOrFindMethodRef("A", "<init>", "()V");
 }
 
 // ========= Заполнение таблиц методов =========
 
-// TODO: именованные аргументы + дескриптор
+// TODO: дескриптор
 void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 	checkMethodNameForErrors(funcDef);
+
+	if(clazz->name != "__PROGRAM__" && funcDef->args == nullptr) {
+		throw runtime_error("S: ERROR -> Incorrect amount of args in function definition (" + funcDef->identifier->identifier + ") in class \"" + clazz->name + "\"");
+	}
 
 	Method* method = new Method();
 	method->name = funcDef->identifier->identifier;
@@ -188,6 +192,7 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 	}
 
 	// Аргументы метода
+	if (clazz->name != "__PROGRAM__") { method->localVars.push_back("this"); }
 	int paramsCounter = 0;
 	if (funcDef->args != nullptr) {
 		// Обычные аргументы (a,b,c,...)
@@ -243,22 +248,51 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 	switch (stmt->stmtType)
 	{
 		case _ASSIGN:
-			if (!stmt->leftExpr->identifier.empty()) {
+			// Для обращения к полю класса в левой части выражения (a.b = 5)
+			if (stmt->leftExpr->exprType == _ATTRIBUTE_REF) {
+				string fieldName = stmt->leftExpr->right->identifier;
+				string thisName = stmt->leftExpr->left->identifier;
+
+				// Проверка, задан ли объект, к которому обращаются среди локалок метода
+				if (find(method->localVars.begin(), method->localVars.end(), thisName) == method->localVars.end()) {
+					throw runtime_error("S: ERROR -> Can't get REF \"" + thisName + "\" in class (" + clazz->name + ") method \"" + method->name + "\"");
+				}
+				else { stmt->leftExpr->left->paramLocalVarNum = findElementIndexInVector(method->localVars, thisName); }
+
+				// Проверка на наличие поля в классе
+				if (clazz->fields.find(stmt->leftExpr->identifier) == clazz->fields.end()) {
+					if (clazz->name != "__PROGRAM__") {
+						fillFieldTable(clazz, stmt->leftExpr->right);
+						stmt->number = clazz->fields[fieldName]->number;
+					}
+					else throw runtime_error("S: ERROR -> Unknown field \"" + thisName + "\" in class \"" + clazz->name + "\"");
+				}
+			}
+
+			// Для обычной переменной (a = 5)
+			if (stmt->leftExpr->exprType == _IDENTIFIER) {
 				if (find(method->localVars.begin(), method->localVars.end(), stmt->leftExpr->identifier) != method->localVars.end()) {
 					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
 				}
-
 				// Если переменная не является полем класса, добавляем ее в качестве локальной переменной текущей функции
-				if (clazz->fields.find(stmt->leftExpr->identifier) == clazz->fields.end()) {
-					method->localVars.push_back(stmt->leftExpr->identifier);
+				else if (clazz->fields.find(stmt->leftExpr->identifier) == clazz->fields.end()) {
+					if (clazz->name == "__PROGRAM__") { method->localVars.push_back(stmt->leftExpr->identifier); }
 					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
+
+					if (stmt->leftExpr->paramLocalVarNum == -1) {
+						throw runtime_error("S: ERROR -> Trying to assign value to unknown identifier \"" +
+							stmt->leftExpr->identifier + "\" in method \"" + method->name + "\" of class \"" + clazz->name + "\"");
+					}
 				}
 				else {
 					stmt->number = clazz->fields[stmt->leftExpr->identifier]->number;
 				}
 			}
-
+			// var
 			fillMethodTable(clazz, method, stmt->leftExpr);
+
+			// value
+			castVariable(clazz, stmt);
 			fillMethodTable(clazz, method, stmt->rightExpr);
 			break;
 		case _COMPOUND_ASSIGN:
@@ -328,7 +362,6 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			break;
 
 		case _RETURN:
-			// TODO: множественное возвращение
 			if (stmt->list != nullptr) {
 				ExprNode* expr = stmt->list->first;
 
@@ -462,7 +495,6 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 
 			// Определяем функцию (RTL или обычная)
 			expr->number = defineMethodRefByExprNode(clazz, method, expr);
-			
 			break;
 		case _LIST_CREATION:
 			if (expr->list != nullptr) {
@@ -502,6 +534,40 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 		case _NOT:
 			expr->number = clazz->pushOrFindMethodRef("__BASE__", "__not__", ("()L__BASE__;"));
 			fillMethodTable(clazz, method, expr->left);
+			break;
+		case _ATTRIBUTE_REF:
+			// TODO: сделать проверку что слева и справа допустимый тип данных
+			fillMethodTable(clazz, method, expr->left);
+			fillMethodTable(clazz, method, expr->right);
+
+			// Получение номера в constant pool на объект, к которому обращаются
+			if (expr->left->exprType == _IDENTIFIER) {
+				string classObjectName = expr->left->identifier;
+				string fieldName = expr->right->identifier;
+
+				// Если объект, к которому обращаются, является локалкой, запоминаем индекс аргумента в функции
+				if (find(method->localVars.begin(), method->localVars.end(), classObjectName) != method->localVars.end()) {
+					expr->paramLocalVarNum = findElementIndexInVector(method->localVars, classObjectName);
+				}
+
+				// Если объект, к которому обращаются, является полем класса
+				if (clazz->fields.find(classObjectName) != clazz->fields.end()) {
+					expr->number = clazz->fields[classObjectName]->number;
+				}
+			}
+
+			// Получение fieldref из класса, к которому обращаются
+			if (expr->right->exprType == _IDENTIFIER) {
+				string classRefName = clazz->fields[expr->left->identifier]->className;
+				Class* classRef = classesList[classRefName];
+				Field* fieldRef = classRef->findField(expr->right->identifier);
+				if (fieldRef == nullptr) { throw runtime_error("S: ERROR -> ZADNICA"); }
+
+				expr->objectFieldRef = clazz->pushOrFindFieldRef(classRef->name, fieldRef->name, fieldRef->descriptor);
+			}
+			break;
+		case _METHOD_CALL:
+			// TODO
 			break;
 	}
 }
@@ -555,6 +621,39 @@ void fillFieldTable(Class* clazz, StmtNode* assignStmt) {
 	// FieldRef
 	field->number = clazz->pushOrFindFieldRef(clazz->name, field->name, field->descriptor);
 	assignStmt->number = field->number;
+
+	clazz->fields[field->name] = field;
+
+	classesList["__PROGRAM__"]->pushOrFindFieldRef(clazz->name, field->name, field->descriptor);
+}
+
+void fillFieldTable(Class* clazz, ExprNode* identifierExpr) {
+	Field* field = new Field();
+
+	// Имя
+	field->name = identifierExpr->identifier;
+	field->nameNumber = clazz->pushOrFindConstant(*Constant::UTF8(field->name));
+	field->nameNode = identifierExpr;
+
+	// Модификатор доступа - AccessModifier -> AccessFlag
+	switch (identifierExpr->accessModifier) {
+		case _PRIVATE:
+			field->accessModifier = PRIVATE;
+			break;
+		case _UNKNOWN: // Если нет модификатора доступа, то по умолчанию public.
+		case _PROTECTED: // Protected работает аналогично Public (да, Python...)
+		case _PUBLIC:
+			field->accessModifier = PUBLIC;
+			break;
+	}
+
+	// Дескриптор
+	field->descriptor = "L__BASE__;";
+	field->descriptorNumber = clazz->pushOrFindConstant(*Constant::UTF8(field->descriptor));
+
+	// FieldRef
+	field->number = clazz->pushOrFindFieldRef(clazz->name, field->name, field->descriptor);
+	identifierExpr->number = field->number;
 
 	clazz->fields[field->name] = field;
 }
@@ -788,5 +887,18 @@ int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr) {
 			}
 			else if (expr->isConstructor) return clazz->pushOrFindMethodRef(expr->left->identifier, "<init>", "()V");
 			else return clazz->pushOrFindMethodRef(clazz->name, expr->left->identifier, clazz->methods[expr->left->identifier]->descriptor);
+	}
+}
+
+void castVariable(Class* clazz, StmtNode* assignStmt) {
+	if (assignStmt->rightExpr->exprType == _FUNCTION_CALL) {
+		if (clazz->pushOrFindMethodRef(assignStmt->rightExpr->left->identifier, "<init>", "()V")) {
+			string newDescriptor = "L" + assignStmt->rightExpr->left->identifier + ";";
+			clazz->fields[assignStmt->leftExpr->identifier]->className = assignStmt->rightExpr->left->identifier;
+			clazz->fields[assignStmt->leftExpr->identifier]->descriptor = newDescriptor;
+			clazz->fields[assignStmt->leftExpr->identifier]->descriptorNumber = clazz->pushOrFindConstant(*Constant::UTF8(newDescriptor));
+			clazz->fields[assignStmt->leftExpr->identifier]->number = clazz->pushOrFindFieldRef(clazz->name, assignStmt->leftExpr->identifier, newDescriptor);
+			assignStmt->number = clazz->pushOrFindFieldRef(clazz->name, assignStmt->leftExpr->identifier, newDescriptor);
+		}
 	}
 }

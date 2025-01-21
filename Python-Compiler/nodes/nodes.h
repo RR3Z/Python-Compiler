@@ -54,6 +54,8 @@ struct ExprNode {
 	// ТОЛЬКО ДЛЯ LAMBDA
 	FuncArgsListNode* funcArgs = nullptr;
 
+	// Модификатор доступа (ТОЛЬКО ДЛЯ IDENTIFIER)
+	AccessModifier accessModifier;
 
 	// SEMANTIC
 	int paramLocalVarNum = -1; // for func param
@@ -67,6 +69,8 @@ struct ExprNode {
 	int listConstructorMethodRef = -1;
 	int booleanInitMethodRef = -1;
 	int booleanFieldRef = -1;
+
+	int objectFieldRef = -1;
 
 	bool isConstructor = false;
 };

@@ -16,6 +16,8 @@ struct Field {
 	
 	int descriptorNumber = -1; // Номер дескриптора
 	string descriptor = ""; // Дескриптор (тип переменной)
+
+	string className = "__BASE__"; // Название класса, которым является
 	 
 	AccessFlag accessModifier; // Модификатор доступа
 };
@@ -69,7 +71,6 @@ public:
 	map<Constant, int> constants;
 	map<string, Method*> methods;
 	map<string, Field*> fields;
-	// TODO: добавить таблицу для модификаторов доступа (для AccessModifier)
 
 	int pushOrFindConstant(const Constant& constant) {
 		// Поиск константы в таблице констант
@@ -157,6 +158,12 @@ public:
 		return findMethodRef(this->name, methodName, descriptor);
 	}
 
+	Field* findField(const string& fieldName) {
+		Field* field = fields[fieldName];
+		if (field == nullptr) return nullptr;
+		return field;
+	}
+
 private:
 	long long _ID = 0;
 };
@@ -178,6 +185,7 @@ void transform(ExprNode* expr);
 // Функции для определения модификатора доступа элементов внутри класса
 void defineAccessModifier(FuncNode* funcDef);
 void defineAccessModifier(StmtNode* stmt);
+void defineAccessModifier(ExprNode* expr);
 
 // Функции для определния ошибок
 void checkCompoundAssignForErrors(StmtNode* stmt);
@@ -202,6 +210,7 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr);
 // Таблица полей
 void fillFieldTable(Class* clazz, StmtsListNode* compoundAssign);
 void fillFieldTable(Class* clazz, StmtNode* assignStmt);
+void fillFieldTable(Class* clazz, ExprNode* identifierExpr);
 
 // RTL
 void addRTLToClass(Class* clazz);
@@ -211,3 +220,4 @@ string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor);
 string defineMethodReturnType(Method* method);
 int findElementIndexInVector(vector<string> vec, string element);
 int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr);
+void castVariable(Class* clazz, StmtNode* assignStmt);

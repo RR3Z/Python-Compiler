@@ -354,7 +354,10 @@ void transform(ExprNode* expr) {
 					arg = arg->next;
 				}
 			}
+			break;
 
+		case _ATTRIBUTE_REF:
+			defineAccessModifier(expr);
 			break;
 	}
 }
@@ -427,6 +430,16 @@ void defineAccessModifier(StmtNode* stmt) {
 
 		stmtNode = stmtNode->next;
 	}
+}
+
+void defineAccessModifier(ExprNode* expr) {
+	if (expr == nullptr) {
+		return;
+	}
+
+	if ((expr->identifier).starts_with("__")) { expr->accessModifier = _PRIVATE; }
+	else if ((expr->identifier).starts_with("_")) { expr->accessModifier = _PROTECTED; }
+	else { expr->accessModifier = _PUBLIC; }
 }
 
 /* ========== ERRORS ========== */

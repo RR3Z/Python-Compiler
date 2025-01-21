@@ -230,6 +230,13 @@ void generateAttributeCode(Method* method, Class* clazz) {
 		// Запоминаем, что присвоили this объект
 		method->isClassCreated = true;
 	}
+	// В Python первый аргумент в функции всегда ссылка на объект
+	if (clazz->name != "__PROGRAM__" && method->name != "<init>") {
+		codeBytes.push_back((char)Command::aload);
+		codeBytes.push_back(0x00);
+		codeBytes.push_back((char)Command::astore);
+		codeBytes.push_back(0x01);
+	}
 	if (method->suite != nullptr) {
 		if (method->suite->first != nullptr) {
 			StmtNode* stmt = method->suite->first;
@@ -555,49 +562,67 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 	bytes = generateExpressionCode(assignStmt->rightExpr, clazz, method);
 	result.insert(result.end(), bytes.begin(), bytes.end());
 
-	if (clazz->fields.find(assignStmt->leftExpr->identifier) != clazz->fields.end()) {
-		// Для __PROGRAM__
-		if (clazz->name == "__PROGRAM__") {
-			if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
-				result.push_back((char)Command::astore);
-				result.push_back(assignStmt->leftExpr->paramLocalVarNum);
+	if (assignStmt->leftExpr->exprType == _IDENTIFIER) {
+		if (clazz->fields.find(assignStmt->leftExpr->identifier) != clazz->fields.end()) {
+			// Для __PROGRAM__
+			if (clazz->name == "__PROGRAM__") {
+				if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
+					result.push_back((char)Command::astore);
+					result.push_back(assignStmt->leftExpr->paramLocalVarNum);
+					return result;
+				}
+
+				result.push_back((char)Command::putstatic);
+				bytes = intToBytes(assignStmt->number, 2);
+				result.insert(result.end(), bytes.begin(), bytes.end());
+				return result;
+			}
+			// Для всех остальных классов
+			else {
+				if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
+					result.push_back((char)Command::astore);
+					result.push_back(assignStmt->leftExpr->paramLocalVarNum);
+					return result;
+				}
+
+				// Загружаем ссылку на this
+				result.push_back((char)Command::aload);
+				bytes = intToBytes(0, 1);
+				result.push_back(bytes[0]);
+				// Меняем местами this и значение
+				result.push_back((char)Command::swap);
+				// Размещаем в поле
+				result.push_back((char)Command::putfield);
+				bytes = intToBytes(assignStmt->number, 2);
+				result.insert(result.end(), bytes.begin(), bytes.end());
 				return result;
 			}
 
-			result.push_back((char)Command::putstatic);
-			bytes = intToBytes(assignStmt->number, 2);
-			result.insert(result.end(), bytes.begin(), bytes.end());
+		}
+		else if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
+			result.push_back((char)Command::astore);
+			result.push_back(assignStmt->leftExpr->paramLocalVarNum);
 			return result;
 		}
-		// Для всех остальных классов
-		else {
-			if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
-				result.push_back((char)Command::astore);
-				result.push_back(assignStmt->leftExpr->paramLocalVarNum);
-				return result;
-			}
 
+	}
+
+	if (assignStmt->leftExpr->exprType == _ATTRIBUTE_REF) {
+		if (clazz->fields.find(assignStmt->leftExpr->right->identifier) != clazz->fields.end()) {
 			// Загружаем ссылку на this
 			result.push_back((char)Command::aload);
-			bytes = intToBytes(method->localVars.size() - 1, 1);
-			result.push_back(bytes[0]);
+			result.push_back(0x01);
 			// Меняем местами this и значение
 			result.push_back((char)Command::swap);
 			// Размещаем в поле
 			result.push_back((char)Command::putfield);
 			bytes = intToBytes(assignStmt->number, 2);
+
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			return result;
-		}
-		
-	} 
-	else if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->identifier) != method->localVars.end()) {
-		result.push_back((char)Command::astore);
-		result.push_back(assignStmt->leftExpr->paramLocalVarNum);
-		return result;
+		} else { throw runtime_error("S: ERROR -> Trying assign value to unknown field \"" + assignStmt->leftExpr->right->identifier +
+			"\" in method \"" + method->name + "\" for class \"" + clazz->name + "\""); }
 	}
-
-	throw runtime_error("CodeGen: ERROR -> Trying assign value to unknown identifier");
 }
 
 // TODO
@@ -676,62 +701,25 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[1]);
 			break;
 		case _IDENTIFIER:
-			if (clazz->name == "__PROGRAM__") {
-				if (clazz->fields.find(expr->identifier) != clazz->fields.end()) {
-					result.push_back((char)Command::getstatic);
-					bytes = intToBytes(clazz->fields[expr->identifier]->number, 2);
-					result.push_back(bytes[0]);
-					result.push_back(bytes[1]);
-				}
-				else if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
-					result.push_back((char)Command::aload);
-					bytes = intToBytes(expr->paramLocalVarNum, 1);
-					result.push_back(bytes[0]);
-				}
-			}
-			else {
-				// TODO: для обычных классов
-			}
-			/*
 			if (clazz->fields.find(expr->identifier) != clazz->fields.end()) {
-				if (clazz->name == "__PROGRAM__") {
-					if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
-						result.push_back((char)Command::aload);
-						bytes = intToBytes(expr->paramLocalVarNum, 1);
-						result.push_back(bytes[0]);
-						break;
-					}
-
-					result.push_back((char)Command::getstatic);
-					bytes = intToBytes(clazz->fields[expr->identifier]->number, 2);
+				if (clazz->name == "__PROGRAM__") { result.push_back((char)Command::getstatic); }
+				else {
+					// Загружаем ссылку на this
+					result.push_back((char)Command::aload);
+					bytes = intToBytes(method->localVars.size() - 1, 1);
 					result.push_back(bytes[0]);
-					result.push_back(bytes[1]);
-					break;
+					// Получаем поле объекта
+					result.push_back((char)Command::getfield);
 				}
-
-				// TODO: Сделать для обычных классов
+				bytes = intToBytes(clazz->fields[expr->identifier]->number, 2);
+				result.push_back(bytes[0]);
+				result.push_back(bytes[1]);
 			}
-			if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
+			else if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
 				result.push_back((char)Command::aload);
 				bytes = intToBytes(expr->paramLocalVarNum, 1);
 				result.push_back(bytes[0]);
-				break;
 			}
-			*/
-			break;
-		case _METHOD_CALL:
-			if (expr->list != nullptr) {
-				exprCounter = expr->list->first;
-				while (exprCounter != nullptr) {
-					bytes = generateExpressionCode(exprCounter, clazz, method);
-					result.insert(result.end(), bytes.begin(), bytes.end());
-					exprCounter = exprCounter->next;
-				}
-			}
-			result.push_back((char)Command::invokespecial);
-			bytes = intToBytes(expr->number, 2);
-			result.push_back(bytes[0]);
-			result.push_back(bytes[1]);
 			break;
 		case _PLUS:
 		case _MINUS:
@@ -920,9 +908,47 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 				result.push_back((char)Command::dup);
 				result.push_back((char)Command::invokespecial);
 			}
-			else if (clazz->name == "__PROGRAM__" || isRTLMethod(expr)) { result.push_back((char)Command::invokestatic);	}
+			else if (clazz->name == "__PROGRAM__" || isRTLMethod(expr)) { result.push_back((char)Command::invokestatic); }
 			else { result.push_back((char)Command::invokevirtual); }
 
+			bytes = intToBytes(expr->number, 2);
+			result.push_back(bytes[0]);
+			result.push_back(bytes[1]);
+			break;
+		case _ATTRIBUTE_REF:
+			// Для класса __PROGRAM__
+			if (clazz->name == "__PROGRAM__") {
+				// Переменная к которой обращаемся
+				if (find(method->localVars.begin(), method->localVars.end(), expr->left->identifier) != method->localVars.end()) {
+					result.push_back((char)Command::aload);
+					result.push_back(expr->paramLocalVarNum);
+				}
+				else {
+					result.push_back((char)Command::getstatic);
+					bytes = intToBytes(expr->number, 2);
+					result.insert(result.end(), bytes.begin(), bytes.end());
+				}
+
+				// Поле к которому обращаемся
+				result.push_back((char)Command::getfield);
+				bytes = intToBytes(expr->objectFieldRef, 2);
+				result.insert(result.end(), bytes.begin(), bytes.end());
+			}
+			// Для всех остальных классов
+			else {
+				// TODO
+			}
+			break;
+		case _METHOD_CALL:
+			if (expr->list != nullptr) {
+				exprCounter = expr->list->first;
+				while (exprCounter != nullptr) {
+					bytes = generateExpressionCode(exprCounter, clazz, method);
+					result.insert(result.end(), bytes.begin(), bytes.end());
+					exprCounter = exprCounter->next;
+				}
+			}
+			result.push_back((char)Command::invokevirtual);
 			bytes = intToBytes(expr->number, 2);
 			result.push_back(bytes[0]);
 			result.push_back(bytes[1]);
