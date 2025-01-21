@@ -138,23 +138,21 @@ void fillTables(ClassNode* classDef) {
 
 						fillMethodTable(newClass, initMethod, classElement->stmt->stmtsList);
 					}
-					// Все остальное идет в main функцию класса __PROGRAM__
+					// Все остальное идет в main функцию класса __PROGRAM__ (вызывается при запуске программы)
 					else {
-						
-						//if (mainMethod->suite == nullptr) mainMethod->suite = new StmtsListNode();
+						Method* mainMethod = classesList["__PROGRAM__"]->methods["main"];
+						if(mainMethod->suite == nullptr) mainMethod->suite = new StmtsListNode();
 
-						//if (mainMethod->suite->first != nullptr) {
-						//	mainMethod->suite->last->next = programElement->stmt;
-						//	mainMethod->suite->last = programElement->stmt;
-						//}
-						//else {
-						//	mainMethod->suite->first = programElement->stmt;
-						//	mainMethod->suite->last = programElement->stmt;
-						//}
+						if (mainMethod->suite->first != nullptr) {
+							mainMethod->suite->last->next = classElement->stmt;
+							mainMethod->suite->last = classElement->stmt;
+						}
+						else {
+							mainMethod->suite->first = classElement->stmt;
+							mainMethod->suite->last = classElement->stmt;
+						}
 
-						//fillMethodTable(entryClass, mainMethod, programElement->stmt);
-
-						//fillMethodTable(newClass, classesList["__PROGRAM__"]->methods["main"], classElement->stmt);
+						fillMethodTable(classesList["__PROGRAM__"], mainMethod, classElement->stmt);
 					}
 					break;
 			}
