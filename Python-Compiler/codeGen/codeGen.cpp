@@ -227,7 +227,7 @@ void generateAttributeCode(Method* method, Class* clazz) {
 			}
 		}
 
-		if (method->suite->last->stmtType != _RETURN) {
+		if (method->suite->last != nullptr && method->suite->last->stmtType != _RETURN) {
 			// return void для корректной работы JVM
 			bytes.clear();
 			bytes.push_back((char)Command::_return);

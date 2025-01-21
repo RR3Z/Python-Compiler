@@ -408,8 +408,7 @@ void defineAccessModifier(FuncNode* funcDef) {
 }
 
 void defineAccessModifier(StmtNode* stmt) {
-	if (stmt == nullptr) {
-		throw runtime_error("S: ERROR->StmtNode is unavailable");
+	if (stmt == nullptr || stmt->stmtsList == nullptr) {
 		return;
 	}
 
