@@ -220,7 +220,7 @@ void generateAttributeCode(Method* method, Class* clazz) {
 	if (method->name == "<init>" && !method->isClassCreated) {
 		// Загружаем ссылку на this
 		codeBytes.push_back((char)Command::aload);
-		bytes = intToBytes(method->localVars.size() - 1, 1);
+		bytes = intToBytes(0x00, 1);
 		codeBytes.push_back(bytes[0]);
 		// Создаем явно наш объект
 		codeBytes.push_back((char)Command::invokespecial);

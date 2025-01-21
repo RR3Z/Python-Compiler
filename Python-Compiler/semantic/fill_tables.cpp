@@ -92,7 +92,7 @@ void fillTables(ClassNode* classDef) {
 			newClass->parent = classesList[classDef->base->stringVal];
 		}
 		else {
-			throw runtime_error("S: ERROR -> parent class " + classDef->base->stringVal + " for class " + classDef->identifier->stringVal + " not found");
+			throw runtime_error("S: ERROR -> parent class " + classDef->base->identifier + " for class " + classDef->identifier->identifier + " not found");
 		}
 	}
 	// Родительский класс по умолчанию
@@ -260,13 +260,13 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 				else { stmt->leftExpr->left->paramLocalVarNum = findElementIndexInVector(method->localVars, thisName); }
 
 				// Проверка на наличие поля в классе
-				if (clazz->fields.find(stmt->leftExpr->identifier) == clazz->fields.end()) {
+				if (clazz->fields.find(fieldName) == clazz->fields.end()) {
 					if (clazz->name != "__PROGRAM__") {
 						fillFieldTable(clazz, stmt->leftExpr->right);
 						stmt->number = clazz->fields[fieldName]->number;
 					}
 					else throw runtime_error("S: ERROR -> Unknown field \"" + thisName + "\" in class \"" + clazz->name + "\"");
-				}
+				} else if (clazz->name != "__PROGRAM__") { stmt->number = clazz->fields[fieldName]->number; }
 			}
 
 			// Для обычной переменной (a = 5)
@@ -276,7 +276,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 				}
 				// Если переменная не является полем класса, добавляем ее в качестве локальной переменной текущей функции
 				else if (clazz->fields.find(stmt->leftExpr->identifier) == clazz->fields.end()) {
-					if (clazz->name == "__PROGRAM__") { method->localVars.push_back(stmt->leftExpr->identifier); }
+					method->localVars.push_back(stmt->leftExpr->identifier);
 					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
 
 					if (stmt->leftExpr->paramLocalVarNum == -1) {
@@ -285,7 +285,13 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 					}
 				}
 				else {
-					stmt->number = clazz->fields[stmt->leftExpr->identifier]->number;
+					if(clazz->name != "__PROGRAM__") {
+						if (method->name != "<init>") {
+							method->localVars.push_back(stmt->leftExpr->identifier);
+							stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
+						}
+					}
+					else stmt->number = clazz->fields[stmt->leftExpr->identifier]->number;
 				}
 			}
 			// var
@@ -541,7 +547,7 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			fillMethodTable(clazz, method, expr->right);
 
 			// Получение номера в constant pool на объект, к которому обращаются
-			if (expr->left->exprType == _IDENTIFIER) {
+			if (expr->left->exprType == _IDENTIFIER || expr->left->exprType == _SELF) {
 				string classObjectName = expr->left->identifier;
 				string fieldName = expr->right->identifier;
 
@@ -558,12 +564,14 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 
 			// Получение fieldref из класса, к которому обращаются
 			if (expr->right->exprType == _IDENTIFIER) {
-				string classRefName = clazz->fields[expr->left->identifier]->className;
-				Class* classRef = classesList[classRefName];
-				Field* fieldRef = classRef->findField(expr->right->identifier);
-				if (fieldRef == nullptr) { throw runtime_error("S: ERROR -> ZADNICA"); }
+				string classRefName = clazz->fields[expr->right->identifier]->className;
+				if (classRefName != "__BASE__") {
+					Class* classRef = classesList[classRefName];
+					Field* fieldRef = classRef->findField(expr->right->identifier);
+					if (fieldRef == nullptr) { throw runtime_error("S: ERROR -> ZADNICA"); }
 
-				expr->objectFieldRef = clazz->pushOrFindFieldRef(classRef->name, fieldRef->name, fieldRef->descriptor);
+					expr->objectFieldRef = clazz->pushOrFindFieldRef(classRef->name, fieldRef->name, fieldRef->descriptor);
+				}
 			}
 			break;
 		case _METHOD_CALL:

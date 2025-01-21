@@ -159,9 +159,12 @@ public:
 	}
 
 	Field* findField(const string& fieldName) {
-		Field* field = fields[fieldName];
-		if (field == nullptr) return nullptr;
-		return field;
+		auto iter = fields.find(fieldName);
+		if (iter != fields.end()) {
+			return iter->second;
+		}
+
+		return nullptr;
 	}
 
 private:

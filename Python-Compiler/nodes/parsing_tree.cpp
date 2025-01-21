@@ -257,6 +257,7 @@ ExprNode* createSelfExprNode() {
 	ExprNode* node = new ExprNode();
 
 	node->exprType = _SELF;
+	node->identifier = "self";
 	node->id = ID++;
 
 	return node;
