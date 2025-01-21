@@ -161,6 +161,8 @@ void fillTables(ClassNode* classDef) {
 		}
 	}
 
+	newClass->pushOrFindMethodRef("A", "<init>", "()V");
+
 	// Дефолтный конструктор добавляется в constant pool нашей программы
 	classesList["__PROGRAM__"]->pushOrFindMethodRef("A", "<init>", "()V");
 }
@@ -254,7 +256,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 				string thisName = stmt->leftExpr->left->identifier;
 
 				// Проверка, задан ли объект, к которому обращаются среди локалок метода
-				if (find(method->localVars.begin(), method->localVars.end(), thisName) == method->localVars.end()) {
+				if (method->name != "main" && find(method->localVars.begin(), method->localVars.end(), thisName) == method->localVars.end()) {
 					throw runtime_error("S: ERROR -> Can't get REF \"" + thisName + "\" in class (" + clazz->name + ") method \"" + method->name + "\"");
 				}
 				else { stmt->leftExpr->left->paramLocalVarNum = findElementIndexInVector(method->localVars, thisName); }
@@ -265,12 +267,22 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 						fillFieldTable(clazz, stmt->leftExpr->right);
 						stmt->number = clazz->fields[fieldName]->number;
 					}
-					else throw runtime_error("S: ERROR -> Unknown field \"" + thisName + "\" in class \"" + clazz->name + "\"");
+					else if (method->name != "main") throw runtime_error("S: ERROR -> Unknown field \"" + thisName + "\" in class \"" + clazz->name + "\"");
 				} else if (clazz->name != "__PROGRAM__") { stmt->number = clazz->fields[fieldName]->number; }
 			}
 
 			// Для обычной переменной (a = 5)
 			if (stmt->leftExpr->exprType == _IDENTIFIER || stmt->leftExpr->exprType == _SELF) {
+
+				// Проверка, что переменная, которую присваивают, существует
+				if (stmt->rightExpr->exprType == _IDENTIFIER) {
+					if (find(method->localVars.begin(), method->localVars.end(), stmt->rightExpr->identifier) == method->localVars.end() &&
+						clazz->fields.find(stmt->rightExpr->identifier) == clazz->fields.end()) {
+						throw runtime_error("S: ERROR -> Trying to assign unknown value \"" +
+							stmt->rightExpr->identifier + "\" to variable \"" + stmt->leftExpr->identifier + "\" in method \"" + method->name + "\" of class \"" + clazz->name + "\"");
+					}
+				}
+
 				if (find(method->localVars.begin(), method->localVars.end(), stmt->leftExpr->identifier) != method->localVars.end()) {
 					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
 				}
@@ -564,11 +576,10 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 
 			// Получение fieldref из класса, к которому обращаются
 			if (expr->right->exprType == _IDENTIFIER) {
-				if (clazz->fields.find(expr->left->identifier) != clazz->fields.end()) {
+				if (clazz->fields.find(expr->left->identifier) != clazz->fields.end() && clazz->fields[expr->left->identifier]->className != "__BASE__") {
 					string classRefName = clazz->fields[expr->left->identifier]->className;
 					Class* classRef = classesList[classRefName];
 					Field* fieldRef = classRef->findField(expr->right->identifier);
-					if (fieldRef == nullptr) { throw runtime_error("S: ERROR -> ZADNICA"); }
 
 					expr->objectFieldRef = clazz->pushOrFindFieldRef(classRef->name, fieldRef->name, fieldRef->descriptor);
 				}

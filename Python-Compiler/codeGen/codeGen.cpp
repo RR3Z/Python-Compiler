@@ -562,6 +562,7 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 	bytes = generateExpressionCode(assignStmt->rightExpr, clazz, method);
 	result.insert(result.end(), bytes.begin(), bytes.end());
 
+	// Присваивание значения переменной
 	if (assignStmt->leftExpr->exprType == _IDENTIFIER || assignStmt->leftExpr->exprType == _SELF) {
 		if (clazz->fields.find(assignStmt->leftExpr->identifier) != clazz->fields.end()) {
 			// Для __PROGRAM__
@@ -607,8 +608,34 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 
 	}
 
+	// Присваивание значению поля
 	if (assignStmt->leftExpr->exprType == _ATTRIBUTE_REF) {
-		if (clazz->fields.find(assignStmt->leftExpr->right->identifier) != clazz->fields.end()) {
+		// Для класса __PROGRAM__
+		if (clazz->name == "__PROGRAM__") {
+			// Переменная к которой обращаемся
+			if (find(method->localVars.begin(), method->localVars.end(), assignStmt->leftExpr->left->identifier) != method->localVars.end()) {
+				result.push_back((char)Command::aload);
+				result.push_back(assignStmt->leftExpr->paramLocalVarNum);
+			}
+			if (clazz->fields.find(assignStmt->leftExpr->left->identifier) != clazz->fields.end()) {
+				result.push_back((char)Command::getstatic);
+				bytes = intToBytes(assignStmt->leftExpr->number, 2);
+				result.insert(result.end(), bytes.begin(), bytes.end());
+			}
+			else {
+				throw runtime_error("S: ERROR -> Trying assign value to unknown field ref \"" + assignStmt->leftExpr->left->identifier +
+					"." + assignStmt->leftExpr->right->identifier + "\" in method \"" + method->name + "\"");
+			}
+
+			// Кладу значение в поле к которому обращаемся
+			result.push_back((char)Command::swap);
+			result.push_back((char)Command::putfield);
+			bytes = intToBytes(assignStmt->leftExpr->objectFieldRef, 2);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			return result;
+		}
+
+		else if (clazz->fields.find(assignStmt->leftExpr->right->identifier) != clazz->fields.end()) {
 			// Загружаем ссылку на this
 			result.push_back((char)Command::aload);
 			result.push_back(0x01);
@@ -620,8 +647,11 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			return result;
-		} else { throw runtime_error("S: ERROR -> Trying assign value to unknown field \"" + assignStmt->leftExpr->right->identifier +
-			"\" in method \"" + method->name + "\" for class \"" + clazz->name + "\""); }
+		}
+		else {
+			throw runtime_error("S: ERROR -> Trying assign value to unknown field ref\"" + assignStmt->leftExpr->left->identifier +
+				"." + assignStmt->leftExpr->right->identifier + "\" in method \"" + method->name + "\"");
+		}
 	}
 }
 
