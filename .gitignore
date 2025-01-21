@@ -33,6 +33,9 @@
 # Logs
 *.log
 
+# Compiled by JVM files
+*.class
+
 # Own ignores
 .vs/
 x64/
