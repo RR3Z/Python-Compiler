@@ -200,19 +200,7 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 			arg = arg->next;
 		}
 
-		// TODO: Именованные аргументы (d=1,e=2,...)
-		/*
-		FuncArgNode* namedArg = funcDef->args->namedArgsList->first;
-		while (namedArg != nullptr) {
-			paramsCounter++;
-
-			//TODO: записать значения и константы в таблицы
-			method->localVars.push_back(namedArg->assignStmt->leftExpr->identifier);
-			// TODO: записать в expr node индекс аругмента в методе ???
-
-			namedArg = namedArg->next;
-		}
-		*/
+		// Здесь могли быть именованные аргументы...
 	}
 	method->paramsCount = paramsCounter;
 
