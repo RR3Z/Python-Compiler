@@ -562,7 +562,7 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 	bytes = generateExpressionCode(assignStmt->rightExpr, clazz, method);
 	result.insert(result.end(), bytes.begin(), bytes.end());
 
-	if (assignStmt->leftExpr->exprType == _IDENTIFIER) {
+	if (assignStmt->leftExpr->exprType == _IDENTIFIER || assignStmt->leftExpr->exprType == _SELF) {
 		if (clazz->fields.find(assignStmt->leftExpr->identifier) != clazz->fields.end()) {
 			// Для __PROGRAM__
 			if (clazz->name == "__PROGRAM__") {

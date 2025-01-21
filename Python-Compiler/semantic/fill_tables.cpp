@@ -270,7 +270,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			}
 
 			// Для обычной переменной (a = 5)
-			if (stmt->leftExpr->exprType == _IDENTIFIER) {
+			if (stmt->leftExpr->exprType == _IDENTIFIER || stmt->leftExpr->exprType == _SELF) {
 				if (find(method->localVars.begin(), method->localVars.end(), stmt->leftExpr->identifier) != method->localVars.end()) {
 					stmt->leftExpr->paramLocalVarNum = findElementIndexInVector(method->localVars, stmt->leftExpr->identifier);
 				}
@@ -564,8 +564,8 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 
 			// Получение fieldref из класса, к которому обращаются
 			if (expr->right->exprType == _IDENTIFIER) {
-				string classRefName = clazz->fields[expr->right->identifier]->className;
-				if (classRefName != "__BASE__") {
+				if (clazz->fields.find(expr->left->identifier) != clazz->fields.end()) {
+					string classRefName = clazz->fields[expr->left->identifier]->className;
 					Class* classRef = classesList[classRefName];
 					Field* fieldRef = classRef->findField(expr->right->identifier);
 					if (fieldRef == nullptr) { throw runtime_error("S: ERROR -> ZADNICA"); }
