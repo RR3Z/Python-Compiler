@@ -216,6 +216,13 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 	}
 	method->paramsCount = paramsCounter;
 
+	// Ссылки на super класс __BASE__
+	method->baseClassNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
+	method->baseConstructorNumber = clazz->pushOrFindMethodRef("__BASE__", "<init>", "()V");
+	clazz->methods[method->name] = method;
+
+	method->suite = funcDef->suite;
+
 	// Составление дескриптора
 	string methodReturnType = defineMethodReturnType(method);
 	string methodDescriptor = generateMethodDescriptor(paramsCounter, methodReturnType);
@@ -225,13 +232,7 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 	method->number = clazz->pushOrFindMethodRef(clazz->name, method->name, methodDescriptor);
 	funcDef->idSemantic = method->number;
 
-	// Ссылки на super класс __BASE__
-	method->baseClassNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
-	method->baseConstructorNumber = clazz->pushOrFindMethodRef("__BASE__", "<init>", "()V");
-	clazz->methods[method->name] = method;
-
 	// Генерация таблиц для тела функции
-	method->suite = funcDef->suite;
 	fillMethodTable(clazz, method, method->suite);
 
 	if (clazz->name != "__PROGRAM__") {
@@ -338,7 +339,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 		case _ELIF:
 			// condition
 			if (stmt->expr != nullptr) {
-				checkConditionForErrors(clazz, method, stmt->expr, "IF");
+				//checkConditionForErrors(clazz, method, stmt->expr, "IF");
 				fillMethodTable(clazz, method, stmt->expr);
 			}
 			if (stmt->suite != nullptr) fillMethodTable(clazz, method, stmt->suite); // suite
@@ -380,7 +381,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 		case _WHILE:
 			// condition
 			if (stmt->expr != nullptr) {
-				checkConditionForErrors(clazz, method, stmt->expr, "WHILE");
+				//checkConditionForErrors(clazz, method, stmt->expr, "WHILE");
 				fillMethodTable(clazz, method, stmt->expr);
 			}
 
@@ -979,10 +980,7 @@ string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor) 
 	return descriptor;
 }
 
-// TODO: реализовать множественное возвращение (сейчас можно вернуть только один элемент)
 string defineMethodReturnType(Method* method) {
-	vector<ExprNode*> returnValues = {};
-
 	if (method->suite == nullptr) return "V";
 
 	StmtNode* suiteStmt = method->suite->first;
