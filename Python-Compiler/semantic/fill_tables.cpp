@@ -258,6 +258,9 @@ void fillMethodTable(Class* clazz, Method* method, StmtsListNode* stmts) {
 
 // TODO
 void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
+	int iteratorNum = 0;
+	string iteratorVar = "";
+	
 	switch (stmt->stmtType)
 	{
 		case _ASSIGN:
@@ -370,8 +373,14 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			if (stmt->suite != nullptr) fillMethodTable(clazz, method, stmt->suite);
 
 			// Дополнительная переменная для корректной работы цикла
-			method->localVars.push_back("iterator");
-			stmt->iteratorNumber = findElementIndexInVector(method->localVars, "iterator");
+			iteratorNum = 0;
+			iteratorVar = "iterator_reserve" + iteratorNum;
+			while (find(method->localVars.begin(), method->localVars.end(), iteratorVar) != method->localVars.end()) {
+				iteratorNum++;
+				iteratorVar = "iterator_reserve" + iteratorNum;
+			}
+			method->localVars.push_back(iteratorVar);
+			stmt->iteratorNumber = findElementIndexInVector(method->localVars, iteratorVar);
 			stmt->baseClassNumber = clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__"))));
 			// Дополнительные методы для реализации цикла
 			stmt->getIteratorMethodRef = clazz->pushOrFindMethodRef("__BASE__", "__get_iterator__", "()Ljava/util/Iterator;");
