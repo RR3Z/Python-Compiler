@@ -199,6 +199,10 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 			paramsCounter++;
 			method->localVars.push_back(arg->identifier);
 
+			if (paramsCounter == 1 && clazz->name != "__PROGRAM__") {
+				method->varType[arg->identifier] = clazz->name;
+			}
+
 			arg = arg->next;
 		}
 
@@ -713,7 +717,20 @@ void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 		ExprNode* arg = expr->funcArgs->exprList->first;
 		while (arg != nullptr) {
 			if (find(method->localVars.begin(), method->localVars.end(), arg->identifier) == method->localVars.end() && clazz->fields.find(arg->identifier) == clazz->fields.end() && arg->exprType == _IDENTIFIER) {
-				throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\".");
+				throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
+			}
+
+			if (arg->exprType == _ATTRIBUTE_REF) {
+				if (find(method->localVars.begin(), method->localVars.end(), arg->left->identifier) == method->localVars.end()) {
+					throw runtime_error("S: ERROR -> variable \"" + arg->left->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
+				}
+				else {
+					Class* classRef = classesList[method->varType[arg->left->identifier]];
+					Field* fieldRef = classRef->findField(arg->right->identifier);
+					if (fieldRef == nullptr) {
+						throw runtime_error("S: ERROR -> field \"" + arg->right->identifier + "\" is not defined for object \"" + arg->left->identifier + "\". Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
+					}
+				}
 			}
 
 			arg = arg->next;
