@@ -157,10 +157,10 @@ void fillTables(ClassNode* classDef) {
 		}
 	}
 
-	newClass->pushOrFindMethodRef("A", "<init>", "()V");
+	newClass->pushOrFindMethodRef(newClass->name, "<init>", "()V");
 
 	// Дефолтный конструктор добавляется в constant pool нашей программы
-	classesList["__PROGRAM__"]->pushOrFindMethodRef("A", "<init>", "()V");
+	classesList["__PROGRAM__"]->pushOrFindMethodRef(newClass->name, "<init>", "()V");
 }
 
 // ========= Заполнение таблиц методов =========
