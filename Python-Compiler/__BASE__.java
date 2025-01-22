@@ -466,6 +466,20 @@ public class __BASE__ {
         throw new UnsupportedOperationException("range() can take only integer value");
     }
 
+    public static __BASE__ range(__BASE__ firstValue, __BASE__ secondValue){
+        if(firstValue.__type == INTEGER && secondValue.__type == INTEGER) {
+            ArrayList<__BASE__> rangeList = new ArrayList<>();
+
+            for(int i = firstValue.__iVal; i < secondValue.__iVal; i++) {
+                rangeList.add(new __BASE__(i));
+            }
+
+            return new __BASE__(rangeList);
+        }
+
+        throw new UnsupportedOperationException("range() can take only integer values");
+    }
+
     public __BASE__ __to_i__() {
         if (this.__type == INTEGER)
             return new __BASE__(this.__iVal);
