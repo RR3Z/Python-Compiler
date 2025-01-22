@@ -961,7 +961,16 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			}
 			// Для всех остальных классов
 			else {
-				// TODO
+				// Переменная к которой обращаемся
+				if (find(method->localVars.begin(), method->localVars.end(), expr->left->identifier) != method->localVars.end()) {
+					result.push_back((char)Command::aload);
+					result.push_back(expr->paramLocalVarNum);
+				}
+
+				// Поле к которому обращаемся
+				result.push_back((char)Command::getfield);
+				bytes = intToBytes(expr->objectFieldRef, 2);
+				result.insert(result.end(), bytes.begin(), bytes.end());
 			}
 			break;
 		case _METHOD_CALL:
