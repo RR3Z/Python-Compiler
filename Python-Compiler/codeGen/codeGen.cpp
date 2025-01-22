@@ -731,7 +731,12 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			result.push_back(bytes[1]);
 			break;
 		case _IDENTIFIER:
-			if (clazz->fields.find(expr->identifier) != clazz->fields.end()) {
+			if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
+				result.push_back((char)Command::aload);
+				bytes = intToBytes(expr->paramLocalVarNum, 1);
+				result.push_back(bytes[0]);
+			}
+			else if (clazz->fields.find(expr->identifier) != clazz->fields.end()) {
 				if (clazz->name == "__PROGRAM__") { result.push_back((char)Command::getstatic); }
 				else {
 					// Загружаем ссылку на this
@@ -744,11 +749,6 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 				bytes = intToBytes(clazz->fields[expr->identifier]->number, 2);
 				result.push_back(bytes[0]);
 				result.push_back(bytes[1]);
-			}
-			else if (find(method->localVars.begin(), method->localVars.end(), expr->identifier) != method->localVars.end()) {
-				result.push_back((char)Command::aload);
-				bytes = intToBytes(expr->paramLocalVarNum, 1);
-				result.push_back(bytes[0]);
 			}
 			break;
 		case _PLUS:
