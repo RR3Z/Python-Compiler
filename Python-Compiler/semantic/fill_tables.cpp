@@ -169,7 +169,7 @@ void fillTables(ClassNode* classDef) {
 void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 	checkMethodNameForErrors(funcDef);
 
-	if(clazz->name != "__PROGRAM__" && funcDef->args == nullptr) {
+	if (clazz->name != "__PROGRAM__" && funcDef->args == nullptr) {
 		throw runtime_error("S: ERROR -> Incorrect amount of args in function definition (" + funcDef->identifier->identifier + ") in class \"" + clazz->name + "\"");
 	}
 
@@ -190,7 +190,7 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 	}
 
 	// Аргументы метода
-	if (clazz->name != "__PROGRAM__") { method->localVars.push_back("this"); }
+	if (clazz->name != "__PROGRAM__") { method->localVars.push_back("this"); } // нулевой аргумент в любом методе собственного класса - this
 	int paramsCounter = 0;
 	if (funcDef->args != nullptr) {
 		// Обычные аргументы (a,b,c,...)
@@ -227,6 +227,10 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 	// Генерация таблиц для тела функции
 	method->suite = funcDef->suite;
 	fillMethodTable(clazz, method, method->suite);
+
+	if (clazz->name != "__PROGRAM__") {
+		classesList["__PROGRAM__"]->pushOrFindMethodRef(clazz->name, method->name, method->descriptor);
+	}
 }
 
 void fillMethodTable(Class* clazz, Method* method, StmtsListNode* stmts) {
@@ -597,7 +601,24 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			}
 			break;
 		case _METHOD_CALL:
-			// TODO
+			// Проверка на существование метода внутри класса
+			isMethodExists(clazz, method, expr);
+
+			expr->left->paramLocalVarNum = findElementIndexInVector(method->localVars, expr->left->identifier);
+
+			if (expr->funcArgs != nullptr) {
+				// Проверка количества аргументов
+				checkFunctionCallParams(clazz, method, expr);
+
+				ExprNode* arg = expr->funcArgs->exprList->first;
+				while (arg != nullptr) {
+					fillMethodTable(clazz, method, arg);
+					arg = arg->next;
+				}
+			}
+
+			// Определяем номер метода из constant pool вызываемого класса
+			expr->number = defineMethodRefByExprNode(clazz, method, expr);
 			break;
 	}
 }
@@ -712,7 +733,7 @@ void addRTLToClass(Class* clazz) {
 // ========= Функции проверок =========
 
 void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
-	if (expr != nullptr && expr->exprType == _FUNCTION_CALL && expr->funcArgs != nullptr) {
+	if (expr != nullptr && (expr->exprType == _FUNCTION_CALL || expr->exprType == _METHOD_CALL) && expr->funcArgs != nullptr) {
 		// 1) Проверка на существование передаваемых аргументов
 		ExprNode* arg = expr->funcArgs->exprList->first;
 		while (arg != nullptr) {
@@ -768,10 +789,16 @@ bool checkRTLFunctionCallParams(ExprNode* expr) {
 void isMethodExists(Class* clazz, Method* method, ExprNode* functionCall) {
 	if (functionCall->isConstructor) return;
 
-	if (functionCall != nullptr && functionCall->exprType == _FUNCTION_CALL) {
-		if (clazz->methods.find(functionCall->left->identifier) == clazz->methods.end()) {
-			if (isRTLMethodExists(clazz, functionCall) || method->name == functionCall->left->identifier) return;
-			throw runtime_error("S: ERROR -> trying call unknown function \"" + functionCall->left->identifier + "\"");
+	if (functionCall != nullptr) {
+		if (functionCall->exprType == _FUNCTION_CALL) {
+			if (clazz->methods.find(functionCall->left->identifier) == clazz->methods.end()) {
+				if (isRTLMethodExists(clazz, functionCall) || method->name == functionCall->left->identifier) return;
+				throw runtime_error("S: ERROR -> trying call unknown function \"" + functionCall->left->identifier + "\"");
+			}
+		}
+
+		if (functionCall->exprType == _METHOD_CALL) {
+			// TODO
 		}
 	}
 } 
@@ -913,6 +940,7 @@ int findElementIndexInVector(vector<string> vec, string element) {
 int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr) {
 	switch (expr->exprType)
 	{
+		
 		case _FUNCTION_CALL:
 			if (expr->left->identifier == "print") {
 				if (expr->funcArgs != nullptr) {
@@ -930,7 +958,15 @@ int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr) {
 			}
 			else if (expr->isConstructor) return clazz->pushOrFindMethodRef(expr->left->identifier, "<init>", "()V");
 			else return clazz->pushOrFindMethodRef(clazz->name, expr->left->identifier, clazz->methods[expr->left->identifier]->descriptor);
-	}
+			break;
+		case _METHOD_CALL:
+			string className = method->varType[expr->left->identifier];
+			string methodName = expr->right->identifier;
+			string methodDescriptor = classesList[className]->methods[methodName]->descriptor;
+			int methodRefNumber = clazz->pushOrFindMethodRef(className, methodName, methodDescriptor);
+			return methodRefNumber;
+			break;
+	} 
 }
 
 void castVariable(Class* clazz, Method* method, StmtNode* assignStmt) {

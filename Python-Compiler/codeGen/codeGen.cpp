@@ -974,14 +974,22 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			}
 			break;
 		case _METHOD_CALL:
-			if (expr->list != nullptr) {
-				exprCounter = expr->list->first;
+			// Загружаем ссылку на объект (из которого вызываем функцию)
+			result.push_back((char)Command::aload);
+			bytes = intToBytes(expr->left->paramLocalVarNum, 1);
+			result.insert(result.end(), bytes.begin(), bytes.end());
+			// Первый аргумент всегда ссылка на этот самый объект
+			result.push_back((char)Command::dup);
+			// Загружаем аргументы функции
+			if (expr->funcArgs != nullptr) {
+				exprCounter = expr->funcArgs->exprList->first;
 				while (exprCounter != nullptr) {
 					bytes = generateExpressionCode(exprCounter, clazz, method);
 					result.insert(result.end(), bytes.begin(), bytes.end());
 					exprCounter = exprCounter->next;
 				}
 			}
+			// Вызываем метод
 			result.push_back((char)Command::invokevirtual);
 			bytes = intToBytes(expr->number, 2);
 			result.push_back(bytes[0]);
