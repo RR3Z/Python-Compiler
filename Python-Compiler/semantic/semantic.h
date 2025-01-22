@@ -25,6 +25,9 @@ struct Field {
 struct Method {
 	int number = -1; // Номер метода
 
+	// Name : Descriptor
+	map<string, string> varType;
+
 	// Для имени метода
 	string name = "";
 	int nameNumber = -1;
@@ -223,4 +226,4 @@ string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor);
 string defineMethodReturnType(Method* method);
 int findElementIndexInVector(vector<string> vec, string element);
 int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr);
-void castVariable(Class* clazz, StmtNode* assignStmt);
+void castVariable(Class* clazz, Method* method, StmtNode* assignStmt);

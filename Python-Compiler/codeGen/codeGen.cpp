@@ -617,11 +617,6 @@ vector<char> generateAssignStatementCode(StmtNode* assignStmt, Class* clazz, Met
 				result.push_back((char)Command::aload);
 				result.push_back(assignStmt->leftExpr->paramLocalVarNum);
 			}
-			if (clazz->fields.find(assignStmt->leftExpr->left->identifier) != clazz->fields.end()) {
-				result.push_back((char)Command::getstatic);
-				bytes = intToBytes(assignStmt->leftExpr->number, 2);
-				result.insert(result.end(), bytes.begin(), bytes.end());
-			}
 			else {
 				throw runtime_error("S: ERROR -> Trying assign value to unknown field ref \"" + assignStmt->leftExpr->left->identifier +
 					"." + assignStmt->leftExpr->right->identifier + "\" in method \"" + method->name + "\"");

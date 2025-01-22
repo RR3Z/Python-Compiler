@@ -47,10 +47,6 @@ void fillTables(FileNode* program) {
 					fillMethodTable(entryClass, programElement->funcDef);
 					break;
 				case _STMT:
-					if (programElement->stmt->stmtType == _COMPOUND_ASSIGN && programElement->stmt->stmtsList != nullptr) {
-						fillFieldTable(entryClass, programElement->stmt->stmtsList);
-					}
-
 					if (mainMethod->suite == nullptr) mainMethod->suite = new StmtsListNode();
 
 					if (mainMethod->suite->first != nullptr) {
@@ -306,11 +302,12 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 					else stmt->number = clazz->fields[stmt->leftExpr->identifier]->number;
 				}
 			}
+
 			// var
 			fillMethodTable(clazz, method, stmt->leftExpr);
 
 			// value
-			castVariable(clazz, stmt);
+			castVariable(clazz, method, stmt);
 			fillMethodTable(clazz, method, stmt->rightExpr);
 			break;
 		case _COMPOUND_ASSIGN:
@@ -567,21 +564,31 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 				if (find(method->localVars.begin(), method->localVars.end(), classObjectName) != method->localVars.end()) {
 					expr->paramLocalVarNum = findElementIndexInVector(method->localVars, classObjectName);
 				}
-
 				// Если объект, к которому обращаются, является полем класса
-				if (clazz->fields.find(classObjectName) != clazz->fields.end()) {
+				else if (clazz->fields.find(classObjectName) != clazz->fields.end()) {
 					expr->number = clazz->fields[classObjectName]->number;
 				}
 			}
 
 			// Получение fieldref из класса, к которому обращаются
-			if (expr->right->exprType == _IDENTIFIER) {
-				if (clazz->fields.find(expr->left->identifier) != clazz->fields.end() && clazz->fields[expr->left->identifier]->className != "__BASE__") {
-					string classRefName = clazz->fields[expr->left->identifier]->className;
-					Class* classRef = classesList[classRefName];
-					Field* fieldRef = classRef->findField(expr->right->identifier);
-
-					expr->objectFieldRef = clazz->pushOrFindFieldRef(classRef->name, fieldRef->name, fieldRef->descriptor);
+			if (expr->right->exprType == _IDENTIFIER || expr->right->exprType == _SELF) {
+				if (clazz->name == "__PROGRAM__") {
+					if (find(method->localVars.begin(), method->localVars.end(), expr->left->identifier) != method->localVars.end()) {
+						Class* classRef = classesList[method->varType[expr->left->identifier]];
+						Field* fieldRef = classRef->findField(expr->right->identifier);
+						if (fieldRef == nullptr) throw runtime_error("S: ERROR -> Unknown field \"" + expr->right->identifier + "\" for class \"" +
+							classRef->name + "\" in FIELD REF \"" + expr->left->identifier + "." + expr->right->identifier + "\" of method \"" + method->name + "\"");
+						string fieldDescriptor = fieldRef->descriptor;
+						expr->objectFieldRef = clazz->findFieldRef(method->varType[expr->left->identifier], expr->right->identifier, fieldDescriptor);
+					}
+					else throw runtime_error("S: ERROR -> Unknown variable \"" + expr->left->identifier + "\" in class \"" + clazz->name + "\" method \"" + method->name + "\"");
+				}
+				else if (clazz->fields.find(expr->right->identifier) != clazz->fields.end()) {
+					Field* fieldRef = clazz->findField(expr->right->identifier);
+					if (fieldRef == nullptr) throw runtime_error("S: ERROR -> Unknown field \"" + expr->right->identifier + "\" for class \"" +
+						clazz->name + "\" in FIELD REF \"" + expr->left->identifier + "." + expr->right->identifier + "\" of method \"" + method->name + "\"");
+					string fieldDescriptor = fieldRef->descriptor;
+					expr->objectFieldRef = clazz->findFieldRef(expr->right->identifier, fieldDescriptor);
 				}
 			}
 			break;
@@ -909,15 +916,13 @@ int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr) {
 	}
 }
 
-void castVariable(Class* clazz, StmtNode* assignStmt) {
+void castVariable(Class* clazz, Method* method, StmtNode* assignStmt) {
 	if (assignStmt->rightExpr->exprType == _FUNCTION_CALL) {
-		if (clazz->pushOrFindMethodRef(assignStmt->rightExpr->left->identifier, "<init>", "()V")) {
-			string newDescriptor = "L" + assignStmt->rightExpr->left->identifier + ";";
-			clazz->fields[assignStmt->leftExpr->identifier]->className = assignStmt->rightExpr->left->identifier;
-			clazz->fields[assignStmt->leftExpr->identifier]->descriptor = newDescriptor;
-			clazz->fields[assignStmt->leftExpr->identifier]->descriptorNumber = clazz->pushOrFindConstant(*Constant::UTF8(newDescriptor));
-			clazz->fields[assignStmt->leftExpr->identifier]->number = clazz->pushOrFindFieldRef(clazz->name, assignStmt->leftExpr->identifier, newDescriptor);
-			assignStmt->number = clazz->pushOrFindFieldRef(clazz->name, assignStmt->leftExpr->identifier, newDescriptor);
+		if (clazz->findMethodRef(assignStmt->rightExpr->left->identifier, "<init>", "()V") != -1) {
+			method->varType[assignStmt->leftExpr->identifier] = assignStmt->rightExpr->left->identifier;
 		}
+	}
+	else {
+		method->varType[assignStmt->leftExpr->identifier] = "__BASE__";
 	}
 }
