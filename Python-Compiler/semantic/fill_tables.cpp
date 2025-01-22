@@ -594,15 +594,17 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			// Добавляю узел, для будущей проверки на правильность
 			clazz->funcMethodCalls.push_back(make_pair(method->name, expr));
 
+			expr->argsCount = 0;
 			if (expr->funcArgs != nullptr) {
-				checkFunctionCallParams(clazz, method, expr);
-
 				ExprNode* arg = expr->funcArgs->exprList->first;
 				while (arg != nullptr) {
 					fillMethodTable(clazz, method, arg);
+					expr->argsCount++;
 					arg = arg->next;
 				}
 			}
+			// Проверка количества аргументов
+			checkFunctionCallParams(clazz, method, expr);
 			break;
 		case _METHOD_CALL:
 			// Добавляю узел, для будущей проверки на правильность
@@ -610,16 +612,17 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 
 			expr->left->paramLocalVarNum = findElementIndexInVector(method->localVars, expr->left->identifier);
 
+			expr->argsCount = 0;
 			if (expr->funcArgs != nullptr) {
-				// Проверка количества аргументов
-				checkFunctionCallParams(clazz, method, expr);
-
 				ExprNode* arg = expr->funcArgs->exprList->first;
 				while (arg != nullptr) {
 					fillMethodTable(clazz, method, arg);
+					expr->argsCount++;
 					arg = arg->next;
 				}
 			}
+			// Проверка количества аргументов
+			checkFunctionCallParams(clazz, method, expr);
 			break;
 	}
 }
@@ -734,37 +737,83 @@ void addRTLToClass(Class* clazz) {
 // ========= Функции проверок =========
 
 void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
-	if (expr != nullptr && (expr->exprType == _FUNCTION_CALL || expr->exprType == _METHOD_CALL) && expr->funcArgs != nullptr) {
-		// 1) Проверка на существование передаваемых аргументов
-		ExprNode* arg = expr->funcArgs->exprList->first;
-		while (arg != nullptr) {
-			if (find(method->localVars.begin(), method->localVars.end(), arg->identifier) == method->localVars.end() && clazz->fields.find(arg->identifier) == clazz->fields.end() && arg->exprType == _IDENTIFIER) {
-				throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
-			}
-
-			if (arg->exprType == _ATTRIBUTE_REF) {
-				if (find(method->localVars.begin(), method->localVars.end(), arg->left->identifier) == method->localVars.end()) {
-					throw runtime_error("S: ERROR -> variable \"" + arg->left->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
-				}
-				else {
-					Class* classRef = classesList[method->varType[arg->left->identifier]];
-					Field* fieldRef = classRef->findField(arg->right->identifier);
-					if (fieldRef == nullptr) {
-						throw runtime_error("S: ERROR -> field \"" + arg->right->identifier + "\" is not defined for object \"" + arg->left->identifier + "\". Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
+	if (expr != nullptr) {
+		if (expr->exprType == _FUNCTION_CALL) {
+			// 1) Проверка на существование передаваемых аргументов
+			if (expr->funcArgs != nullptr) {
+				ExprNode* arg = expr->funcArgs->exprList->first;
+				while (arg != nullptr) {
+					if (find(method->localVars.begin(), method->localVars.end(), arg->identifier) == method->localVars.end() && arg->exprType == _IDENTIFIER) {
+						throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
 					}
+
+					if (arg->exprType == _ATTRIBUTE_REF) {
+						if (find(method->localVars.begin(), method->localVars.end(), arg->left->identifier) == method->localVars.end()) {
+							throw runtime_error("S: ERROR -> variable \"" + arg->left->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
+						}
+						else {
+							Class* classRef = classesList[method->varType[arg->left->identifier]];
+							Field* fieldRef = classRef->findField(arg->right->identifier);
+							if (fieldRef == nullptr) {
+								throw runtime_error("S: ERROR -> field \"" + arg->right->identifier + "\" is not defined for object \"" + arg->left->identifier + "\". Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
+							}
+						}
+					}
+
+					arg = arg->next;
 				}
 			}
 
-			arg = arg->next;
+			// 2) Сравнение количества передаваемых аргументов с количеством требуемых
+			// Для RTL функций
+			if (checkRTLFunctionCallParams(expr)) return;
+			// Для собственной функции
+			if (clazz->methods.find(expr->left->identifier) != clazz->methods.end() && expr->argsCount != clazz->methods[expr->left->identifier]->paramsCount) {
+				throw runtime_error("S: ERROR -> function \"" + expr->left->identifier + "\" takes " + to_string(clazz->methods[expr->left->identifier]->paramsCount) +
+					" arguments but " + to_string(expr->argsCount) + " was given");
+			}
 		}
 
-		// 2) Сравнение количества передаваемых аргументов с количеством требуемых
-		// Для RTL функций
-		if (checkRTLFunctionCallParams(expr)) return;
-		// Для собственной функции
-		if (clazz->methods.find(expr->left->identifier) != clazz->methods.end() && expr->argsCount != clazz->methods[expr->left->identifier]->paramsCount) {
-			throw runtime_error("S: ERROR -> function \"" + expr->left->identifier + "\" takes " + to_string(clazz->methods[expr->left->identifier]->paramsCount) +
-				" arguments but " + to_string(expr->argsCount) + " was given");
+		if (expr->exprType == _METHOD_CALL) {
+			// 1) Проверка на существование передаваемых аргументов
+			if (expr->funcArgs != nullptr) {
+				ExprNode* arg = expr->funcArgs->exprList->first;
+				while (arg != nullptr) {
+					if (find(method->localVars.begin(), method->localVars.end(), arg->identifier) == method->localVars.end() && arg->exprType == _IDENTIFIER) {
+						throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined. Method call \"" + expr->right->identifier
+							+ "\" for object \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
+					}
+
+					if (arg->exprType == _ATTRIBUTE_REF) {
+						if (find(method->localVars.begin(), method->localVars.end(), arg->left->identifier) == method->localVars.end()) {
+							throw runtime_error("S: ERROR -> variable \"" + arg->left->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
+						}
+						else {
+							Class* classRef = classesList[method->varType[arg->left->identifier]];
+							Field* fieldRef = classRef->findField(arg->right->identifier);
+							if (fieldRef == nullptr) {
+								throw runtime_error("S: ERROR -> field \"" + arg->right->identifier + "\" is not defined for object \"" + arg->left->identifier
+									+ "\". Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
+							}
+						}
+					}
+
+					arg = arg->next;
+				}
+			}
+
+			// 2) Сравнение количества передаваемых аргументов с количеством требуемых
+			// Для RTL функций
+			if (checkRTLFunctionCallParams(expr)) return;
+
+			// Для метода собственного класса
+			string className = method->varType[expr->left->identifier];
+			int paramsCount = classesList[className]->methods[expr->right->identifier]->paramsCount - 1;
+			int argsCount = expr->argsCount;
+
+			if(paramsCount - argsCount != 0) {
+				throw runtime_error("S: ERROR -> method \"" + expr->right->identifier + "\" takes " + to_string(paramsCount) + " arguments but " + to_string(argsCount) + " was given");
+			}
 		}
 	}
 }
