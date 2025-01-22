@@ -75,6 +75,10 @@ public:
 	map<string, Method*> methods;
 	map<string, Field*> fields;
 
+	// Нужно для проверки вызовов функций/методов внутри тела после заполнения этими методами/функциями (можно вызвать до ее объявления)
+	// Название функции, где вызывается + узел вызова
+	vector<pair<string, ExprNode*>> funcMethodCalls = {};
+
 	int pushOrFindConstant(const Constant& constant) {
 		// Поиск константы в таблице констант
 		auto iter = constants.find(constant);
@@ -203,6 +207,7 @@ void isMethodExists(Class* clazz, Method* method, ExprNode* functionCall);
 bool isRTLMethodExists(Class* clazz, ExprNode* functionCall);
 void checkConditionForErrors(Class* clazz, Method* method, ExprNode* condition, string stmtType);
 bool isConstructorCall(Class* clazz, ExprNode* functionCall);
+void checkFuncMethodCallsForErrors(Class* clazz);
 
 // Функции для заполнения таблиц
 void fillTables(FileNode* program);

@@ -66,6 +66,9 @@ void fillTables(FileNode* program) {
 			programElement = programElement->next;
 		}
 	}
+
+	// Проверка различных вызовов (так как можно вызвать функцию до ее объявления)
+	checkFuncMethodCallsForErrors(entryClass);
 }
 
 void fillTables(ClassNode* classDef) {
@@ -161,6 +164,9 @@ void fillTables(ClassNode* classDef) {
 
 	// Дефолтный конструктор добавляется в constant pool нашей программы
 	classesList["__PROGRAM__"]->pushOrFindMethodRef(newClass->name, "<init>", "()V");
+
+	// Проверка различных вызовов (так как можно вызвать функцию до ее объявления)
+	checkFuncMethodCallsForErrors(newClass);
 }
 
 // ========= Заполнение таблиц методов =========
@@ -500,25 +506,6 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 		case _BRACKETS:
 			fillMethodTable(clazz, method, expr->left);
 			break;
-		case _FUNCTION_CALL:
-			// Проверка является ли заданный метод конструктором
-			if (isConstructorCall(clazz, expr)) expr->isConstructor = true;
-			// Проверка на существование метода
-			isMethodExists(clazz, method, expr);
-			
-			if (expr->funcArgs != nullptr) {
-				checkFunctionCallParams(clazz, method, expr);
-
-				ExprNode* arg = expr->funcArgs->exprList->first;
-				while (arg != nullptr) {
-					fillMethodTable(clazz, method, arg);
-					arg = arg->next;
-				}
-			}
-
-			// Определяем функцию (RTL или обычная)
-			expr->number = defineMethodRefByExprNode(clazz, method, expr);
-			break;
 		case _LIST_CREATION:
 			if (expr->list != nullptr) {
 				ExprNode* listElement = expr->list->first;
@@ -600,9 +587,26 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 				}
 			}
 			break;
+		case _FUNCTION_CALL:
+			// Проверка является ли заданный метод конструктором
+			if (isConstructorCall(clazz, expr)) expr->isConstructor = true;
+
+			// Добавляю узел, для будущей проверки на правильность
+			clazz->funcMethodCalls.push_back(make_pair(method->name, expr));
+
+			if (expr->funcArgs != nullptr) {
+				checkFunctionCallParams(clazz, method, expr);
+
+				ExprNode* arg = expr->funcArgs->exprList->first;
+				while (arg != nullptr) {
+					fillMethodTable(clazz, method, arg);
+					arg = arg->next;
+				}
+			}
+			break;
 		case _METHOD_CALL:
-			// Проверка на существование метода внутри класса
-			isMethodExists(clazz, method, expr);
+			// Добавляю узел, для будущей проверки на правильность
+			clazz->funcMethodCalls.push_back(make_pair(method->name, expr));
 
 			expr->left->paramLocalVarNum = findElementIndexInVector(method->localVars, expr->left->identifier);
 
@@ -616,9 +620,6 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 					arg = arg->next;
 				}
 			}
-
-			// Определяем номер метода из constant pool вызываемого класса
-			expr->number = defineMethodRefByExprNode(clazz, method, expr);
 			break;
 	}
 }
@@ -887,6 +888,29 @@ bool isConstructorCall(Class* clazz, ExprNode* functionCall) {
 	if (functionCall->exprType == _FUNCTION_CALL) {
 		if (clazz->findMethodRef(functionCall->left->identifier, "<init>", "()V") != -1) return true;
 		return false;
+	}
+}
+
+void checkFuncMethodCallsForErrors(Class* clazz) {
+	ExprNode* callNode = nullptr;
+	string methodName = "";
+
+	vector<pair<string, ExprNode*>> calls = clazz->funcMethodCalls;
+
+	for (const auto& call : calls) {
+		methodName = call.first;
+		callNode = call.second;
+
+		if (callNode == nullptr || methodName.empty()) throw runtime_error("CRITICAL ERROR!");
+
+		switch (callNode->exprType)
+		{
+		case _METHOD_CALL:
+		case _FUNCTION_CALL:
+			isMethodExists(clazz, clazz->methods[methodName], callNode);
+			callNode->number = defineMethodRefByExprNode(clazz, clazz->methods[methodName], callNode);
+			break;
+		}
 	}
 }
 
