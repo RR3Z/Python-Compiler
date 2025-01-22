@@ -729,6 +729,9 @@ void addRTLToClass(Class* clazz) {
 	clazz->pushOrFindMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
 	clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
 
+	// range
+	clazz->pushOrFindMethodRef("__BASE__", "range", "(L__BASE__;)L__BASE__;");
+
 	// NullPointerException
 	clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("java/lang/NullPointerException"))));
 	clazz->pushOrFindMethodRef("java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V");
@@ -834,6 +837,13 @@ bool checkRTLFunctionCallParams(ExprNode* expr) {
 		return true;
 	}
 
+	if (expr->left->identifier == "range") {
+		if (expr->argsCount > 1 || expr->argsCount == 0) {
+			throw runtime_error("S: ERROR -> function \"" + expr->left->identifier + "\" takes 1 arguments but " + to_string(expr->argsCount) + " was given");
+		}
+		return true;
+	}
+
 	return false;
 }
 
@@ -868,6 +878,14 @@ bool isRTLMethodExists(Class* clazz, ExprNode* functionCall) {
 		int inputFirstMethodRefNumber = clazz->findMethodRef("__BASE__", "input", "(L__BASE__;)L__BASE__;");
 		int inputSecondMethodRefNumber = clazz->findMethodRef("__BASE__", "input", "()L__BASE__;");
 		if (inputFirstMethodRefNumber == -1 && inputSecondMethodRefNumber == -1) {
+			throw runtime_error("S: ERROR -> trying call unknown function " + functionCall->left->identifier);
+		}
+		return true;
+	}
+
+	if (functionCall->left->identifier == "range") {
+		int rangeMethodRefNumber = clazz->findMethodRef("__BASE__", "range", "(L__BASE__;)L__BASE__;");
+		if (rangeMethodRefNumber == -1) {
 			throw runtime_error("S: ERROR -> trying call unknown function " + functionCall->left->identifier);
 		}
 		return true;
@@ -1027,6 +1045,7 @@ int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr) {
 				}
 				else return clazz->pushOrFindMethodRef("__BASE__", "input", "()L__BASE__;");
 			}
+			else if (expr->left->identifier == "range") { return clazz->pushOrFindMethodRef("__BASE__", "range", "(L__BASE__;)L__BASE__;"); }
 			else if (expr->isConstructor) return clazz->pushOrFindMethodRef(expr->left->identifier, "<init>", "()V");
 			else return clazz->pushOrFindMethodRef(clazz->name, expr->left->identifier, clazz->methods[expr->left->identifier]->descriptor);
 			break;

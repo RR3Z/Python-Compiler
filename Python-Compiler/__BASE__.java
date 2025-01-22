@@ -452,6 +452,20 @@ public class __BASE__ {
         return new __BASE__(scanner.nextLine());
     }
 
+    public static __BASE__ range(__BASE__ value){
+        if(value.__type == INTEGER) {
+            ArrayList<__BASE__> rangeList = new ArrayList<>();
+
+            for(int i = 0; i < value.__iVal; i++) {
+                rangeList.add(new __BASE__(i));
+            }
+
+            return new __BASE__(rangeList);
+        }
+
+        throw new UnsupportedOperationException("range() can take only integer value");
+    }
+
     public __BASE__ __to_i__() {
         if (this.__type == INTEGER)
             return new __BASE__(this.__iVal);
@@ -555,4 +569,6 @@ public class __BASE__ {
 
         return __aVal.iterator();
     }
+
+
 }
