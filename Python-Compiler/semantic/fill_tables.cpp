@@ -397,7 +397,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 		case _WHILE:
 			// condition
 			if (stmt->expr != nullptr) {
-				//checkConditionForErrors(clazz, method, stmt->expr, "WHILE");
+				checkConditionForErrors(clazz, method, stmt->expr, "WHILE");
 				fillMethodTable(clazz, method, stmt->expr);
 			}
 
@@ -742,6 +742,9 @@ void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 						}
 						else {
 							Class* classRef = classesList[method->varType[arg->left->identifier]];
+							if (classRef == nullptr)
+								throw runtime_error("S: ERROR -> Trying get field of __BASE__ class. \"" + expr->left->identifier + "." +
+									expr->right->identifier + "\" in class \"" + clazz->name + "\" method \"" + method->name + "\"");
 							Field* fieldRef = classRef->findField(arg->right->identifier);
 							if (fieldRef == nullptr) {
 								throw runtime_error("S: ERROR -> field \"" + arg->right->identifier + "\" is not defined for object \"" + arg->left->identifier + "\". Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
@@ -988,6 +991,9 @@ void checkAttributeRefsNodes(Class* clazz) {
 
 		if (attributeRefNode->objectFieldRef == -1) {
 			classRef = classesList[clazz->methods[methodName]->varType[attributeRefNode->left->identifier]];
+			if (classRef == nullptr)
+				throw runtime_error("S: ERROR -> Trying get field of __BASE__ class. \"" + attributeRefNode->left->identifier + "." +
+				attributeRefNode->right->identifier + "\" in class \"" + clazz->name + "\" method \"" + methodName + "\"");
 			fieldRef = classRef->findField(attributeRefNode->right->identifier);
 			attributeRefNode->objectFieldRef = clazz->pushOrFindFieldRef(classRef->name, attributeRefNode->right->identifier, fieldRef->descriptor);
 		}
