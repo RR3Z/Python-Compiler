@@ -249,13 +249,21 @@ void fillMethodTable(Class* clazz, Method* method, StmtsListNode* stmts) {
 	if (stmts != nullptr) {
 		StmtNode* stmt = stmts->first;
 		while (stmt != nullptr) {
-			fillMethodTable(clazz, method, stmt);
 
 			if (stmt->stmtType == StmtType::_RETURN) {
 				stmt->next = nullptr;
-				if(method->suite == stmts) method->suite->last = stmt;
+				if (method->suite == stmts) {
+					method->suite->last = stmt;
+					method->returnNode = stmt;
+				}
 			}
 			
+			stmt = stmt->next;
+		}
+
+		stmt = stmts->first;
+		while (stmt != nullptr) {
+			fillMethodTable(clazz, method, stmt);
 			stmt = stmt->next;
 		}
 	}
@@ -366,6 +374,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			break;
 
 		case _FOR:
+			checkForValue(clazz, method, stmt->expr);
 			// array
 			if (stmt->expr != nullptr) fillMethodTable(clazz, method, stmt->expr);
 
@@ -800,6 +809,10 @@ void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 
 			// Для метода собственного класса
 			string className = method->varType[expr->left->identifier];
+			if (classesList[className]->methods.find(expr->right->identifier) == classesList[className]->methods.end()) {
+				throw runtime_error("S: ERROR -> Unknown method \"" + expr->right->identifier + "\" for object \"" + expr->left->identifier + "\". Class \"" +
+					clazz->name + "\" method \"" + method->name + "\"");
+			}
 			int paramsCount = classesList[className]->methods[expr->right->identifier]->paramsCount - 1;
 			int argsCount = expr->argsCount;
 
@@ -997,6 +1010,36 @@ void checkAttributeRefsNodes(Class* clazz) {
 			fieldRef = classRef->findField(attributeRefNode->right->identifier);
 			attributeRefNode->objectFieldRef = clazz->pushOrFindFieldRef(classRef->name, attributeRefNode->right->identifier, fieldRef->descriptor);
 		}
+	}
+}
+
+void checkForValue(Class* clazz, Method* method, ExprNode* value) {
+	if (value == nullptr) {
+		return;
+	}
+
+	switch (value->exprType)
+	{
+		case _FUNCTION_CALL:
+			if (isRTLMethodExists(clazz, value)) return;
+			if (clazz->methods.find(value->left->identifier) != clazz->methods.end()) {
+				StmtNode* returnStmt = clazz->methods[value->left->identifier]->returnNode;
+				if (returnStmt == nullptr || returnStmt->list == nullptr) {
+					throw runtime_error("S: ERROR -> for takes void arg. Class \"" + clazz->name + "\" method \"" + method->name + "\"");
+				}
+			}
+			break;
+		case _IDENTIFIER:
+			if (find(method->localVars.begin(), method->localVars.end(), value->identifier) == method->localVars.end()) {
+				throw runtime_error("S: ERROR -> Unknown variable \"" + value->identifier + "\" Class \"" + clazz->name + "\" method \"" + method->name + "\"");
+			}
+			break;
+		case _METHOD_CALL:
+		case _ATTRIBUTE_REF:
+			if (find(method->localVars.begin(), method->localVars.end(), value->left->identifier) == method->localVars.end()) {
+				throw runtime_error("S: ERROR -> Unknown variable \"" + value->left->identifier + "\" Class \"" + clazz->name + "\" method \"" + method->name + "\"");
+			}
+			break;
 	}
 }
 

@@ -58,6 +58,8 @@ struct Method {
 
 	// ИСПОЛЬЗУЕТСЯ ТОЛЬКО В КОНСТРУКТОРАХ КЛАССОВ
 	bool isClassCreated = false;
+
+	StmtNode* returnNode = nullptr;
 };
 
 class Class {
@@ -212,6 +214,7 @@ void checkConditionForErrors(Class* clazz, Method* method, ExprNode* condition, 
 bool isConstructorCall(Class* clazz, ExprNode* functionCall);
 void checkFuncMethodCallsForErrors(Class* clazz);
 void checkAttributeRefsNodes(Class* clazz);
+void checkForValue(Class* clazz, Method* method, ExprNode* value);
 
 // Функции для заполнения таблиц
 void fillTables(FileNode* program);
