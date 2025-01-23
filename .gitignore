@@ -30,10 +30,19 @@
 *.out
 *.app
 
-# My own (Egor) unnecessary files
+# Logs
+*.log
+
+# Compiled by JVM files
+*.class
+
+# Own ignores
 .vs/
-*.user
 x64/
-Python-Compiler/
-python.flex.cpp
-result.txt
+Python-Compiler/x64/
+.vs/
+Python-Compiler/python.output
+Python-Compiler/python.flex.cpp
+Python-Compiler/python.tab.cpp
+Python-Compiler/python.tab.h
+enc_temp_folder/

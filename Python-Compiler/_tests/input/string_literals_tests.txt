@@ -1,0 +1,48 @@
+''
+'Hello world'
+'Hello world\''
+'Hello world\'
+'Hello world
+'Hello \\n world'
+'Hello world"
+'Hello world''
+'Hello \\ world'
+'Hello \\" world'
+'Hello \\a world'
+'Hello \\b world'
+'Hello \\f world'
+'Hello \\r world'
+'Hello \\t world'
+'Hello \\v world'
+'Hello \\n world'
+'Hello \072 world'
+'Hello \x48 world'
+'Hello \u0041 world'
+'Hello \U000000A7 world'
+'Hello \\
+world yea!!!'
+
+""
+"Hello double quoted world"
+"Hello double quoted world\""
+"Hello double quoted world\"
+"Hello double quoted world
+"Hello \\n double quoted world"
+"Hello double quoted world"
+"Hello double quoted world""
+"Hello \\ double quoted world"
+"Hello \\" double quoted world"
+"Hello \\a double quoted world"
+"Hello \\b double quoted world"
+"Hello \\f double quoted world"
+"Hello \\r double quoted world"
+"Hello \\t double quoted world"
+"Hello \\v double quoted world"
+"Hello \\n double quoted world"
+"Hello \072 double quoted world"
+"Hello \x48 double quoted world"
+"Hello \u0041 double quoted world"
+"Hello \U000000A7 double quoted world"
+"Hello \\
+world yea!\\
+!"

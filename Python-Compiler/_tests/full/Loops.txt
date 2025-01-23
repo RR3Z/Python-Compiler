@@ -1,0 +1,22 @@
+my_list = [1,2,3,4]
+for item in my_list:
+    print(item)
+
+for i in range(5):  
+    print(i)
+
+for i in range(2, 7): 
+    print(i)
+
+count = 0
+while count < 5:
+    print(count)
+    count = count + 1
+
+i = 0
+while i < 3:
+    j = 0
+    while j < 3:
+        print("test")
+        j = j + 1
+    i = i + 1

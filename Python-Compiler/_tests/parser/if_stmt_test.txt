@@ -1,0 +1,28 @@
+if a > 5:
+    print()
+
+
+
+
+if a > 5:
+    print()
+else:
+    print()
+
+
+
+if a > 10:
+    print()
+elif a > 5:
+    print()
+else:
+    print()
+
+
+if a > 5:
+    if b > 5:
+        print()
+    else:
+        print()
+else:
+    print()

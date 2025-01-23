@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Исходные файлы">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Файлы заголовков">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Файлы ресурсов">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Исходные файлы\nodes">
+      <UniqueIdentifier>{7598bd81-7870-46c5-a041-e0bd0f7c9c94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\nodes">
+      <UniqueIdentifier>{0b5811f0-0ea4-4995-bad2-2bd17171901e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\semantic">
+      <UniqueIdentifier>{c4fc26e0-65a7-4383-be1c-d4cfcb5aea1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\semantic">
+      <UniqueIdentifier>{ce1972b3-4b88-42c4-a9b6-b08a3be517c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\codeGen">
+      <UniqueIdentifier>{37d9c4a1-39a0-414f-803f-8d1a42cc3e55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\codeGen">
+      <UniqueIdentifier>{aae3ce45-dbca-46cd-b0f7-8ea8a91aa718}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Flex Include="python.l">
+      <Filter>Исходные файлы</Filter>
+    </Flex>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="python.flex.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="python.tab.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="nodes\DotHelpers.cpp">
+      <Filter>Исходные файлы\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="nodes\parsing_tree.cpp">
+      <Filter>Исходные файлы\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="nodes\dot_generation.cpp">
+      <Filter>Исходные файлы\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="semantic\transform_tree.cpp">
+      <Filter>Исходные файлы\semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="semantic\fill_tables.cpp">
+      <Filter>Исходные файлы\semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="codeGen\codeGen.cpp">
+      <Filter>Исходные файлы\codeGen</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="input.txt">
+      <Filter>Исходные файлы</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Bison Include="python.y">
+      <Filter>Исходные файлы</Filter>
+    </Bison>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="python.tab.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\DotHelpers.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\nodes.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\parsing_tree.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\dot_generation.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\ExprType.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\StmtType.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\FuncArgType.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\FileElementType.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\ClassElementType.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="semantic\semantic.h">
+      <Filter>Файлы заголовков\semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\AccessModifier.h">
+      <Filter>Файлы заголовков\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="codeGen\codeGen.h">
+      <Filter>Файлы заголовков\codeGen</Filter>
+    </ClInclude>
+    <ClInclude Include="codeGen\AccessFlag.h">
+      <Filter>Файлы заголовков\codeGen</Filter>
+    </ClInclude>
+    <ClInclude Include="semantic\ConstantType.h">
+      <Filter>Файлы заголовков\semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="semantic\Constant.h">
+      <Filter>Файлы заголовков\semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="codeGen\Command.h">
+      <Filter>Файлы заголовков\codeGen</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

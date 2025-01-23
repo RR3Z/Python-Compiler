@@ -1,0 +1,19 @@
+# Обращению к приватному полю класса
+class A:
+	__a = 15
+	c = 123
+	def test(self):
+		print(self.c)
+
+a = A()
+print(a.c)
+print(a.__a)
+
+# Вызов приватной функции
+class A:
+	__a = 15
+	def __test(self):
+		return self.__a
+
+a = A()
+print(a.__test())

@@ -1,0 +1,32 @@
+enum StmtType {
+	_IF = 1,
+	_ELSE = 2,
+	_ELIF = 3,
+	_COMPOUND_IF = 4,
+
+	_ASSIGN = 5,
+	_PLUS_ASSIGN = 6,
+	_MINUS_ASSIGN = 7,
+	_MUL_ASSIGN = 8,
+	_DIV_ASSIGN = 9,
+	_COMPOUND_ASSIGN = 10,
+
+	_WHILE = 11,
+	_COMPOUND_WHILE = 12,
+
+	_RETURN = 13,
+
+	_TRY = 14,
+	_EXCEPT = 15,
+	_IDENTIFIER_EXCEPT = 16,
+	_FINALLY = 17,
+	_COMPOUND_TRY = 18,
+
+	_FOR = 19,
+	_COMPOUND_FOR = 20,
+
+	_EXPR_STMT = 21,
+	_EXPR_LIST_STMT = 22,
+
+	_ASSIGN_AND_ACCESS = 23,
+};

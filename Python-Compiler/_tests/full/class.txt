@@ -1,0 +1,81 @@
+class A:
+    a = 4
+
+
+b = A()
+print(b.a)
+
+
+
+class A:
+    _a = 4
+
+b = A()
+print(b._a)
+
+
+class A:
+    def test(self):
+        a = 4
+        return a
+
+
+b = A()
+print(b.test())
+
+
+class A:
+    def test(a):
+        print(1)
+
+    def test(b):
+        print(2)
+
+a = A()
+a.test()
+
+
+class A:
+    z = 15
+    f = 15
+    def test(self):
+        self.__func()
+    def __func(self):
+        print(1)
+
+a = A()
+a.test()
+
+
+class A:
+    z = 15
+    f = 15
+    def test(self, a):
+        self.__func(a)
+    def __func(self, a):
+        print(a)
+
+a = A()
+a.test(15)
+
+
+class A:
+    _z = 15
+    f = 15
+    def test(self):
+        self.__func(self._z)
+    def __func(self, a):
+        print(a)
+
+a = A()
+a.test()
+
+class A:
+	__a = 15
+	def test(self):
+		return self.__a
+
+a = A()
+print(a.test())
+
+

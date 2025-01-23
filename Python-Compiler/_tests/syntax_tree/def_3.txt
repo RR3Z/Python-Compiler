@@ -1,0 +1,2 @@
+def greet(name="lol"):
+    print("Привет!")

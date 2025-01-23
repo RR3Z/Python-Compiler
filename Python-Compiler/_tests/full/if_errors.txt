@@ -1,0 +1,11 @@
+# Не объявлены поля/поле
+if a:
+	print("test")
+if a > 5:
+	print("test")
+if a > 5 and b < 5:
+	print("test")
+if a > 5 and b < 5 or f == 16:
+	print("test")
+
+

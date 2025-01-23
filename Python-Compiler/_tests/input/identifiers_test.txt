@@ -1,0 +1,8 @@
+my_variable
+myVar
+_private_method
+some_constant
+myClass
+my_module
+my_module_my_module_my_module
+int_int_int_list()

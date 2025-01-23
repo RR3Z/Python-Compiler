@@ -1,0 +1,48 @@
+#pragma once
+
+enum Command {
+	_new = 0xBB,
+
+	iconst_0 = 0x3,
+	iconst_1 = 0x4,
+	istore = 0x36,
+	astore = 0x3A,
+	aload = 0x19,
+	athrow = 0xBF,
+	pop = 0x57,
+	swap = 0x5F,
+
+	anewarray = 0xBD,
+	aastore = 0x53,
+
+	sipush = 0x11,
+
+	ldc = 0x12,
+	ldc_w = 0x13,
+
+	getfield = 0xB4,
+	putfield = 0xB5,
+
+	ifeq = 0x99,
+	ifne = 0x9A,
+
+	ifnonnull = 0xC7,
+
+	goto_ = 0xA7,
+
+	invokevirtual = 0xB6,
+	invokespecial = 0xB7,
+	invokestatic = 0xB8,
+	invokeinterface = 0xB9,
+
+	dup = 0x59,
+
+	ireturn = 0xAC,
+	areturn = 0xB0,
+	_return = 0xB1,
+
+	getstatic = 0xB2,
+	putstatic = 0xB3,
+
+	checkcast = 0xC0,
+};
