@@ -68,7 +68,9 @@ void fillTables(FileNode* program) {
 	}
 
 	// Проверка различных вызовов (так как можно вызвать функцию до ее объявления)
-	checkFuncMethodCallsForErrors(entryClass);
+	for (auto it : classesList) {
+		checkFuncMethodCallsForErrors(it.second);
+	}
 }
 
 void fillTables(ClassNode* classDef) {
@@ -164,9 +166,6 @@ void fillTables(ClassNode* classDef) {
 
 	// Дефолтный конструктор добавляется в constant pool нашей программы
 	classesList["__PROGRAM__"]->pushOrFindMethodRef(newClass->name, "<init>", "()V");
-
-	// Проверка различных вызовов (так как можно вызвать функцию до ее объявления)
-	checkFuncMethodCallsForErrors(newClass);
 }
 
 // ========= Заполнение таблиц методов =========
