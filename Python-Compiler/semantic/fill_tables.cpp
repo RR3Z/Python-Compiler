@@ -68,8 +68,11 @@ void fillTables(FileNode* program) {
 	}
 
 	// Проверка различных вызовов (так как можно вызвать функцию до ее объявления)
-	for (auto it : classesList) {
-		checkFuncMethodCallsForErrors(it.second);
+	for (auto _class : classesList) {
+		for (auto class_ : classesList) {
+			_class.second->pushOrFindMethodRef(class_.second->name, "<init>", "()V");
+		}
+		checkFuncMethodCallsForErrors(_class.second);
 	}
 }
 
@@ -598,9 +601,6 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			}
 			break;
 		case _FUNCTION_CALL:
-			// Проверка является ли заданный метод конструктором
-			if (isConstructorCall(clazz, expr)) expr->isConstructor = true;
-
 			// Добавляю узел, для будущей проверки на правильность
 			clazz->funcMethodCalls.push_back(make_pair(method->name, expr));
 
@@ -987,6 +987,8 @@ void checkFuncMethodCallsForErrors(Class* clazz) {
 		{
 		case _METHOD_CALL:
 		case _FUNCTION_CALL:
+			if (isConstructorCall(clazz, callNode)) callNode->isConstructor = true;
+
 			isMethodExists(clazz, clazz->methods[methodName], callNode);
 			checkFunctionCallParams(clazz, clazz->methods[methodName], callNode);
 			callNode->number = defineMethodRefByExprNode(clazz, clazz->methods[methodName], callNode);
