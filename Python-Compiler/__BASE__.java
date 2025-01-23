@@ -21,6 +21,7 @@ public class __BASE__ {
 
     public __BASE__() {
         __type = NIL;
+        this.__bVal = true;
     }
 
     public __BASE__(int value) {
@@ -570,8 +571,16 @@ public class __BASE__ {
     }
 
     public Iterator __get_iterator__() {
-        if (this.__type != ARRAY) {
+        if(this.__type == INTEGER || this.__type == FLOAT || this.__type == BOOLEAN || this.__type == NIL) {
             throw new UnsupportedOperationException("__get_iterator__ isn't support operation for type: " + this.__type);
+        }
+
+        if(this.__type == STRING) {
+            ArrayList<__BASE__> charList = new ArrayList<>();
+            for (char c : this.__sVal.toCharArray()) {
+                charList.add(new __BASE__(Character.toString(c)));
+            }
+            return charList.iterator();
         }
 
         return __aVal.iterator();
