@@ -320,8 +320,6 @@ expr: expr '+' expr { $$ = createPlusExprNode($1, $3); cout << "P: expr '+' expr
     | STRING_C { $$ = createStringConstExprNode($1); cout << "P: STRING_C -> expr" << endl; }
     | TRUE { $$ = createTrueConstExprNode(); cout << "P: TRUE -> expr" << endl; }
     | FALSE { $$ = createFalseConstExprNode(); cout << "P: FALSE -> expr" << endl; }
-    | SELF { $$ = createSelfExprNode(); cout << "P: SELF -> expr" << endl; }
-    | SUPER { $$ = createSuperExprNode(); cout << "P: SUPER -> expr" << endl; }
     | target { $$ = $1; cout << "P: target -> expr" << endl; }
     ;
 
