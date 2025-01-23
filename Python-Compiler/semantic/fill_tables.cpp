@@ -1063,7 +1063,7 @@ int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr) {
 				if(expr->funcArgs->exprList->first != expr->funcArgs->exprList->last) return clazz->pushOrFindMethodRef("__BASE__", "range", "(L__BASE__;L__BASE__;)L__BASE__;");
 				return clazz->pushOrFindMethodRef("__BASE__", "range", "(L__BASE__;)L__BASE__;");
 			}
-			else if (expr->isConstructor) return clazz->pushOrFindMethodRef(expr->left->identifier, "<init>", "()V");
+			else if (expr->isConstructor && expr->funcArgs == nullptr) return clazz->pushOrFindMethodRef(expr->left->identifier, "<init>", "()V");
 			else return clazz->pushOrFindMethodRef(clazz->name, expr->left->identifier, clazz->methods[expr->left->identifier]->descriptor);
 			break;
 		case _METHOD_CALL:
