@@ -345,7 +345,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 		case _ELIF:
 			// condition
 			if (stmt->expr != nullptr) {
-				//checkConditionForErrors(clazz, method, stmt->expr, "IF");
+				checkConditionForErrors(clazz, method, stmt->expr, "IF");
 				fillMethodTable(clazz, method, stmt->expr);
 			}
 			if (stmt->suite != nullptr) fillMethodTable(clazz, method, stmt->suite); // suite
@@ -930,17 +930,14 @@ void checkMethodNameForErrors(FuncNode* funcDef) {
 void checkConditionForErrors(Class* clazz, Method* method, ExprNode* condition, string stmtType) {
 	if (condition == nullptr) throw runtime_error("S: ERROR -> No condition for IF.");
 
-	ExprNode* cond = condition;
-	if (condition->exprType == _BRACKETS) cond = condition->left;
+	if (condition->exprType == _BRACKETS) condition = condition->left;
 
 	switch (condition->exprType)
 	{
 		case _IDENTIFIER:
-			if (!cond->identifier.empty() &&
-				find(method->localVars.begin(), method->localVars.end(), cond->identifier) == method->localVars.end() &&
-				clazz->fields.find(cond->identifier) == clazz->fields.end())
-			{
-				throw runtime_error("S: ERROR -> Unknown variable \"" + cond->identifier + "\" in " + stmtType + " condition");
+			if (find(method->localVars.begin(), method->localVars.end(), condition->identifier) == method->localVars.end()&&
+				!condition->identifier.empty()) {
+				throw runtime_error("S: ERROR -> Unknown variable \"" + condition->identifier + "\" in " + stmtType + " condition. Class \"" + clazz->name + "\" in method \"" + method->name + "\"");
 			}
 			break;
 		case _EQUAL:
@@ -948,12 +945,14 @@ void checkConditionForErrors(Class* clazz, Method* method, ExprNode* condition, 
 		case _GREAT:
 		case _LESS:
 		case _LESS_EQUAL:
-			if (cond->left != nullptr &&
-				find(method->localVars.begin(), method->localVars.end(), cond->left->identifier) == method->localVars.end() &&
-				clazz->fields.find(cond->left->identifier) == clazz->fields.end())
-			{
-				throw runtime_error("S: ERROR -> Unknown variable \"" + cond->left->identifier + "\" in " + stmtType + " condition");
-			}
+		case _NOT_EQUAL:
+		case _AND_LOGIC:
+		case _OR_LOGIC:
+			checkConditionForErrors(clazz, method, condition->left, stmtType);
+			checkConditionForErrors(clazz, method, condition->right, stmtType);
+			break;
+		case _NOT:
+			checkConditionForErrors(clazz, method, condition->left, stmtType);
 			break;
 	}
 }
