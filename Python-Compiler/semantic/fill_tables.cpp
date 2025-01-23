@@ -286,7 +286,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			}
 
 			// Для обычной переменной (a = 5)
-			if (stmt->leftExpr->exprType == _IDENTIFIER || stmt->leftExpr->exprType == _SELF) {
+			if (stmt->leftExpr->exprType == _IDENTIFIER) {
 
 				// Проверка, что переменная, которую присваивают, существует
 				if (stmt->rightExpr->exprType == _IDENTIFIER) {
@@ -561,7 +561,7 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			fillMethodTable(clazz, method, expr->right);
 
 			// Получение номера в constant pool на объект, к которому обращаются
-			if (expr->left->exprType == _IDENTIFIER || expr->left->exprType == _SELF) {
+			if (expr->left->exprType == _IDENTIFIER) {
 				string classObjectName = expr->left->identifier;
 				string fieldName = expr->right->identifier;
 
