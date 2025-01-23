@@ -70,3 +70,12 @@ class A:
 a = A()
 a.test()
 
+class A:
+	__a = 15
+	def test(self):
+		return self.__a
+
+a = A()
+print(a.test())
+
+
