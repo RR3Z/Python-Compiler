@@ -965,6 +965,7 @@ void checkConditionForErrors(Class* clazz, Method* method, ExprNode* condition, 
 
 bool isConstructorCall(Class* clazz, ExprNode* functionCall) {
 	if (functionCall->exprType == _FUNCTION_CALL) {
+		if (functionCall->funcArgs != nullptr) return false;
 		if (clazz->findMethodRef(functionCall->left->identifier, "<init>", "()V") != -1) return true;
 		return false;
 	}
