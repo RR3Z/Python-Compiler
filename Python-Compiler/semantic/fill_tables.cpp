@@ -742,7 +742,7 @@ void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 				ExprNode* arg = expr->funcArgs->exprList->first;
 				while (arg != nullptr) {
 					if (find(method->localVars.begin(), method->localVars.end(), arg->identifier) == method->localVars.end() && arg->exprType == _IDENTIFIER) {
-						throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\"");
+						throw runtime_error("S: ERROR -> variable \"" + arg->identifier + "\" is not defined. Function call \"" + expr->left->identifier + "\" in method \"" + method->name + "\" class \"" + clazz->name + "\"");
 					}
 
 					if (arg->exprType == _ATTRIBUTE_REF) {
