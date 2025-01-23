@@ -43,3 +43,6 @@ print("Hello \072 double quoted world")
 print("Hello \x48 double quoted world")
 print("Hello \u0041 double quoted world")
 
+
+print("""Hello \u0041
+world""")
