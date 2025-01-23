@@ -56,6 +56,9 @@ public class __BASE__ {
         this.__aVal = new ArrayList<>();
         this.__aVal = value;
         this.__type = ARRAY;
+
+        if(value.size() == 0) { this.__bVal = true; }
+        else { this.__bVal = true; }
     }
 
     public __BASE__ __add__(__BASE__ o) {
@@ -323,25 +326,15 @@ public class __BASE__ {
     }
 
     public __BASE__ __not__() {
-        if (this.__type == NIL) return new __BASE__(true);
-        if (this.__type == BOOLEAN) return new __BASE__(!this.__bVal);
-        return new __BASE__(false);
+        return new __BASE__(!this.__bVal);
     }
 
     public __BASE__ __logical_and__(__BASE__ o) {
-        if (this.__type == BOOLEAN && o.__type == BOOLEAN)
-            return new __BASE__(this.__bVal && o.__bVal);
-        if (this.__type == BOOLEAN)
-            return new __BASE__(this.__bVal);
-        if (o.__type == BOOLEAN)
-            return new __BASE__(o.__bVal);
-        return new __BASE__(true);
+        return new __BASE__(this.__bVal && o.__bVal);
     }
 
     public __BASE__ __logical_or__(__BASE__ o) {
-        if (this.__type == BOOLEAN && o.__type == BOOLEAN)
-            return new __BASE__(this.__bVal || o.__bVal);
-        return new __BASE__(true);
+        return new __BASE__(this.__bVal || o.__bVal);
     }
 
     public __BASE__ __pow__(__BASE__ o) {
