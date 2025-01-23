@@ -1,0 +1,40 @@
+# С помощью циклов for
+def bubble_sort(arr, length):
+    n = length
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                a = arr[j]
+                arr[j] = arr[j + 1]
+                arr[j + 1] = a
+    return arr
+
+array = [64, 34, 25, 12, 22, 11, 90]
+print("Исходный массив:")
+print(array)
+sorted_array = bubble_sort(array, 7)
+print("Отсортированный массив:")
+print(sorted_array)
+
+# С помощью циклов while
+def bubble_sort(arr, length):
+    n = length
+    i = 0
+    while i < n:
+        j = 0
+        while j < n - i - 1:
+            if arr[j] > arr[j + 1]:
+                a = arr[j + 1]
+                arr[j + 1] = arr[j]
+                arr[j] = a
+            j = j+1
+        i = i+1
+    return arr
+
+
+array = [64, 34, 25, 12, 22, 11, 90]
+print("Исходный массив:")
+print(array)
+sorted_array = bubble_sort(array, 7)
+print("Отсортированный массив:")
+print(sorted_array)
