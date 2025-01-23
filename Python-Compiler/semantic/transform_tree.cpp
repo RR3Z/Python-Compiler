@@ -182,7 +182,7 @@ void transform(StmtsListNode* stmtsList) {
 
 void transform(StmtNode* stmt) {
 	if (stmt == nullptr) {
-		throw runtime_error("S: ERROR->StmtNode is unavailable");
+		//throw runtime_error("S: ERROR->StmtNode is unavailable");
 		return;
 	}
 	
