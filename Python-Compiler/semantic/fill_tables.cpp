@@ -613,8 +613,6 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 					arg = arg->next;
 				}
 			}
-			// Проверка количества аргументов
-			checkFunctionCallParams(clazz, method, expr);
 			break;
 		case _METHOD_CALL:
 			// Добавляю узел, для будущей проверки на правильность
@@ -631,8 +629,6 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 					arg = arg->next;
 				}
 			}
-			// Проверка количества аргументов
-			checkFunctionCallParams(clazz, method, expr);
 			break;
 	}
 }
@@ -988,6 +984,7 @@ void checkFuncMethodCallsForErrors(Class* clazz) {
 		case _METHOD_CALL:
 		case _FUNCTION_CALL:
 			isMethodExists(clazz, clazz->methods[methodName], callNode);
+			checkFunctionCallParams(clazz, clazz->methods[methodName], callNode);
 			callNode->number = defineMethodRefByExprNode(clazz, clazz->methods[methodName], callNode);
 			break;
 		}
