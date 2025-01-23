@@ -1008,6 +1008,9 @@ void checkAttributeRefsNodes(Class* clazz) {
 				throw runtime_error("S: ERROR -> Trying get field of __BASE__ class. \"" + attributeRefNode->left->identifier + "." +
 				attributeRefNode->right->identifier + "\" in class \"" + clazz->name + "\" method \"" + methodName + "\"");
 			fieldRef = classRef->findField(attributeRefNode->right->identifier);
+			if (fieldRef == nullptr)
+				throw runtime_error("S: ERROR -> Trying get field \"" + attributeRefNode->left->identifier + "." +
+					attributeRefNode->right->identifier + "\" of class \"" + classRef->name + "\". Class \"" + clazz->name + "\" method \"" + methodName + "\"");
 			attributeRefNode->objectFieldRef = clazz->pushOrFindFieldRef(classRef->name, attributeRefNode->right->identifier, fieldRef->descriptor);
 		}
 	}
