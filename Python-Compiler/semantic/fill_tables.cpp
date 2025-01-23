@@ -89,8 +89,9 @@ void fillTables(ClassNode* classDef) {
 
 	// Родительский класс
 	if (classDef->base != nullptr) {
-		if (classesList.find(classDef->base->stringVal) != classesList.end()) {
-			newClass->parent = classesList[classDef->base->stringVal];
+		if (classesList.find(classDef->base->identifier) != classesList.end()) {
+			newClass->parent = classesList[classDef->base->identifier];
+			newClass->parentNumber = newClass->pushOrFindConstant(*Constant::Class(newClass->pushOrFindConstant(*Constant::UTF8(classDef->base->identifier))));
 		}
 		else {
 			throw runtime_error("S: ERROR -> parent class " + classDef->base->identifier + " for class " + classDef->identifier->identifier + " not found");
