@@ -1,0 +1,35 @@
+def a():
+	print("test")
+a()
+
+def a():
+	a = 4
+	print("test")
+	return a
+b = a()
+print(b)
+
+
+def a(b):
+	r = b
+	print("test")
+	return r
+c = a(4)
+print(c)
+
+def a(b,c):
+	r = b + c
+	print("test")
+	return r
+c = a(4,5)
+print(c)
+
+
+
+def test():
+    print(1)
+
+def test():
+    print(2)
+
+test()
