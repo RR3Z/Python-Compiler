@@ -1,0 +1,85 @@
+a = 6
+if a > 5:
+    print("test")
+a = 5
+if a > 5:
+    print("test")
+else:
+    print("test else")
+
+a = 4
+if a > 5:
+    print("test")
+else:
+    print("test else")
+
+a = 6
+if a > 10:
+    print("test")
+elif a > 5:
+    print("test elif")
+else:
+    print("test else")
+    
+a = 6
+if a > 5:
+    print("test")
+elif a > 10:
+    print("test elif")
+else:
+    print("test else")
+a = 6
+b = 2
+if a > 5:
+    if b > 3:
+        print("test1")
+    else:
+        print("test2")
+else:
+    print("test3")
+    
+a = 6
+b = 4
+if a > 5:
+    if b > 3:
+        print("test1")
+    else:
+        print("test2")
+else:
+    print("test3")
+a = 4
+b = 4
+if a > 5:
+    if b > 3:
+        print("test1")
+    else:
+        print("test2")
+else:
+    print("test3")
+
+a = 67
+if a < 1:
+    print("a < 1")
+elif a < 18:
+    print("a < 18")
+elif a > 65:
+    print("a > 65.")
+else:
+    print("test")
+
+
+if True:
+    print("test")
+
+if False:
+   print("test")
+
+if False:
+    print("test")
+else:
+    print("test 2")
+
+if True:
+    print("test")
+else:
+    print("test2")

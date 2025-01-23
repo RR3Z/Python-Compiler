@@ -1,5 +1,9 @@
-def a():
-	b = 15
-	return
-
-print(b)
+a = 67
+if a < 1:
+    print("a < 1")
+elif a < 18:
+    print("a < 18")
+elif a > 65:
+    print("a > 65.")
+else:
+    print("test")
