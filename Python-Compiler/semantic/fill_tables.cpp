@@ -925,6 +925,10 @@ void checkMethodNameForErrors(FuncNode* funcDef) {
 		if (funcDef->identifier->identifier == "main") {
 			throw runtime_error("S: ERROR -> Changes to the signature of the \"main\" function!");
 		}
+
+		if (funcDef->identifier->identifier == "range") {
+			throw runtime_error("S: ERROR -> Changes to the signature of the \"range\" function!");
+		}
 	}
 }
 
