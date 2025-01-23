@@ -72,6 +72,8 @@ void fillTables(FileNode* program) {
 		for (auto class_ : classesList) {
 			_class.second->pushOrFindMethodRef(class_.second->name, "<init>", "()V");
 		}
+		castVariables(_class.second);
+		checkAttributeRefsNodes(_class.second);
 		checkFuncMethodCallsForErrors(_class.second);
 	}
 }
@@ -267,6 +269,8 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 	switch (stmt->stmtType)
 	{
 		case _ASSIGN:
+			clazz->assignCalls.push_back(make_pair(method->name, stmt));
+
 			// Для обращения к полю класса в левой части выражения (a.b = 5)
 			if (stmt->leftExpr->exprType == _ATTRIBUTE_REF) {
 				string fieldName = stmt->leftExpr->right->identifier;
@@ -328,7 +332,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 			fillMethodTable(clazz, method, stmt->leftExpr);
 
 			// value
-			castVariable(clazz, method, stmt);
+			//castVariable(clazz, method, stmt);
 			fillMethodTable(clazz, method, stmt->rightExpr);
 			break;
 		case _COMPOUND_ASSIGN:
@@ -559,6 +563,8 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 			fillMethodTable(clazz, method, expr->left);
 			break;
 		case _ATTRIBUTE_REF:
+			clazz->attributeRefs.push_back(make_pair(method->name, expr));
+
 			// TODO: сделать проверку что слева и справа допустимый тип данных
 			fillMethodTable(clazz, method, expr->left);
 			fillMethodTable(clazz, method, expr->right);
@@ -575,28 +581,6 @@ void fillMethodTable(Class* clazz, Method* method, ExprNode* expr) {
 				// Если объект, к которому обращаются, является полем класса
 				else if (clazz->fields.find(classObjectName) != clazz->fields.end()) {
 					expr->number = clazz->fields[classObjectName]->number;
-				}
-			}
-
-			// Получение fieldref из класса, к которому обращаются
-			if (expr->right->exprType == _IDENTIFIER || expr->right->exprType == _SELF) {
-				if (clazz->name == "__PROGRAM__") {
-					if (find(method->localVars.begin(), method->localVars.end(), expr->left->identifier) != method->localVars.end()) {
-						Class* classRef = classesList[method->varType[expr->left->identifier]];
-						Field* fieldRef = classRef->findField(expr->right->identifier);
-						if (fieldRef == nullptr) throw runtime_error("S: ERROR -> Unknown field \"" + expr->right->identifier + "\" for class \"" +
-							classRef->name + "\" in FIELD REF \"" + expr->left->identifier + "." + expr->right->identifier + "\" of method \"" + method->name + "\"");
-						string fieldDescriptor = fieldRef->descriptor;
-						expr->objectFieldRef = clazz->findFieldRef(method->varType[expr->left->identifier], expr->right->identifier, fieldDescriptor);
-					}
-					else throw runtime_error("S: ERROR -> Unknown variable \"" + expr->left->identifier + "\" in class \"" + clazz->name + "\" method \"" + method->name + "\"");
-				}
-				else if (clazz->fields.find(expr->right->identifier) != clazz->fields.end()) {
-					Field* fieldRef = clazz->findField(expr->right->identifier);
-					if (fieldRef == nullptr) throw runtime_error("S: ERROR -> Unknown field \"" + expr->right->identifier + "\" for class \"" +
-						clazz->name + "\" in FIELD REF \"" + expr->left->identifier + "." + expr->right->identifier + "\" of method \"" + method->name + "\"");
-					string fieldDescriptor = fieldRef->descriptor;
-					expr->objectFieldRef = clazz->findFieldRef(expr->right->identifier, fieldDescriptor);
 				}
 			}
 			break;
@@ -969,9 +953,7 @@ void checkFuncMethodCallsForErrors(Class* clazz) {
 	ExprNode* callNode = nullptr;
 	string methodName = "";
 
-	vector<pair<string, ExprNode*>> calls = clazz->funcMethodCalls;
-
-	for (const auto& call : calls) {
+	for (const auto& call : clazz->funcMethodCalls) {
 		methodName = call.first;
 		callNode = call.second;
 
@@ -987,6 +969,27 @@ void checkFuncMethodCallsForErrors(Class* clazz) {
 			checkFunctionCallParams(clazz, clazz->methods[methodName], callNode);
 			callNode->number = defineMethodRefByExprNode(clazz, clazz->methods[methodName], callNode);
 			break;
+		}
+	}
+}
+
+void checkAttributeRefsNodes(Class* clazz) {
+	ExprNode* attributeRefNode = nullptr;
+	string methodName = "";
+
+	Class* classRef = nullptr;
+	Field* fieldRef = nullptr;
+
+	for (const auto& ref : clazz->attributeRefs) {
+		methodName = ref.first;
+		attributeRefNode = ref.second;
+
+		if (attributeRefNode == nullptr || methodName.empty() || attributeRefNode->exprType != _ATTRIBUTE_REF) throw runtime_error("CRITICAL ERROR!");
+
+		if (attributeRefNode->objectFieldRef == -1) {
+			classRef = classesList[clazz->methods[methodName]->varType[attributeRefNode->left->identifier]];
+			fieldRef = classRef->findField(attributeRefNode->right->identifier);
+			attributeRefNode->objectFieldRef = clazz->pushOrFindFieldRef(classRef->name, attributeRefNode->right->identifier, fieldRef->descriptor);
 		}
 	}
 }
@@ -1080,5 +1083,19 @@ void castVariable(Class* clazz, Method* method, StmtNode* assignStmt) {
 	}
 	else {
 		method->varType[assignStmt->leftExpr->identifier] = "__BASE__";
+	}
+}
+
+void castVariables(Class* clazz) {
+	StmtNode* assignNode = nullptr;
+	string methodName = "";
+
+	for (const auto& call : clazz->assignCalls) {
+		methodName = call.first;
+		assignNode = call.second;
+
+		if (assignNode == nullptr || methodName.empty() || assignNode->stmtType != _ASSIGN) throw runtime_error("CRITICAL ERROR!");
+
+		castVariable(clazz, clazz->methods[methodName], assignNode);
 	}
 }

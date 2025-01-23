@@ -963,7 +963,8 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			else {
 				// Переменная к которой обращаемся
 				if (find(method->localVars.begin(), method->localVars.end(), expr->left->identifier) != method->localVars.end()) {
-					if (clazz->fields.find(expr->right->identifier) != clazz->fields.end()) {
+
+					if (expr->paramLocalVarNum == 1) {
 						result.push_back((char)Command::aload);
 						result.push_back(0x00);
 					}
@@ -985,9 +986,15 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			if (clazz->name == "__PROGRAM__") {
 				bytes = intToBytes(expr->left->paramLocalVarNum, 1);
 			}
-			else if (clazz->methods.find(expr->right->identifier) != clazz->methods.end()) {
-				bytes = intToBytes(0x00, 1);
+			else {
+				if (expr->left->paramLocalVarNum == 1) {
+					bytes = intToBytes(0x00, 1);
+				}
+				else {
+					bytes = intToBytes(expr->left->paramLocalVarNum, 1);
+				}
 			}
+			
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			// Первый аргумент всегда ссылка на этот самый объект
 			result.push_back((char)Command::dup);

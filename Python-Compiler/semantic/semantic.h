@@ -75,9 +75,12 @@ public:
 	map<string, Method*> methods;
 	map<string, Field*> fields;
 
-	// Нужно для проверки вызовов функций/методов внутри тела после заполнения этими методами/функциями (можно вызвать до ее объявления)
 	// Название функции, где вызывается + узел вызова
 	vector<pair<string, ExprNode*>> funcMethodCalls = {};
+	// Название функции, где вызывается + узел с присваиванием
+	vector<pair<string, StmtNode*>> assignCalls = {};
+	// Название функции, где вызывается + узел с обращением к полю
+	vector<pair<string, ExprNode*>> attributeRefs = {};
 
 	int pushOrFindConstant(const Constant& constant) {
 		// Поиск константы в таблице констант
@@ -208,6 +211,7 @@ bool isRTLMethodExists(Class* clazz, ExprNode* functionCall);
 void checkConditionForErrors(Class* clazz, Method* method, ExprNode* condition, string stmtType);
 bool isConstructorCall(Class* clazz, ExprNode* functionCall);
 void checkFuncMethodCallsForErrors(Class* clazz);
+void checkAttributeRefsNodes(Class* clazz);
 
 // Функции для заполнения таблиц
 void fillTables(FileNode* program);
@@ -232,3 +236,4 @@ string defineMethodReturnType(Method* method);
 int findElementIndexInVector(vector<string> vec, string element);
 int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr);
 void castVariable(Class* clazz, Method* method, StmtNode* assignStmt);
+void castVariables(Class* clazz);
