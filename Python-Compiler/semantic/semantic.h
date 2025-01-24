@@ -25,6 +25,8 @@ struct Field {
 struct Method {
 	int number = -1; // Номер метода
 
+	bool isContainReturn = false;
+
 	// Name : Descriptor
 	map<string, string> varType;
 

@@ -233,12 +233,19 @@ void fillMethodTable(Class* clazz, FuncNode* funcDef) {
 	string methodDescriptor = generateMethodDescriptor(paramsCounter, methodReturnType);
 	method->descriptor = methodDescriptor;
 	method->descriptorNumber = clazz->pushOrFindConstant(*Constant::UTF8(methodDescriptor));
-
 	method->number = clazz->pushOrFindMethodRef(clazz->name, method->name, methodDescriptor);
 	funcDef->idSemantic = method->number;
 
 	// Генерация таблиц для тела функции
 	fillMethodTable(clazz, method, method->suite);
+
+	// Составление дескриптора
+	methodReturnType = defineMethodReturnType(method);
+	methodDescriptor = generateMethodDescriptor(paramsCounter, methodReturnType);
+	method->descriptor = methodDescriptor;
+	method->descriptorNumber = clazz->pushOrFindConstant(*Constant::UTF8(methodDescriptor));
+	method->number = clazz->pushOrFindMethodRef(clazz->name, method->name, methodDescriptor);
+	funcDef->idSemantic = method->number;
 
 	if (clazz->name != "__PROGRAM__") {
 		classesList["__PROGRAM__"]->pushOrFindMethodRef(clazz->name, method->name, method->descriptor);
@@ -418,6 +425,7 @@ void fillMethodTable(Class* clazz, Method* method, StmtNode* stmt) {
 
 		case _RETURN:
 			if (stmt->list != nullptr) {
+				method->isContainReturn = true;
 				ExprNode* expr = stmt->list->first;
 
 				checkReturnValue(clazz, method, expr);
@@ -1063,6 +1071,8 @@ string generateMethodDescriptor(int paramsNumber, string returnValueDescriptor) 
 }
 
 string defineMethodReturnType(Method* method) {
+	if (method->isContainReturn) return "L__BASE__;";
+
 	if (method->suite == nullptr) return "V";
 
 	StmtNode* suiteStmt = method->suite->first;
