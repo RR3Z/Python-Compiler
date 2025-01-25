@@ -436,14 +436,28 @@ public class __BASE__ {
 
     public static __BASE__ input() {
         Scanner scanner = new Scanner(System.in);
-        return new __BASE__(scanner.nextLine());
+
+        if(scanner.hasNextInt()) {
+            return new __BASE__(scanner.nextInt());
+        } else if (scanner.hasNextFloat()) {
+            return new __BASE__(scanner.nextFloat());
+        } else {
+            return new __BASE__(scanner.nextLine());
+        }
     }
 
     public static __BASE__ input(__BASE__ value) {
         System.out.print(value.toString() + "\n");
 
         Scanner scanner = new Scanner(System.in);
-        return new __BASE__(scanner.nextLine());
+
+        if(scanner.hasNextInt()) {
+            return new __BASE__(scanner.nextInt());
+        } else if (scanner.hasNextFloat()) {
+            return new __BASE__(scanner.nextFloat());
+        } else {
+            return new __BASE__(scanner.nextLine());
+        }
     }
 
     public static __BASE__ range(__BASE__ value){
