@@ -83,6 +83,26 @@ public class __BASE__ {
             return new __BASE__(this.__sVal + o.__sVal);
         }
 
+        if (this.__type == INTEGER && o.__type == BOOLEAN) {
+            if(o.__bVal) return new __BASE__(this.__iVal + 1);
+            else return new __BASE__(this.__iVal + 0);
+        }
+
+        if (this.__type == BOOLEAN && o.__type == INTEGER) {
+            if(this.__bVal) return new __BASE__(1 + o.__iVal);
+            else return new __BASE__(0 + o.__iVal);
+        }
+
+        if (this.__type == FLOAT && o.__type == BOOLEAN) {
+            if(o.__bVal) return new __BASE__(this.__fVal + 1);
+            else return new __BASE__(this.__fVal + 0);
+        }
+
+        if (this.__type == BOOLEAN && o.__type == FLOAT) {
+            if (this.__bVal) return new __BASE__(1 + o.__fVal);
+            else return new __BASE__(0 + o.__fVal);
+        }
+
         if (this.__type == ARRAY && o.__type == ARRAY){
             ArrayList<__BASE__> base__s = (new ArrayList<>(this.__aVal));
             base__s.addAll(o.__aVal);
@@ -113,6 +133,26 @@ public class __BASE__ {
             ArrayList<__BASE__> t = new ArrayList<>(this.__aVal);
             t.removeAll(o.__aVal);
             return new __BASE__(new ArrayList<>(t));
+        }
+
+        if (this.__type == INTEGER && o.__type == BOOLEAN) {
+            if(o.__bVal) return new __BASE__(this.__iVal - 1);
+            else return new __BASE__(this.__iVal - 0);
+        }
+
+        if (this.__type == BOOLEAN && o.__type == INTEGER) {
+            if(this.__bVal) return new __BASE__(1 - o.__iVal);
+            else return new __BASE__(0 - o.__iVal);
+        }
+
+        if (this.__type == FLOAT && o.__type == BOOLEAN) {
+            if(o.__bVal) return new __BASE__(this.__fVal - 1);
+            else return new __BASE__(this.__fVal - 0);
+        }
+
+        if (this.__type == BOOLEAN && o.__type == FLOAT) {
+            if (this.__bVal) return new __BASE__(1 - o.__fVal);
+            else return new __BASE__(0 - o.__fVal);
         }
 
         throw new UnsupportedOperationException("sub isn't support operation for types: " + this.__type + " and: " + o.__type);
@@ -174,6 +214,26 @@ public class __BASE__ {
                 str += (new __BASE__(o.__sVal)).toString() + this.__aVal.get(i).toString();
             }
             return new __BASE__(str);
+        }
+
+        if (this.__type == INTEGER && o.__type == BOOLEAN) {
+            if(o.__bVal) return new __BASE__(this.__iVal * 1);
+            else return new __BASE__(this.__iVal * 0);
+        }
+
+        if (this.__type == BOOLEAN && o.__type == INTEGER) {
+            if(this.__bVal) return new __BASE__(1 * o.__iVal);
+            else return new __BASE__(0 * o.__iVal);
+        }
+
+        if (this.__type == FLOAT && o.__type == BOOLEAN) {
+            if(o.__bVal) return new __BASE__(this.__fVal * 1);
+            else return new __BASE__(this.__fVal * 0);
+        }
+
+        if (this.__type == BOOLEAN && o.__type == FLOAT) {
+            if(this.__bVal) return new __BASE__(1 * o.__fVal);
+            else return new __BASE__(0 * o.__fVal);
         }
 
         throw new UnsupportedOperationException("mul isn't support operation for types: " + this.__type + " and: " + o.__type);
