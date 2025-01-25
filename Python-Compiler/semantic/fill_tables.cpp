@@ -815,17 +815,22 @@ void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 			// Для RTL функций
 			if (checkRTLFunctionCallParams(expr)) return;
 
-			// Для метода собственного класса
-			string className = method->varType[expr->left->identifier];
-			if (classesList[className]->methods.find(expr->right->identifier) == classesList[className]->methods.end()) {
-				throw runtime_error("S: ERROR -> Unknown method \"" + expr->right->identifier + "\" for object \"" + expr->left->identifier + "\". Class \"" +
-					clazz->name + "\" method \"" + method->name + "\"");
+			if (expr->left->exprType == _FUNCTION_CALL || expr->left->exprType == _METHOD_CALL) {
+				checkFunctionCallParams(clazz, method, expr->left);
 			}
-			int paramsCount = classesList[className]->methods[expr->right->identifier]->paramsCount - 1;
-			int argsCount = expr->argsCount;
+			else {
+				// Для метода собственного класса
+				string className = method->varType[expr->left->identifier];
+				if (classesList[className]->methods.find(expr->right->identifier) == classesList[className]->methods.end()) {
+					throw runtime_error("S: ERROR -> Unknown method \"" + expr->right->identifier + "\" for object \"" + expr->left->identifier + "\". Class \"" +
+						clazz->name + "\" method \"" + method->name + "\"");
+				}
+				int paramsCount = classesList[className]->methods[expr->right->identifier]->paramsCount - 1;
+				int argsCount = expr->argsCount;
 
-			if(paramsCount - argsCount != 0) {
-				throw runtime_error("S: ERROR -> method \"" + expr->right->identifier + "\" takes " + to_string(paramsCount) + " arguments but " + to_string(argsCount) + " was given");
+				if (paramsCount - argsCount != 0) {
+					throw runtime_error("S: ERROR -> method \"" + expr->right->identifier + "\" takes " + to_string(paramsCount) + " arguments but " + to_string(argsCount) + " was given");
+				}
 			}
 		}
 	}
@@ -1125,14 +1130,26 @@ int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr) {
 				return clazz->pushOrFindMethodRef("__BASE__", "range", "(L__BASE__;)L__BASE__;");
 			}
 			else if (expr->isConstructor && expr->funcArgs == nullptr) return clazz->pushOrFindMethodRef(expr->left->identifier, "<init>", "()V");
-			else return clazz->pushOrFindMethodRef(clazz->name, expr->left->identifier, clazz->methods[expr->left->identifier]->descriptor);
+			else {
+				if (clazz->methods.find(expr->left->identifier) != clazz->methods.end()) {
+					return clazz->pushOrFindMethodRef(clazz->name, expr->left->identifier, clazz->methods[expr->left->identifier]->descriptor);
+				}
+				else {
+					throw runtime_error("S: ERROR -> Trying call unknown function \"" + expr->left->identifier + "\". Class \"" + clazz->name + "\" method \"" + method->name + "\"");
+				}
+			}
 			break;
 		case _METHOD_CALL:
-			string className = method->varType[expr->left->identifier];
-			string methodName = expr->right->identifier;
-			string methodDescriptor = classesList[className]->methods[methodName]->descriptor;
-			int methodRefNumber = clazz->pushOrFindMethodRef(className, methodName, methodDescriptor);
-			return methodRefNumber;
+			if (expr->left->exprType == _FUNCTION_CALL || expr->left->exprType == _METHOD_CALL) {
+				defineMethodRefByExprNode(clazz, method, expr->left);
+			}
+			else {
+				string className = method->varType[expr->left->identifier];
+				string methodName = expr->right->identifier;
+				string methodDescriptor = classesList[className]->methods[methodName]->descriptor;
+				int methodRefNumber = clazz->pushOrFindMethodRef(className, methodName, methodDescriptor);
+				return methodRefNumber;
+			}
 			break;
 	} 
 }
