@@ -1,0 +1,14 @@
+def typeTest(a,b,c):
+	a = 67
+	b = "hello"
+	c[0] = 3
+
+a = 15
+b = "wasd"
+c = [1,5,7,1]
+
+typeTest(a,b,c)
+
+print(a)
+print(b)
+print(c)

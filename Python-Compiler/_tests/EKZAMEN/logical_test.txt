@@ -1,0 +1,19 @@
+a = input()
+
+def test():
+	print("TEST CALL")
+	return True
+
+if a < 10 and test():
+	print("and true")
+
+print("-----------------------")
+
+a = input()
+
+def test():
+	print("TEST CALL")
+	return True
+
+if a < 10 or test():
+	print("or true")

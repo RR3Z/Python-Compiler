@@ -1,0 +1,45 @@
+def dfs(array, row, col, rows, cols, start_color, new_color):
+    if row < 0 or row >= rows or col < 0 or col >= cols:
+        return
+    if array[row][col] != start_color:
+        return
+
+    array[row][col] = new_color
+
+    dfs(array, row + 1, col, rows, cols, start_color, new_color)  # вниз
+    dfs(array, row - 1, col, rows, cols, start_color, new_color)  # вверх
+    dfs(array, row, col + 1, rows, cols, start_color, new_color)  # вправо
+    dfs(array, row, col - 1, rows, cols, start_color, new_color)  # влево
+
+
+def flood_fill(array, x, y, new_color, rows, cols):
+    start_color = array[x][y]
+
+    if start_color == new_color:
+        return
+
+    dfs(array, x, y, rows, cols, start_color, new_color)
+
+
+field = [
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,1,0,1,1,1,1,1,1,0],
+        [0,1,0,1,0,0,0,0,1,0],
+        [0,1,0,1,0,1,1,0,1,0],
+        [0,1,0,1,0,0,1,0,1,0],
+        [0,1,0,1,0,0,1,0,1,0],
+        [0,1,0,1,1,1,1,0,1,0],
+        [0,1,0,0,0,0,0,0,1,0],
+        [0,1,1,1,1,1,1,1,1,0],
+        [0,0,0,0,0,0,0,0,0,0]
+]
+
+print("Исходное поле:")
+for i in range(0, 10):
+    print(field[i])
+
+flood_fill(field, 0, 0, 2, 10, 10)
+
+print("Поле после закраски:")
+for i in range(0, 10):
+    print(field[i])

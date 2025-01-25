@@ -1,0 +1,21 @@
+# С помощью циклов for
+def bubble_sort(arr, length):
+    n = length
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                a = arr[j]
+                arr[j] = arr[j + 1]
+                arr[j + 1] = a
+    return arr
+
+array = [1,1,1,1,1,1,1,1]
+for i in range(8):
+	array[i] = input()
+print("Исходный массив:")
+print(array)
+sorted_array = bubble_sort(array, 8)
+print("Отсортированный массив:")
+print(sorted_array)
+
+
