@@ -181,7 +181,7 @@ public class __BASE__ {
 
     public __BASE__ __div__(__BASE__ o) {
         if (this.__type == INTEGER && o.__type == INTEGER) {
-            return new __BASE__(this.__iVal / o.__iVal);
+            return new __BASE__((float)this.__iVal / o.__iVal);
         }
 
         if (this.__type == INTEGER && o.__type == FLOAT) {
