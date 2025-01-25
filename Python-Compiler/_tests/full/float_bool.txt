@@ -1,0 +1,9 @@
+print(5/True)
+#print(5/False) # ERROR
+print(True/5)
+print(False/5)
+
+print(5.15/True)
+#print(5.15/False) # ERROR
+print(True/5.15)
+print(False/5.15)

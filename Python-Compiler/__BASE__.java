@@ -196,6 +196,26 @@ public class __BASE__ {
             return new __BASE__(this.__fVal / o.__fVal);
         }
 
+        if (this.__type == INTEGER && o.__type == BOOLEAN) {
+            if(o.__bVal) return new __BASE__((float)this.__iVal / 1);
+            else throw new UnsupportedOperationException("ZeroDivisionError: " + this.__type + " and: " + o.__type);
+        }
+
+        if (this.__type == BOOLEAN && o.__type == INTEGER) {
+            if(this.__bVal) return new __BASE__((float) 1 / o.__iVal);
+            else return new __BASE__((float) 0 / o.__iVal);
+        }
+
+        if (this.__type == FLOAT && o.__type == BOOLEAN) {
+            if(o.__bVal) return new __BASE__((float)this.__fVal / 1);
+            else throw new UnsupportedOperationException("ZeroDivisionError: " + this.__type + " and: " + o.__type);
+        }
+
+        if (this.__type == BOOLEAN && o.__type == FLOAT) {
+            if(this.__bVal) return new __BASE__((float) 1 / o.__fVal);
+            else return new __BASE__((float) 0 / o.__fVal);
+        }
+
         throw new UnsupportedOperationException("div isn't support operation for types: " + this.__type + " and: " + o.__type);
     }
 
