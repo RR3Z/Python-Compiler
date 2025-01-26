@@ -257,12 +257,11 @@ void generateAttributeCode(Method* method, Class* clazz) {
 			}
 		}
 	}
-	else {
-		// return void для корректной работы JVM
-		bytes.clear();
-		bytes.push_back((char)Command::_return);
-		codeBytes.insert(codeBytes.end(), bytes.begin(), bytes.end());
-	}
+
+	// return void для корректной работы JVM
+	bytes.clear();
+	bytes.push_back((char)Command::_return);
+	codeBytes.insert(codeBytes.end(), bytes.begin(), bytes.end());
 
 	// attribute_length (u4)
 	bytes = intToFourBytes(12 + codeBytes.size());
