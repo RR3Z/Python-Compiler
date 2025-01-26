@@ -71,6 +71,7 @@ struct ExprNode {
 	int booleanFieldRef = -1;
 
 	int objectFieldRef = -1;
+	int findStrValueNum = -1;
 
 	bool isConstructor = false;
 };

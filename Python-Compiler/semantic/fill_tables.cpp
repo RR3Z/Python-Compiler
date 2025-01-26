@@ -738,6 +738,13 @@ void addRTLToClass(Class* clazz) {
 	// range
 	clazz->pushOrFindMethodRef("__BASE__", "range", "(L__BASE__;L__BASE__;)L__BASE__;");
 	clazz->pushOrFindMethodRef("__BASE__", "range", "(L__BASE__;)L__BASE__;");
+
+	// upper
+	clazz->pushOrFindMethodRef("__BASE__", "upper", "()L__BASE__;");
+	// lower
+	clazz->pushOrFindMethodRef("__BASE__", "lower", "()L__BASE__;");
+	// find
+	clazz->pushOrFindMethodRef("__BASE__", "find", "(L__BASE__;)L__BASE__;");
 }
 
 // ========= Функции проверок =========
@@ -784,6 +791,7 @@ void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 		}
 
 		if (expr->exprType == _METHOD_CALL) {
+			/*
 			// 1) Проверка на существование передаваемых аргументов
 			if (expr->funcArgs != nullptr) {
 				ExprNode* arg = expr->funcArgs->exprList->first;
@@ -832,6 +840,29 @@ void checkFunctionCallParams(Class* clazz, Method* method, ExprNode* expr) {
 					throw runtime_error("S: ERROR -> method \"" + expr->right->identifier + "\" takes " + to_string(paramsCount) + " arguments but " + to_string(argsCount) + " was given");
 				}
 			}
+			*/
+
+			if (isRTLMethodExists(clazz, expr)) {
+				checkRTLFunctionArgsCount(expr);
+
+				if (expr->left->exprType == _STRING_CONST) {
+					method->localVars.push_back("rtl_str");
+					expr->left->paramLocalVarNum = findElementIndexInVector(method->localVars, "rtl_str");
+					clazz->pushOrFindMethodRef("__BASE__", "<init>", "(Ljava/lang/String;)V");
+					expr->objectFieldRef = clazz->pushOrFindConstant(*Constant::String(clazz->pushOrFindConstant(*Constant::UTF8(expr->left->stringVal))));
+				}
+				else if (expr->left->exprType != _IDENTIFIER) {
+					throw runtime_error("S: ERROR -> UNSUPPORTED OPERAND IN LEFT PART OF METHOD CALL \"" + expr->right->identifier + "\"");
+				}
+				else {
+					if (find(method->localVars.begin(), method->localVars.end(), expr->left->identifier) == method->localVars.end()) {
+						throw runtime_error("S: ERROR -> UNKNOWN OPERAND IN LEFT PART OF METHOD CALL \"" + expr->right->identifier + "\"");
+					}
+				}
+			}
+			else {
+				throw runtime_error("S: ERROR -> UNKNOWN METHOD CALL \"" + expr->right->identifier + "\"");
+			}
 		}
 	}
 }
@@ -873,7 +904,7 @@ void isMethodExists(Class* clazz, Method* method, ExprNode* functionCall) {
 		}
 
 		if (functionCall->exprType == _METHOD_CALL) {
-			// TODO
+			if (isRTLMethodExists(clazz, functionCall)) return;
 		}
 	}
 } 
@@ -904,6 +935,32 @@ bool isRTLMethodExists(Class* clazz, ExprNode* functionCall) {
 			throw runtime_error("S: ERROR -> trying call unknown function " + functionCall->left->identifier);
 		}
 		return true;
+	}
+
+	if (functionCall->exprType == _METHOD_CALL) {
+		if (functionCall->right->identifier == "find") {
+			int methodRefNumber = clazz->findMethodRef("__BASE__", "find", "(L__BASE__;)L__BASE__;");
+			if (methodRefNumber == -1) {
+				throw runtime_error("S: ERROR -> trying call unknown method " + functionCall->right->identifier);
+			}
+			return true;
+		}
+
+		if (functionCall->right->identifier == "upper") {
+			int methodRefNumber = clazz->findMethodRef("__BASE__", "upper", "()L__BASE__;");
+			if (methodRefNumber == -1) {
+				throw runtime_error("S: ERROR -> trying call unknown method " + functionCall->right->identifier);
+			}
+			return true;
+		}
+
+		if (functionCall->right->identifier == "lower") {
+			int methodRefNumber = clazz->findMethodRef("__BASE__", "lower", "()L__BASE__;");
+			if (methodRefNumber == -1) {
+				throw runtime_error("S: ERROR -> trying call unknown method " + functionCall->right->identifier);
+			}
+			return true;
+		}
 	}
 
 	return false;
@@ -974,6 +1031,9 @@ bool isConstructorCall(Class* clazz, ExprNode* functionCall) {
 	if (functionCall->exprType == _FUNCTION_CALL) {
 		if (functionCall->funcArgs != nullptr) return false;
 		if (clazz->findMethodRef(functionCall->left->identifier, "<init>", "()V") != -1) return true;
+		return false;
+	}
+	else if (functionCall->exprType == _METHOD_CALL) {
 		return false;
 	}
 }
@@ -1056,6 +1116,22 @@ void checkForValue(Class* clazz, Method* method, ExprNode* value) {
 				throw runtime_error("S: ERROR -> Unknown variable \"" + value->left->identifier + "\" Class \"" + clazz->name + "\" method \"" + method->name + "\"");
 			}
 			break;
+	}
+}
+
+void checkRTLFunctionArgsCount(ExprNode* methodCall) {
+	if (methodCall == nullptr) return;
+
+	if(methodCall->right->identifier == "upper" && methodCall->argsCount != 0) {
+		throw runtime_error("S: ERROR -> Incorrect amount of args. Method call \"upper\".");
+	}
+
+	if (methodCall->right->identifier == "lower" && methodCall->argsCount != 0) {
+		throw runtime_error("S: ERROR -> Incorrect amount of args. Method call \"lower\".");
+	}
+
+	if (methodCall->right->identifier == "find" && methodCall->argsCount != 1) {
+		throw runtime_error("S: ERROR -> Incorrect amount of args. Method call \"find\".");
 	}
 }
 
@@ -1144,13 +1220,26 @@ int defineMethodRefByExprNode(Class* clazz, Method* method, ExprNode* expr) {
 				defineMethodRefByExprNode(clazz, method, expr->left);
 			}
 			else {
+				/*
 				string className = method->varType[expr->left->identifier];
 				string methodName = expr->right->identifier;
 				string methodDescriptor = classesList[className]->methods[methodName]->descriptor;
 				int methodRefNumber = clazz->pushOrFindMethodRef(className, methodName, methodDescriptor);
 				return methodRefNumber;
+				*/
+				if (expr->right->identifier == "upper") {
+					return clazz->pushOrFindMethodRef("__BASE__", "upper", "()L__BASE__;");
+				}
+
+				if (expr->right->identifier == "lower") {
+					return clazz->pushOrFindMethodRef("__BASE__", "lower", "()L__BASE__;");
+				}
+
+				if (expr->right->identifier == "find") {
+					return clazz->pushOrFindMethodRef("__BASE__", "find", "(L__BASE__;)L__BASE__;");
+				}
+				break;
 			}
-			break;
 	} 
 }
 

@@ -670,6 +670,33 @@ public class __BASE__ {
         throw new UnsupportedOperationException("unary_plus isn't support operation for type: " + this.__type);
     }
 
+    public __BASE__ upper() {
+        if(this.__type != STRING){
+            throw new UnsupportedOperationException("upper() isn't support operation for type: " + this.__type);
+        }
+
+        return new __BASE__(this.__sVal.toUpperCase());
+    }
+
+    public __BASE__ lower() {
+        if(this.__type != STRING){
+            throw new UnsupportedOperationException("lower() isn't support operation for type: " + this.__type);
+        }
+
+        return new __BASE__(this.__sVal.toLowerCase());
+    }
+
+    public __BASE__ find(__BASE__ o) {
+        if(this.__type != STRING){
+            throw new UnsupportedOperationException("find() isn't support operation for type: " + this.__type);
+        }
+        if(o.__type != STRING){
+            throw new UnsupportedOperationException("find() isn't support operation for type: " + o.__type);
+        }
+
+        return new __BASE__(this.__sVal.indexOf(o.__sVal));
+    }
+
     public Iterator __get_iterator__() {
         if(this.__type == INTEGER || this.__type == FLOAT || this.__type == BOOLEAN || this.__type == NIL) {
             throw new UnsupportedOperationException("__get_iterator__ isn't support operation for type: " + this.__type);

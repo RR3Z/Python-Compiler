@@ -984,6 +984,30 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			}
 			break;
 		case _METHOD_CALL:
+			if (expr->left->exprType == _STRING_CONST) {
+				result.push_back((char)Command::_new);
+
+				bytes = intToBytes(clazz->pushOrFindConstant(*Constant::Class(clazz->pushOrFindConstant(*Constant::UTF8("__BASE__")))), 2);
+				result.push_back(bytes[0]);
+				result.push_back(bytes[1]);
+
+				result.push_back((char)Command::dup);
+
+				result.push_back((char)Command::ldc_w);
+				bytes = intToBytes(expr->objectFieldRef, 2);
+				result.push_back(bytes[0]);
+				result.push_back(bytes[1]);
+
+				result.push_back((char)Command::invokespecial);
+				bytes = intToBytes(clazz->pushOrFindMethodRef("__BASE__", "<init>", "(Ljava/lang/String;)V"), 2);
+				result.push_back(bytes[0]);
+				result.push_back(bytes[1]);
+
+				result.push_back((char)Command::astore);
+				bytes = intToBytes(expr->left->paramLocalVarNum, 1);
+				result.insert(result.end(), bytes.begin(), bytes.end());
+			}
+
 			// Загружаем ссылку на объект (из которого вызываем функцию)
 			result.push_back((char)Command::aload);
 			if (clazz->name == "__PROGRAM__") {
@@ -1000,7 +1024,7 @@ vector<char> generateExpressionCode(ExprNode* expr, Class* clazz, Method* method
 			
 			result.insert(result.end(), bytes.begin(), bytes.end());
 			// Первый аргумент всегда ссылка на этот самый объект
-			result.push_back((char)Command::dup);
+			//result.push_back((char)Command::dup);
 			// Загружаем аргументы функции
 			if (expr->funcArgs != nullptr) {
 				exprCounter = expr->funcArgs->exprList->first;

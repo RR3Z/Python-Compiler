@@ -217,6 +217,7 @@ bool isConstructorCall(Class* clazz, ExprNode* functionCall);
 void checkFuncMethodCallsForErrors(Class* clazz);
 void checkAttributeRefsNodes(Class* clazz);
 void checkForValue(Class* clazz, Method* method, ExprNode* value);
+void checkRTLFunctionArgsCount(ExprNode* methodCall);
 
 // Функции для заполнения таблиц
 void fillTables(FileNode* program);
