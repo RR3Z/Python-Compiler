@@ -1,0 +1,6 @@
+a = input()
+b = input()
+print(a.upper())
+print(b.lower())
+print(a.find(b))
+print(a.find(b.lower()))
