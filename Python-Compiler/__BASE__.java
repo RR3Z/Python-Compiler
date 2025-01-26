@@ -451,6 +451,12 @@ public class __BASE__ {
             return this.__aVal.get((this.__aVal.size()) + index.__iVal);
         }
 
+        if(this.__type == STRING) {
+            if(index.__iVal<0)return new __BASE__(Character.toString(this.__sVal.charAt(this.__sVal.length() + index.__iVal)));
+            if(index.__iVal >= this.__sVal.length()) return new __BASE__();
+            return new __BASE__(Character.toString(this.__sVal.charAt(index.__iVal)));
+        }
+
         throw new UnsupportedOperationException("member_access isn't support operation for type: " + this.__type);
     }
 
